@@ -3,14 +3,20 @@ import traceback
 import numpy as np
 import pandas as pd
 from Gui.VRProcessingGUI import Ui_VRProcessing, QMainWindow
-from PySide6.QtCore import Qt, QAbstractTableModel
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel
 from PIL import Image, ImageTk, ImageSequence
+from Logs.VRLogger import sendDataToLogger
 
 
 class VRPdModel(QAbstractTableModel):
     def __init__(self, data):
         QAbstractTableModel.__init__(self)
         self._data = data
+
+    def refreshTable(self, df):
+        self.beginResetModel()
+        self._data = df
+        self.endResetModel()
 
     def rowCount(self, parent=None):
         return len(self._data.values)
@@ -50,182 +56,623 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
     """VaspReader processing class. Initialising of this class create a window for processing molecular dynamic results
        from VASP program. Use this with mainloop function, which work with events sent by window."""
     calc_const = 2 * 9.65 * 1000
-    coord_projection = ('_x', '_y', '_z')
-    direct_projection = ('_dir_1', '_dir_2', '_dir_3')
+    coordProjection = ('_x', '_y', '_z')
+    directProjection = ('_dir_1', '_dir_2', '_dir_3')
 
-    def __init__(self, app, settings, visual_window_object, print_window_object, open_gl_window_object, calculation, name, delete_after_leave):
+    @sendDataToLogger
+    def __init__(self, app, settings, visualWindowObject, printWindowObject, openGlWindowObject, calculation, name, deleteAfterLeave):
         super(VRProcessing, self).__init__()
         self.__app = app
         self.__settings = settings
         location = self.__settings.processing_window_location
-        self.__parent = visual_window_object
-        self.__logger = print_window_object
-        self.__open_gl = open_gl_window_object
+        self.__parent = visualWindowObject
+        self.__logger = printWindowObject
+        self.__openGl = openGlWindowObject
         self.setupUi(self)
-        self.link_elements_with_functions()
+        self.linkElementsWithFunctions()
         if location is not None:
             self.move(location[0], location[1])
         self.__calculation = calculation
-        self._delete_after_leave = delete_after_leave
+        self._deleteAfterLeave = deleteAfterLeave
         self._name = name
         self._selected_atoms = self.__calculation['ATOMNAMES']
 
-        self._masses = self.selected_data_form('MASSES')
-        self._selected_names = self.selected_data_form('ID')
+        self._masses = self.selectedDataForm('MASSES')
+        self._selectedNames = self.selectedDataForm('ID')
 
-        if self._selected_names:
-            self.columns_names = self.remove_subscript_in_names(self._selected_names)
-            self.coord_columns = [name + self.coord_projection[j] for name in self.columns_names for j in range(3)]
-            self.direct_columns = [name + self.direct_projection[j] for name in self.columns_names for j in range(3)]
-            self.base_df = self.form_base_pandas_df()
-            self.v_columns, self.e_columns = self.velocities_and_energies_calc()
-            self.distance_cols, self.angle_cols, self.weightmass_cols, self.sum_cols, self.difference_cols, self.divide_cols = [], [], [], [], [], []
-            self.angle_names_selected, self.divide_names_selected, self.distance_names_selected, self.difference_names_selected = [], [], [], []
-            self.base_df.drop(self.base_df.index[-1], inplace=True)
-            self.main_df = pd.DataFrame(self.base_df)
-            for v in self.v_columns:
-                del self.main_df[v]
-            for d in self.direct_columns:
-                del self.main_df[d]
-            self.coordinates_delete()
-            # self.oszicar_checkbox_unlock()
-
-            self.PMList.addItems(self.main_df.columns[1:].tolist())
-            self.RenameSelect.addItems(self.main_df.columns[1:].tolist())
-            self.DCList.addItems(self.columns_names)
-            self.AngleList.addItems(self.columns_names)
-            self.DivideList.addItems(self.columns_names)
-            # self.window['DistAtoms'].update(values=self.columns_names)
-            # self.window['AtomAngle'].update(values=self.columns_names)
-            # self.window['WeightAtom'].update(values=self.columns_names)
-            # self.update_choose_elements()
-            # self.window['DivideAtoms'].update(values=self.columns_names)
-            # self.window['SelectedAtoms'].update(self.columns_names)
+        if self._selectedNames:
+            self.columnsNames = self.removeSubscriptInNames(self._selectedNames)
+            self.coordColumns = [name + self.coordProjection[j] for name in self.columnsNames for j in range(3)]
+            self.directColumns = [name + self.directProjection[j] for name in self.columnsNames for j in range(3)]
+            self.baseDf = self.formBasePandasDf()
+            self.vColumns, self.eColumns = self.velocitiesAndEnergiesCalc()
+            self.distanceCols, self.angleCols, self.weightmassCols, self.sumCols, self.differenceCols, self.divideCols = [], [], [], [], [], []
+            self.baseDf.drop(self.baseDf.index[-1], inplace=True)
+            self.mainDf = pd.DataFrame(self.baseDf)
+            for v in self.vColumns:
+                del self.mainDf[v]
+            for d in self.directColumns:
+                del self.mainDf[d]
+            self.coordinatesDelete()
+            self.refreshLists()
         else:
-            self.main_df = pd.DataFrame()
+            self.mainDf = pd.DataFrame()
             timeArr = np.arange(0, float(self.__calculation['POTIM'][0]) * self.__calculation['STEPS_LIST'][0], float(self.__calculation['POTIM'][0]))
             for index, steps in enumerate(self.__calculation['STEPS_LIST'][1:], start=1):
-                add_timeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * steps, float(self.__calculation['POTIM'][index]))
-                timeArr = np.concatenate([timeArr, add_timeArr])
-            self.main_df.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
-            # self.window['CreateExcel'].update(disabled=True)
-            # self.window['GraphMode'].update(disabled=True)
-            # self.window['TableActiveCheck'].update(disabled=True)
-            # self.window['DelCoordCheck'].update(disabled=True)
-            # self.window['EnergyCheck'].update(disabled=True)
-            # self.oszicar_checkbox_unlock()
-        self._model = VRPdModel(self.main_df)
+                addTimeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * steps, float(self.__calculation['POTIM'][index]))
+                timeArr = np.concatenate([timeArr, addTimeArr])
+            self.mainDf.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
+        self._model = VRPdModel(self.mainDf)
         self.ViewTable.setModel(self._model)
         self.__parent.hide()
-        self.__open_gl.hide()
+        self.__openGl.hide()
 
-    def link_elements_with_functions(self):
-        ...
+    def getLogger(self):
+        return self.__logger
 
+    @sendDataToLogger
+    def linkElementsWithFunctions(self):
+        self.DCList.itemClicked.connect(self.DCListAction)
+        self.DistanceRadio.toggled.connect(self.DCListClear)
+        self.DCAddCol.clicked.connect(self.DCButtonClicked)
+        self.DCAdded.activated.connect(self.DCChooseToRemove)
+        self.DCRemoveCol.clicked.connect(lambda: self.removeColumns(self.DCAdded, self.DCRemoveCol))
+        self.PMList.itemClicked.connect(self.PMListAction)
+        self.MinusRadio.toggled.connect(self.PMListClear)
+        self.PMAddCol.clicked.connect(self.PMButtonClicked)
+        self.PMAdded.activated.connect(self.PMChooseToRemove)
+        self.PMRemoveCol.clicked.connect(lambda: self.removeColumns(self.PMAdded, self.PMRemoveCol))
+        self.AngleList.itemClicked.connect(self.AngleListAction)
+        self.AngleAddCol.clicked.connect(self.AngleButtonClicked)
+        self.AngleAdded.activated.connect(self.AngleChooseToRemove)
+        self.AngleRemoveCol.clicked.connect(lambda: self.removeColumns(self.AngleAdded, self.AngleRemoveCol))
+        self.DivideList.itemClicked.connect(self.DivideListAction)
+        self.DivideAddCol.clicked.connect(self.DivideButtonClicked)
+        self.DivideAdded.activated.connect(self.DivideChooseToRemove)
+        self.DivideRemoveCol.clicked.connect(lambda: self.removeColumns(self.DivideAdded, self.DivideRemoveCol))
+
+    @sendDataToLogger
     def closeEvent(self, event):
         self.__parent.show()
-        self.__open_gl.show()
+        self.__openGl.show()
         event.accept()
 
-    def selected_data_form(self, dict_name):
+    @sendDataToLogger
+    def refreshLists(self):
+        self.DCList.clear()
+        self.PMList.clear()
+        self.AngleList.clear()
+        self.DivideList.clear()
+        self.RenameSelect.clear()
+        self.DCList.addItems(self.columnsNames)
+        self.PMList.addItems(self.mainDf.columns[1:].tolist())
+        self.AngleList.addItems(self.columnsNames)
+        self.DivideList.addItems(self.columnsNames)
+        self.RenameSelect.addItems(self.mainDf.columns[1:].tolist())
+
+    @sendDataToLogger
+    def selectedDataForm(self, dict_name):
         return [self.__calculation[dict_name][i] for i in range(self.__calculation['ATOMNUMBER']) if 'Sel' in self._selected_atoms[i]]
 
     @staticmethod
-    def remove_subscript_in_names(names):
+    def removeSubscriptInNames(names):
         names = names.copy()
         renamed = []
         for name in names:
             renamed.append(''.join(name.split('_')))
         return renamed
 
-    def form_base_pandas_df(self):
+    @sendDataToLogger
+    def formBasePandasDf(self):
         data = []
         for step in range(self.__calculation['STEPS']):
             temp, counter = [], 0
             for atom_num in range(self.__calculation['ATOMNUMBER']):
                 if 'Sel' in self._selected_atoms[atom_num]:
                     if step > 0:
-                        bad_columns = self.atom_away(self.__calculation['DIRECT'][step][atom_num], data[step - 1][counter])
-                        if bad_columns:
-                            temp.append(self.atom_away_columns_fix(data, counter, bad_columns, step, atom_num))
+                        badColumns = self.atomAway(self.__calculation['DIRECT'][step][atom_num], data[step - 1][counter])
+                        if badColumns:
+                            temp.append(self.atomAwayColumnsFix(data, counter, badColumns, step, atom_num))
                         else:
                             temp.append(self.__calculation['DIRECT'][step][atom_num])
-                        del bad_columns
+                        del badColumns
                     else:
                         temp.append(self.__calculation['DIRECT'][step][atom_num])
                     counter += 1
             data.append(temp.copy())
             del temp
         data = np.asarray(data)
-        data = data.reshape((-1, 3 * len(self._selected_names)))
-        base_df = pd.DataFrame(data, columns=self.direct_columns)
-        if self._delete_after_leave:
-            base_df.mask(base_df >= 1, inplace=True)
-            base_df.mask(base_df <= 0, inplace=True)
+        data = data.reshape((-1, 3 * len(self._selectedNames)))
+        baseDf = pd.DataFrame(data, columns=self.directColumns)
+        if self._deleteAfterLeave:
+            baseDf.mask(baseDf >= 1, inplace=True)
+            baseDf.mask(baseDf <= 0, inplace=True)
         timeArr = np.arange(0, float(self.__calculation['POTIM'][0]) * self.__calculation['STEPS_LIST'][0], float(self.__calculation['POTIM'][0]))
         for index, _ in enumerate(self.__calculation['STEPS_LIST'][1:], start=1):
-            add_timeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * (self.__calculation['STEPS_LIST'][index] - self.__calculation['STEPS_LIST'][index - 1] + 1), float(self.__calculation['POTIM'][index]))
-            timeArr = np.concatenate([timeArr, add_timeArr])
-        base_df.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
-        for name in self.columns_names:
-            for num, proj in enumerate(self.coord_projection):
-               base_df[f'{name}{proj}'] = self.__calculation['BASIS'][0][num] * base_df[f'{name}_dir_1'] + self.__calculation['BASIS'][1][num] * base_df[f'{name}_dir_2'] + self.__calculation['BASIS'][2][num] * base_df[f'{name}_dir_3']
-        return base_df
+            addTimeArr = np.arange(timeArr[-1] + float(self.__calculation['POTIM'][index]), timeArr[-1] + float(self.__calculation['POTIM'][index]) * (self.__calculation['STEPS_LIST'][index] - self.__calculation['STEPS_LIST'][index - 1] + 1), float(self.__calculation['POTIM'][index]))
+            timeArr = np.concatenate([timeArr, addTimeArr])
+        baseDf.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
+        for name in self.columnsNames:
+            for num, proj in enumerate(self.coordProjection):
+               baseDf[f'{name}{proj}'] = self.__calculation['BASIS'][0][num] * baseDf[f'{name}_dir_1'] + self.__calculation['BASIS'][1][num] * baseDf[f'{name}_dir_2'] + self.__calculation['BASIS'][2][num] * baseDf[f'{name}_dir_3']
+        return baseDf
 
     @staticmethod
-    def atom_away(direct, data):
-        bad_columns = []
+    def atomAway(direct, data):
+        badColumns = []
         for num, _ in enumerate(direct):
             if direct[num] - data[num] > 0.9:
-                bad_columns.append((num, 'minus'))
+                badColumns.append((num, 'minus'))
             elif data[num] - direct[num] > 0.9:
-                bad_columns.append((num, 'plus'))
-        return bad_columns
+                badColumns.append((num, 'plus'))
+        return badColumns
 
-    def atom_away_columns_fix(self, data, counter, bad_columns, step, atom_num):
-        new_col = self.__calculation['DIRECT'][step][atom_num].tolist()
-        for num, operation in bad_columns:
-            expr_factor = round(abs(self.__calculation['DIRECT'][step][atom_num][num] - data[step - 1][counter][num]))
+    @sendDataToLogger
+    def atomAwayColumnsFix(self, data, counter, badColumns, step, atom_num):
+        newCol = self.__calculation['DIRECT'][step][atom_num].tolist()
+        for num, operation in badColumns:
+            exprFactor = round(abs(self.__calculation['DIRECT'][step][atom_num][num] - data[step - 1][counter][num]))
             if operation == 'plus':
-                new_col[num] = new_col[num] + expr_factor
+                newCol[num] = newCol[num] + exprFactor
             else:
-                new_col[num] = new_col[num] - expr_factor
-        return np.array(new_col)
+                newCol[num] = newCol[num] - exprFactor
+        return np.array(newCol)
 
-    def velocities_and_energies_calc(self):
-        v_columns = ['V_' + column for column in self.columns_names]
-        e_columns = ['E_' + column for column in self.columns_names]
-        for num, column in enumerate(v_columns):
-            self.base_df[column] = (self.base_df[self.columns_names[num] + '_x'].diff() ** 2 + self.base_df[self.columns_names[num] + '_y'].diff() ** 2 + self.base_df[self.columns_names[num] + '_z'].diff() ** 2) ** (1 / 2) * 1000
-            self.divine_on_POTIM(column)
-        for num, column in enumerate(e_columns):
-            self.base_df[column] = (self.base_df[v_columns[num]]) ** 2 * self._masses[num] / self.calc_const
-        self.base_df.drop(self.base_df.index[0], inplace=True)
-        self.base_df.reset_index(drop=True, inplace=True)
-        return v_columns, e_columns
+    @sendDataToLogger
+    def velocitiesAndEnergiesCalc(self):
+        vColumns = ['V_' + column for column in self.columnsNames]
+        eColumns = ['E_' + column for column in self.columnsNames]
+        for num, column in enumerate(vColumns):
+            self.baseDf[column] = (self.baseDf[self.columnsNames[num] + '_x'].diff() ** 2 + self.baseDf[self.columnsNames[num] + '_y'].diff() ** 2 + self.baseDf[self.columnsNames[num] + '_z'].diff() ** 2) ** (1 / 2) * 1000
+            self.divineOnPOTIM(column)
+        for num, column in enumerate(eColumns):
+            self.baseDf[column] = (self.baseDf[vColumns[num]]) ** 2 * self._masses[num] / self.calc_const
+        self.baseDf.drop(self.baseDf.index[0], inplace=True)
+        self.baseDf.reset_index(drop=True, inplace=True)
+        return vColumns, eColumns
 
-    def coordinates_delete(self):
-        for coord in self.coord_columns:
-            del self.main_df[coord]
+    @sendDataToLogger
+    def coordinatesDelete(self):
+        for coord in self.coordColumns:
+            del self.mainDf[coord]
 
-    def oszicar_checkbox_unlock(self):
+    @sendDataToLogger
+    def directCurveChoose(self, first, second):
+        periodical_coefficients = []
+        for proj in ['_dir_1', '_dir_2', '_dir_3']:
+            periodical_coefficients.append(round(self.baseDf[second + proj][0] - self.baseDf[first + proj][0]))
+        return np.dot(np.asarray(periodical_coefficients), self.__calculation['BASIS'])
+
+    @sendDataToLogger(operation_type='user')
+    def removeColumns(self, addedColsElement, removeElement):
+        toDelete = addedColsElement.currentText()
+        colsList = []
+        if addedColsElement == self.DCAdded:
+            colsList = self.distanceCols if toDelete in self.distanceCols else self.weightmassCols
+        elif addedColsElement == self.PMAdded:
+            colsList = self.sumCols if toDelete in self.sumCols else self.differenceCols
+        elif addedColsElement == self.AngleAdded:
+            colsList = self.angleCols
+        elif addedColsElement == self.DivideAdded:
+            colsList = self.divideCols
+
+        if colsList == self.distanceCols or colsList == self.angleCols:
+            self.baseDf.drop(columns=toDelete, inplace=True)
+            self.mainDf.drop(columns=toDelete, inplace=True)
+            colsList.remove(toDelete)
+            self.getLogger().addMessage(f'Column {toDelete} has been removed.', self.__class__.__name__)
+        elif colsList == self.sumCols or colsList == self.differenceCols:
+            self.baseDf.drop(columns=toDelete, inplace=True)
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf.drop(columns=toDelete, inplace=True)
+            colsList.remove(toDelete)
+            self.eColumns.remove(toDelete)
+            self.getLogger().addMessage(f'Column {toDelete} has been removed.', self.__class__.__name__)
+        elif colsList == self.divideCols:
+            elements = toDelete.split('_')
+            atoms = []
+            for num, element in enumerate(elements):
+                if num % 2 == 0:
+                    atoms.append(element)
+                else:
+                    atoms[-1] = atoms[-1] + '_' + element
+            toDeleteCols = [f'Evib_{toDelete}', f'Erot_{toDelete}']
+            for atom in atoms:
+                toDeleteCols.extend([f'Evib_{toDelete}({atom})', f'Erot_{toDelete}({atom})'])
+            self.baseDf.drop(columns=toDeleteCols, inplace=True)
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf.drop(columns=toDeleteCols, inplace=True)
+            colsList.remove(toDelete)
+            [self.eColumns.remove(value) for value in toDeleteCols]
+            self.getLogger().addMessage(f'Columns divided to vibrational and rotational energy {toDelete} have been removed.', self.__class__.__name__)
+        else:
+            toDeleteList = [f'{toDelete}_x', f'{toDelete}_y', f'{toDelete}_z', f'V{toDelete}', f'E{toDelete}']
+            self.baseDf.drop(columns=toDeleteList, inplace=True)
+            toDeleteList.remove(f'V{toDelete}')
+            if not self.ADel_coords_of_sel_atoms.isChecked():
+                self.mainDf.drop(columns=toDeleteList, inplace=True) if not self.ADel_energy_of_sel_atoms.isChecked() else self.mainDf.drop(columns=toDeleteList[:3], inplace=True)
+            else:
+                if not self.ADel_energy_of_sel_atoms.isChecked():
+                    self.mainDf.drop(columns=toDeleteList[-1], inplace=True)
+            self.vColumns.remove(f'V{toDelete}')
+            self.getLogger().addMessage(f'Column {self.eColumns[-1]} and linked columns have been removed.', self.__class__.__name__)
+            self.eColumns.remove(f'E{toDelete}')
+            self.columnsNames.remove(toDelete)
+            self.weightmassCols.remove(toDelete)
+        addedColsElement.removeItem(addedColsElement.currentIndex())
+        if not addedColsElement.count():
+            addedColsElement.setDisabled(True)
+            removeElement.setDisabled(True)
+        self.refreshLists()
+        self._model.refreshTable(self.mainDf)
+
+    @sendDataToLogger(operation_type='user')
+    def DCListAction(self, element):
+        selectedColumns = self.DCList.selectedItems()
+        listSize = len(selectedColumns)
+
+        if listSize == 2:
+            self.DCAddCol.setEnabled(True)
+        elif listSize < 2:
+            self.DCAddCol.setDisabled(True)
+
+        if self.DistanceRadio.isChecked():
+            if listSize > 2:
+                self.DCList.setCurrentItem(element, QItemSelectionModel.Deselect)
+        self.DCSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
+
+    @sendDataToLogger
+    def DCListClear(self, *args):
+        self.DCSelected.clear()
+        self.DCList.clearSelection()
+        self.DCAddCol.setDisabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def DCButtonClicked(self):
+        if self.DistanceRadio.isChecked():
+            self.DistanceCalculate()
+        else:
+            self.COMCalculate()
+
+    @sendDataToLogger
+    def DistanceCalculate(self):
+        first, second = sorted([item.text() for item in self.DCList.selectedItems()])
+        if f'{first}--{second}' in self.baseDf:
+            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__, result='FAILED', cause='Column has already been added')
+            self.DCListClear()
+        else:
+            coefficients = self.directCurveChoose(first, second)
+            self.baseDf[f'{first}--{second}'] = ((self.baseDf[second + '_x'] - self.baseDf[first + '_x'] - coefficients[0]) ** 2 + (self.baseDf[second + '_y'] - self.baseDf[first + '_y'] - coefficients[1]) ** 2 + (self.baseDf[second + '_z'] - self.baseDf[first + '_z'] - coefficients[2]) ** 2) ** (1 / 2)
+            self.mainDf[f'{first}--{second}'] = self.baseDf[f'{first}--{second}']
+
+            self.distanceCols.append(f'{first}--{second}')
+            if not self.DCAdded.isEnabled():
+                self.DCAdded.setEnabled(True)
+            self.DCAdded.addItem(f'{first}--{second}')
+            if not self.DCRemoveCol.isEnabled():
+                self.DCRemoveCol.setEnabled(True)
+            self.refreshLists()
+            self.DCListClear()
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f'Column {first}--{second} has been added.', self.__class__.__name__)
+
+    @sendDataToLogger
+    def COMCalculate(self, atomsList=None):
+        if atomsList is None:
+            weightmasses = sorted([item.text() for item in self.DCList.selectedItems()])
+        else:
+            weightmasses = atomsList
+        columnName = 'cm_' + '_'.join(weightmasses)
+        if f'E{columnName}' not in self.eColumns:
+            weightMassesDict = dict()
+            for name in self._selectedNames:
+                rname = ''.join(name.split('_'))
+                if rname in weightmasses:
+                    weightMassesDict[rname] = self.__calculation['MASSES'][self.__calculation['ID-TO-NUM'][name]]
+            summaryMass = sum([weightMassesDict[name] for name in weightmasses])
+            directCols = ['_dir_1', '_dir_2', '_dir_3']
+            for index, proj in enumerate(['_x', '_y', '_z']):
+                self.baseDf[f"{columnName}{directCols[index]}"] = np.zeros(self.__calculation['STEPS'] - 2)
+                self.baseDf[f"{columnName}{proj}"] = np.zeros(self.__calculation['STEPS'] - 2)
+                for atom in weightmasses:
+                    self.baseDf[f"{columnName}{proj}"] += self.baseDf[f"{atom}{proj}"] * weightMassesDict[atom] / summaryMass
+                    self.baseDf[f"{columnName}{directCols[index]}"] += self.baseDf[f"{atom}{directCols[index]}"] * weightMassesDict[atom] / summaryMass
+            self.vColumns.append(f'V{columnName}')
+            self.eColumns.append(f'E{columnName}')
+            self.baseDf[self.vColumns[-1]] = np.sqrt(self.baseDf[f'{columnName}_x'].diff() ** 2 + self.baseDf[f'{columnName}_y'].diff() ** 2 + self.baseDf[f'{columnName}_z'].diff() ** 2) * 1000
+            self.divineOnPOTIM(self.vColumns[-1], True)
+            self.baseDf[self.eColumns[-1]] = (self.baseDf[self.vColumns[-1]]) ** 2 * summaryMass / self.calc_const
+            if not self.ADel_coords_of_sel_atoms.isChecked():
+                self.mainDf.insert(len(self.columnsNames) * 3 + 1, columnName + '_dir_1', self.baseDf[columnName + '_dir_1'])
+                self.mainDf.insert(len(self.columnsNames) * 3 + 2, columnName + '_dir_2', self.baseDf[columnName + '_dir_2'])
+                self.mainDf.insert(len(self.columnsNames) * 3 + 3, columnName + '_dir_3', self.baseDf[columnName + '_dir_3'])
+                self.mainDf.insert(len(self.columnsNames) * 3 + 4, columnName + '_x', self.baseDf[columnName + '_x'])
+                self.mainDf.insert(len(self.columnsNames) * 3 + 5, columnName + '_y', self.baseDf[columnName + '_y'])
+                self.mainDf.insert(len(self.columnsNames) * 3 + 6, columnName + '_z', self.baseDf[columnName + '_z'])
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf.insert(len(self.mainDf.columns), self.eColumns[-1], self.baseDf[self.eColumns[-1]])
+            self.columnsNames.append(columnName)
+            self.refreshLists()
+            self.DCListClear()
+            self.weightmassCols.append(columnName)
+            self.DCAdded.addItem(columnName)
+
+            if not self.DCAdded.isEnabled():
+                self.DCAdded.setEnabled(True)
+            if not self.DCRemoveCol.isEnabled():
+                self.DCRemoveCol.setEnabled(True)
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f'Column {self.eColumns[-1]} has been added.', self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__, result='FAILED', cause='Column has already been added')
+            self.DCListClear()
+
+    @sendDataToLogger(operation_type='user')
+    def DCChooseToRemove(self, *args):
+        self.DCRemoveCol.setEnabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def PMListAction(self, element):
+        selectedColumns = self.PMList.selectedItems()
+        listSize = len(selectedColumns)
+
+        if listSize == 2:
+            self.PMAddCol.setEnabled(True)
+        elif listSize < 2:
+            self.PMAddCol.setDisabled(True)
+
+        if self.MinusRadio.isChecked():
+            if listSize > 2:
+                self.PMList.setCurrentItem(element, QItemSelectionModel.Deselect)
+        self.PMSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
+
+    @sendDataToLogger
+    def PMListClear(self, *args):
+        self.PMSelected.clear()
+        self.PMList.clearSelection()
+        self.PMAddCol.setDisabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def PMButtonClicked(self):
+        if self.MinusRadio.isChecked():
+            self.DifferenceCalculate()
+        else:
+            self.SumCalculate()
+
+    @sendDataToLogger
+    def SumCalculate(self):
+        sumNames = sorted([item.text() for item in self.PMList.selectedItems()])
+        sumStr = 'Sm_' + '_'.join(sumNames)
+        if sumStr not in self.sumCols:
+            dfColumns = [f'{name}' for name in sumNames]
+            self.baseDf[sumStr] = self.baseDf[dfColumns[0]]
+            for col in dfColumns[1:]:
+                self.baseDf[sumStr] += self.baseDf[col]
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf[sumStr] = self.baseDf[sumStr]
+            self.sumCols.append(sumStr)
+            self.PMAdded.addItem(sumStr)
+            self.refreshLists()
+            self.PMListClear()
+            if not self.PMAdded.isEnabled():
+                self.PMAdded.setEnabled(True)
+            if not self.PMRemoveCol.isEnabled():
+                self.PMRemoveCol.setEnabled(True)
+            self.eColumns.append(sumStr)
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f'Column {sumStr} has been added.', self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__)
+
+    @sendDataToLogger
+    def DifferenceCalculate(self):
+        first, second = [item.text() for item in self.PMList.selectedItems()]
+        differenceStr = 'Df_' + '-'.join([first, second])
+        if differenceStr not in self.differenceCols:
+            self.baseDf[differenceStr] = self.baseDf[first] - self.baseDf[second]
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf[differenceStr] = self.baseDf[differenceStr]
+            self.differenceCols.append(differenceStr)
+            self.PMAdded.addItem(differenceStr)
+            self.refreshLists()
+            self.PMListClear()
+            if not self.PMAdded.isEnabled():
+                self.PMAdded.setEnabled(True)
+            if not self.PMRemoveCol.isEnabled():
+                self.PMRemoveCol.setEnabled(True)
+            self._model.refreshTable(self.mainDf)
+            self.eColumns.append(differenceStr)
+            self.getLogger().addMessage(f'Column {differenceStr} has been added.', self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__)
+
+    @sendDataToLogger(operation_type='user')
+    def PMChooseToRemove(self, *args):
+        self.PMRemoveCol.setEnabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def AngleListAction(self, element):
+        selectedColumns = self.AngleList.selectedItems()
+        listSize = len(selectedColumns)
+
+        if listSize < 2 and self.AnglePlaneXY.isEnabled():
+            self.AnglePlaneXY.setEnabled(True)
+            self.AnglePlaneYZ.setEnabled(True)
+            self.AnglePlaneZX.setEnabled(True)
+            self.AngleAddCol.setEnabled(True)
+        elif listSize == 2 and not self.AnglePlaneXY.isEnabled():
+            self.AnglePlaneXY.setDisabled(True)
+            self.AnglePlaneYZ.setDisabled(True)
+            self.AnglePlaneZX.setDisabled(True)
+            self.AngleAddCol.setDisabled(True)
+        elif listSize == 3:
+            self.AngleAddCol.setEnabled(True)
+
+        if listSize > 3:
+            self.AngleList.setCurrentItem(element, QItemSelectionModel.Deselect)
+        self.AngleSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
+
+    @sendDataToLogger
+    def AngleListClear(self, *args):
+        self.AngleSelected.clear()
+        self.AngleList.clearSelection()
+        self.AngleAddCol.setDisabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def AngleButtonClicked(self):
+        colsNumber = self.AngleList.count()
+        if colsNumber == 1:
+            self.AngleCalculate()
+        else:
+            self.ValenceAngleCalculate()
+
+    @sendDataToLogger
+    def AngleCalculate(self):
+        atom = self.AngleList.selectedItems()[0].text()
+        angle, plane = [], ''
+        if self.AnglePlaneXY.isChecked():
+            plane = 'xy'
+        elif self.AnglePlaneYZ.isChecked():
+            plane = 'yz'
+        else:
+            plane = 'zx'
+        if f'{atom}_{plane}' not in self.angleCols:
+            self.baseDf[f'{atom}_{plane}'] = np.degrees(np.arccos(np.sqrt(self.baseDf[f'{atom}_{plane[0]}'].diff() ** 2 + self.baseDf[f'{atom}_{plane[1]}'].diff() ** 2) / np.sqrt(self.baseDf[f'{atom}_x'].diff() ** 2 + self.baseDf[f'{atom}_y'].diff() ** 2 + self.baseDf[f'{atom}_z'].diff() ** 2)))
+            self.mainDf.insert(len(self.mainDf.columns), f'{atom}_{plane}', self.baseDf[f'{atom}_{plane}'])
+            self.angleCols.append(f'{atom}_{plane}')
+            self.AngleAdded.addItem(f'{atom}_{plane}')
+            if not self.AngleAdded.isEnabled():
+                self.AngleAdded.setEnabled(True)
+            if not self.AngleRemoveCol.isEnabled():
+                self.AngleRemoveCol.setEnabled(True)
+            self.refreshLists()
+            self.AngleListClear()
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f"Column {atom}_{plane} has been added.", self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+
+    @sendDataToLogger
+    def ValenceAngleCalculate(self):
+        atoms = [item.text() for item in self.AngleList.selectedItems()]
+        if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angleCols:
+            self.baseDf[f'{atoms[0]}--{atoms[2]}'] = sum([(self.baseDf[f'{atoms[0]}{proj}'] - self.baseDf[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
+            self.baseDf[f'{atoms[0]}--{atoms[1]}'] = sum([(self.baseDf[f'{atoms[0]}{proj}'] - self.baseDf[f'{atoms[1]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
+            self.baseDf[f'{atoms[1]}--{atoms[2]}'] = sum([(self.baseDf[f'{atoms[1]}{proj}'] - self.baseDf[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
+
+            self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(np.degrees(np.arccos((self.baseDf[f'{atoms[0]}--{atoms[1]}'] + self.baseDf[f'{atoms[1]}--{atoms[2]}'] - self.baseDf[f'{atoms[0]}--{atoms[2]}']) / (2 * self.baseDf[f'{atoms[0]}--{atoms[1]}'] ** 0.5 * self.baseDf[f'{atoms[1]}--{atoms[2]}'] ** 0.5))), 2)
+
+            self.baseDf.drop(columns=[f'{atoms[0]}--{atoms[2]}', f'{atoms[0]}--{atoms[1]}', f'{atoms[1]}--{atoms[2]}'], inplace=True)
+
+            self.mainDf.insert(len(self.mainDf.columns), f'{atoms[0]}-{atoms[1]}-{atoms[2]}', self.baseDf[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'])
+            self.angleCols.append(f'{atoms[0]}-{atoms[1]}-{atoms[2]}')
+            self.AngleAdded.addItem(f'{atoms[0]}-{atoms[1]}-{atoms[2]}')
+            if not self.AngleAdded.isEnabled():
+                self.AngleAdded.setEnabled(True)
+            if not self.AngleRemoveCol.isEnabled():
+                self.AngleRemoveCol.setEnabled(True)
+            self.refreshLists()
+            self.AngleListClear()
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f"Column {atoms[0]}-{atoms[1]}-{atoms[2]} has been added.", self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+
+    @sendDataToLogger(operation_type='user')
+    def AngleChooseToRemove(self, *args):
+        self.AngleRemoveCol.setEnabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def DivideListAction(self, element):
+        selectedColumns = self.DivideList.selectedItems()
+        listSize = len(selectedColumns)
+
+        if listSize > 1 and not self.DivideAddCol.isEnabled():
+            self.DivideAddCol.setEnabled(True)
+        elif listSize == 1 and self.DivideAddCol.isEnabled():
+            self.DivideAddCol.setDisabled(True)
+
+        self.DivideSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
+
+    @sendDataToLogger
+    def DivideListClear(self, *args):
+        self.DivideSelected.clear()
+        self.DivideList.clearSelection()
+        self.DivideAddCol.setDisabled(True)
+
+    @sendDataToLogger(operation_type='user')
+    def DivideButtonClicked(self):
+        self.DivideCalculate()
+
+    @sendDataToLogger
+    def DivideCalculate(self):
+        temporaryCols = []
+        atoms = sorted([item.text() for item in self.DivideList.selectedItems()])
+        colName = '_'.join(atoms)
+        if colName not in self.divideCols:
+            self.COMCalculate(atoms)
+            for atom in atoms:
+                self.baseDf[f'cm_{colName}--{atom}'] = np.sqrt((self.baseDf[f'cm_{colName}_x'] - self.baseDf[f'{atom}_x']) ** 2 + (self.baseDf[f'cm_{colName}_y'] - self.baseDf[f'{atom}_y']) ** 2 + (self.baseDf[f'cm_{colName}_z'] - self.baseDf[f'{atom}_z']) ** 2)
+                temporaryCols.append(f'cm_{colName}--{atom}')
+            for atom in atoms:
+                self.baseDf[f'Vvib_{colName}({atom})'] = self.baseDf[f'cm_{colName}--{atom}'].diff() * 1000
+                self.divineOnPOTIM(f'Vvib_{colName}({atom})', True)
+                self.baseDf[f'Evib_{colName}({atom})'] = self.baseDf[f'Vvib_{colName}({atom})'] ** 2 * self._masses[self.columnsNames.index(atom)] / self.calc_const
+                self.baseDf[f'Vsum_{colName}({atom})'] = np.sqrt((self.baseDf[f'{atom}_x'].diff() - self.baseDf[f'cm_{colName}_x'].diff()) ** 2 + (self.baseDf[f'{atom}_y'].diff() - self.baseDf[f'cm_{colName}_y'].diff()) ** 2 + (self.baseDf[f'{atom}_z'].diff() - self.baseDf[f'cm_{colName}_z'].diff()) ** 2) * 1000
+                self.divineOnPOTIM(f'Vsum_{colName}({atom})', True)
+                self.baseDf[f'Vrot_{colName}({atom})'] = np.sqrt((self.baseDf[f'Vsum_{colName}({atom})'] ** 2 - self.baseDf[f'Vvib_{colName}({atom})'] ** 2).clip(lower=0))
+                self.baseDf[f'Erot_{colName}({atom})'] = self.baseDf[f'Vrot_{colName}({atom})'] ** 2 * self._masses[self.columnsNames.index(atom)] / self.calc_const
+                self.eColumns.extend([f'Evib_{colName}({atom})', f'Erot_{colName}({atom})'])
+                temporaryCols.extend([f'Vvib_{colName}({atom})', f'Vsum_{colName}({atom})', f'Vrot_{colName}({atom})'])
+                if not self.value['EnergyCheck']:
+                    self.mainDf.insert(len(self.mainDf.columns), f'Evib_{colName}({atom})', self.baseDf[f'Evib_{colName}({atom})'])
+                    self.mainDf.insert(len(self.mainDf.columns), f'Erot_{colName}({atom})', self.baseDf[f'Erot_{colName}({atom})'])
+            self.baseDf[f'Evib_{colName}'] = sum(self.baseDf[f'Evib_{colName}({atom})'] for atom in atoms)
+            self.baseDf[f'Erot_{colName}'] = sum(self.baseDf[f'Erot_{colName}({atom})'] for atom in atoms)
+            self.baseDf.drop(columns=temporaryCols, inplace=True)
+            temporaryCols.clear()
+            self.eColumns.extend([f'Evib_{colName}', f'Erot_{colName}'])
+            if not self.ADel_energy_of_sel_atoms.isChecked():
+                self.mainDf.insert(len(self.mainDf.columns), f'Evib_{colName}', self.baseDf[f'Evib_{colName}'])
+                self.mainDf.insert(len(self.mainDf.columns), f'Erot_{colName}', self.baseDf[f'Erot_{colName}'])
+
+            self.divideCols.append(colName)
+            self.DivideAdded.addItem(colName)
+            if not self.DivideAdded.isEnabled():
+                self.DivideAdded.setEnabled(True)
+            if not self.DivideRemoveCol.isEnabled():
+                self.DivideRemoveCol.setEnabled(True)
+            self.refreshLists()
+            self.AngleListClear()
+            self._model.refreshTable(self.mainDf)
+            self.getLogger().addMessage(f'Columns divided to vibrational and rotational energy {colName} have been added.', self.__class__.__name__)
+        else:
+            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+
+    @sendDataToLogger(operation_type='user')
+    def DivideChooseToRemove(self, *args):
+        self.DivideRemoveCol.setEnabled(True)
+
+    @sendDataToLogger
+    def oszicarCheckboxUnlock(self):
         files = os.listdir(self.__calculation['DIRECTORY'])
         for file in files:
             if 'OSZICAR' in file:
                 self.window['OSZICARcheck'].update(disabled=False)
                 break
 
-    def divine_on_POTIM(self, column, is_COM=False):
+    @sendDataToLogger
+    def divineOnPOTIM(self, column, isCOM=False):
         prev_index = 0
         for index, POTIM in enumerate(self.__calculation['POTIM']):
-            if is_COM:
+            if isCOM:
                 if index != len(self.__calculation['POTIM']) - 1:
-                    self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] = self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] / POTIM
+                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] / POTIM
                     prev_index = self.__calculation['STEPS_LIST'][index] - 1
                 else:
-                    self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
+                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
             else:
-                self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.base_df.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
+                self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
                 prev_index = self.__calculation['STEPS_LIST'][index]
 
     def save_table(self):
@@ -235,11 +682,11 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         if tabledir.endswith('.xlsx'):
             try:
                 writer = pd.ExcelWriter(tabledir)
-                self.main_df.to_excel(writer, sheet_name='my_analysis', index=False)
+                self.mainDf.to_excel(writer, sheet_name='my_analysis', index=False)
                 # Auto-adjust columns' width
-                for column in self.main_df:
-                    column_width = max(self.main_df[column].astype(str).map(len).max(), len(column))
-                    col_idx = self.main_df.columns.get_loc(column)
+                for column in self.mainDf:
+                    column_width = max(self.mainDf[column].astype(str).map(len).max(), len(column))
+                    col_idx = self.mainDf.columns.get_loc(column)
                     writer.sheets['my_analysis'].set_column(col_idx, col_idx, column_width)
                 writer.close()
                 self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
@@ -250,452 +697,22 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                            'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
         elif tabledir.endswith('.csv'):
             try:
-                self.main_df.to_csv(tabledir, index=False)
+                self.mainDf.to_csv(tabledir, index=False)
                 self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
             except Exception as err:
                 self.print('Caught exception: ' + traceback.format_exc() + '\n' +
                            'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
         elif tabledir.endswith('.html'):
             try:
-                self.main_df.to_html(tabledir, index=False, na_rep='')
+                self.mainDf.to_html(tabledir, index=False, na_rep='')
                 self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
             except Exception as err:
                 self.print('Caught exception: ' + traceback.format_exc() + '\n' +
                            'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
 
-    def distance_combo_click(self, selected_element, other_element):
-        selected = self.value[selected_element]
-        dist = self.columns_names.copy()
-        dist.remove(selected)
-        other = self.value[other_element]
-        self.window[other_element].update(values=dist)
-        self.window[other_element].update(other)
-        if self.value[other_element] != '':
-            self.window['AddDist'].update(disabled=False)
-
-    def direct_curve_choose(self, first, second):
-        periodical_coefficients = []
-        for proj in ['_dir_1', '_dir_2', '_dir_3']:
-            periodical_coefficients.append(round(self.base_df[second + proj][0] - self.base_df[first + proj][0]))
-        return np.dot(np.asarray(periodical_coefficients), self.calculation['BASIS'])
-
-    def distance_add(self):
-        first, second = self.value['DistAtoms']
-        if f'{first}--{second}' in self.base_df:
-            self.popup('Column has already been added.', title='DuplicateError')
-        else:
-            coefficients = self.direct_curve_choose(first, second)
-            self.base_df[f'{first}--{second}'] = ((self.base_df[second + '_x'] - self.base_df[first + '_x'] - coefficients[0]) ** 2 + (self.base_df[second + '_y'] - self.base_df[first + '_y'] - coefficients[1]) ** 2 + (self.base_df[second + '_z'] - self.base_df[first + '_z'] - coefficients[2]) ** 2) ** (1 / 2)
-            self.main_df[f'{first}--{second}'] = self.base_df[f'{first}--{second}']
-
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.distance_cols.append(f'{first}--{second}')
-            if len(self.distance_cols) == 1:
-                self.window['DistAdded'].update(disabled=False)
-            self.window['DistAtoms'].update(values=self.columns_names)
-            self.window['DistList'].update('')
-            self.window['DistAdded'].update(values=self.distance_cols)
-            self.window['AddDist'].update(disabled=True)
-            self.update_choose_elements()
-            self.distance_names_selected.clear()
-            self.print(f'Column {first}--{second} has been added.')
-
-    def remove_columns(self, add_element, remove_element, cols_list):
-        to_delete = self.value[add_element]
-        self.base_df.drop(columns=to_delete, inplace=True)
-        self.main_df.drop(columns=to_delete, inplace=True)
-        cols_list.remove(to_delete)
-        if len(cols_list) == 0:
-            self.window[add_element].update(disabled=True)
-            self.window[add_element].update(values=[])
-            self.window[remove_element].update(disabled=True)
-        else:
-            self.window[add_element].update(values=cols_list)
-            self.window[remove_element].update(disabled=True)
-        if self.value['TableActiveCheck']:
-            self.window['TablePreview'].update(preview_columns_form(self.main_df))
-        self.update_choose_elements()
-        self.print(f'Column {to_delete} has been removed.')
-
-    def remove_COM(self):
-        COM_delete = self.value['COMAdded']
-        to_delete = [f'{COM_delete}_x', f'{COM_delete}_y', f'{COM_delete}_z', f'V{COM_delete}', f'E{COM_delete}']
-        self.base_df.drop(columns=to_delete, inplace=True)
-        to_delete.remove(f'V{COM_delete}')
-        if not self.value['DelCoordCheck']:
-            self.main_df.drop(columns=to_delete, inplace=True) if not self.value['EnergyCheck'] else self.main_df.drop(columns=to_delete[:3], inplace=True)
-        else:
-            if not self.value['EnergyCheck']:
-                self.main_df.drop(columns=to_delete[-1], inplace=True)
-        self.v_columns.remove(f'V{COM_delete}')
-        self.print(f'Columns with {self.e_columns[-1]} have been removed.')
-        self.e_columns.remove(f'E{COM_delete}')
-        self.columns_names.remove(COM_delete)
-        self.weightmass_cols.remove(COM_delete)
-        self.window['DistAtoms'].update(values=self.columns_names)
-        self.window['AtomAngle'].update(values=self.columns_names)
-        self.window['WeightAtom'].update(values=self.columns_names)
-        self.window['RemoveAtomWeight'].update(disabled=True)
-        self.update_choose_elements()
-        if len(self.weightmass_cols) == 0:
-            self.window['COMAdded'].update(disabled=True)
-            self.window['COMAdded'].update(values=[])
-            self.window['RemoveAtomWeight'].update(disabled=True)
-        else:
-            self.window['COMAdded'].update(values=self.weightmass_cols)
-            self.window['RemoveAtomWeight'].update(disabled=True)
-        if self.value['TableActiveCheck']:
-            self.window['TablePreview'].update(preview_columns_form(self.main_df))
-
-    def angle_listbox_event(self):
-        if self.value['AtomAngle']:
-            if len(self.value['AtomAngle']) == 1:
-                self.window['xy'].update(value=False, disabled=False)
-                self.window['yz'].update(value=False, disabled=False)
-                self.window['zx'].update(value=False, disabled=False)
-                self.angle_names_selected = self.value['AtomAngle']
-                self.window['AtomList'].update(self.angle_names_selected[0])
-                self.window['AddAngle'].update(disabled=True)
-            else:
-                if len(self.value['AtomAngle']) > len(self.angle_names_selected):
-                    self.angle_names_selected.append(*set(self.value['AtomAngle']).difference(set(self.angle_names_selected)))
-                elif len(self.value['AtomAngle']) < len(self.angle_names_selected):
-                    self.angle_names_selected.remove(*set(self.angle_names_selected).difference(set(self.value['AtomAngle'])))
-                self.window['xy'].update(value=False, disabled=True)
-                self.window['yz'].update(value=False, disabled=True)
-                self.window['zx'].update(value=False, disabled=True)
-                if len(self.angle_names_selected) > 3:
-                    self.angle_names_selected = []
-                    self.window['AtomAngle'].update(set_to_index=[])
-                    self.window['AddAngle'].update(disabled=True)
-                elif len(self.angle_names_selected) == 3:
-                    self.window['AddAngle'].update(disabled=False)
-                self.window['AtomList'].update('-'.join(self.angle_names_selected))
-        else:
-            self.window['xy'].update(value=False, disabled=True)
-            self.window['yz'].update(value=False, disabled=True)
-            self.window['zx'].update(value=False, disabled=True)
-            self.window['AddAngle'].update(disabled=True)
-            self.window['AtomList'].update('')
-            self.angle_names_selected = []
-
-    def angle_plane_events(self, event_plane, *others_planes):
-        if self.value[event_plane]:
-            self.window['AddAngle'].update(disabled=False)
-            self.window[others_planes[0]].update(disabled=True)
-            self.window[others_planes[1]].update(disabled=True)
-        else:
-            self.window['AddAngle'].update(disabled=True)
-            self.window[others_planes[0]].update(disabled=False)
-            self.window[others_planes[1]].update(disabled=False)
-
-    def angle_add(self):
-        atom = self.angle_names_selected[0]
-        angle, plane = [], ''
-        for element in ['xy', 'yz', 'zx']:
-            if self.value[element]:
-                plane = element
-        if f'{atom}_{plane}' not in self.angle_cols:
-            self.base_df[f'{atom}_{plane}'] = np.degrees(np.arccos(np.sqrt(self.base_df[f'{atom}_{plane[0]}'].diff() ** 2 + self.base_df[f'{atom}_{plane[1]}'].diff() ** 2) / np.sqrt(self.base_df[f'{atom}_x'].diff() ** 2 + self.base_df[f'{atom}_y'].diff() ** 2 + self.base_df[f'{atom}_z'].diff() ** 2)))
-            self.main_df.insert(len(self.main_df.columns), f'{atom}_{plane}', self.base_df[f'{atom}_{plane}'])
-            self.print(f"Column {atom}_{plane} has been added.")
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.angle_cols.append(f'{atom}_{plane}')
-            if len(self.angle_cols) == 1:
-                self.window['AngleAdded'].update(disabled=False)
-            self.window['AngleAdded'].update(values=self.angle_cols)
-            self.window['AtomAngle'].update(set_to_index=[])
-            self.update_choose_elements()
-        else:
-            self.popup('Column already exists.', title='DuplicateError')
-        self.angle_names_selected = []
-
-    def valence_angle_add(self):
-        atoms = self.angle_names_selected
-        if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angle_cols:
-            self.base_df[f'{atoms[0]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.base_df[f'{atoms[0]}--{atoms[1]}'] = sum([(self.base_df[f'{atoms[0]}{proj}'] - self.base_df[f'{atoms[1]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-            self.base_df[f'{atoms[1]}--{atoms[2]}'] = sum([(self.base_df[f'{atoms[1]}{proj}'] - self.base_df[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
-
-            self.base_df[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'] = np.round(np.degrees(np.arccos((self.base_df[f'{atoms[0]}--{atoms[1]}'] + self.base_df[f'{atoms[1]}--{atoms[2]}'] - self.base_df[f'{atoms[0]}--{atoms[2]}']) / (2 * self.base_df[f'{atoms[0]}--{atoms[1]}'] ** 0.5 * self.base_df[f'{atoms[1]}--{atoms[2]}'] ** 0.5))), 2)
-
-            self.base_df.drop(columns=[f'{atoms[0]}--{atoms[2]}', f'{atoms[0]}--{atoms[1]}', f'{atoms[1]}--{atoms[2]}'], inplace=True)
-
-            self.main_df.insert(len(self.main_df.columns), f'{atoms[0]}-{atoms[1]}-{atoms[2]}', self.base_df[f'{atoms[0]}-{atoms[1]}-{atoms[2]}'])
-            self.print(f"Column {atoms[0]}-{atoms[1]}-{atoms[2]} has been added.")
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.angle_cols.append(f'{atoms[0]}-{atoms[1]}-{atoms[2]}')
-            if len(self.angle_cols) == 1:
-                self.window['AngleAdded'].update(disabled=False)
-            self.window['AngleAdded'].update(values=self.angle_cols)
-            self.window['AtomAngle'].update(set_to_index=[])
-            self.update_choose_elements()
-        else:
-            self.popup('Column already exists.', title='DuplicateError')
-        self.angle_names_selected = []
-
-    def weight_add(self):
-        weightmass = self.value['WeightAtom']
-        column_name = 'cm_' + '_'.join(weightmass)
-        if f'E{column_name}' not in self.e_columns:
-            weight_masses = dict()
-            for name in self.selected_names:
-                rname = ''.join(name.split('_'))
-                if rname in weightmass:
-                    weight_masses[rname] = self.calculation['MASSES'][self.calculation['ID-TO-NUM'][name]]
-            summary_mass = sum([weight_masses[name] for name in weightmass])
-            direct_cols = ['_dir_1', '_dir_2', '_dir_3']
-            for index, proj in enumerate(['_x', '_y', '_z']):
-                self.base_df[f"{column_name}{direct_cols[index]}"] = np.zeros(self.calculation['STEPS'] - 2)
-                self.base_df[f"{column_name}{proj}"] = np.zeros(self.calculation['STEPS'] - 2)
-                for atom in weightmass:
-                    self.base_df[f"{column_name}{proj}"] += self.base_df[f"{atom}{proj}"] * weight_masses[atom] / summary_mass
-                    self.base_df[f"{column_name}{direct_cols[index]}"] += self.base_df[f"{atom}{direct_cols[index]}"] * weight_masses[atom] / summary_mass
-            self.v_columns.append(f'V{column_name}')
-            self.e_columns.append(f'E{column_name}')
-            self.base_df[self.v_columns[-1]] = np.sqrt(self.base_df[f'{column_name}_x'].diff() ** 2 + self.base_df[f'{column_name}_y'].diff() ** 2 + self.base_df[f'{column_name}_z'].diff() ** 2) * 1000
-            self.divine_on_POTIM(self.v_columns[-1], is_COM=True)
-            self.base_df[self.e_columns[-1]] = (self.base_df[self.v_columns[-1]]) ** 2 * summary_mass / self.calc_const
-            if not self.value['DelCoordCheck']:
-                self.main_df.insert(len(self.columns_names) * 3 + 1, column_name + '_dir_1', self.base_df[column_name + '_dir_1'])
-                self.main_df.insert(len(self.columns_names) * 3 + 2, column_name + '_dir_2', self.base_df[column_name + '_dir_2'])
-                self.main_df.insert(len(self.columns_names) * 3 + 3, column_name + '_dir_3', self.base_df[column_name + '_dir_3'])
-                self.main_df.insert(len(self.columns_names) * 3 + 4, column_name + '_x', self.base_df[column_name + '_x'])
-                self.main_df.insert(len(self.columns_names) * 3 + 5, column_name + '_y', self.base_df[column_name + '_y'])
-                self.main_df.insert(len(self.columns_names) * 3 + 6, column_name + '_z', self.base_df[column_name + '_z'])
-            if not self.value['EnergyCheck']:
-                self.main_df.insert(len(self.main_df.columns), self.e_columns[-1], self.base_df[self.e_columns[-1]])
-            self.columns_names.append(column_name)
-            self.window['DistAtoms'].update(values=self.columns_names)
-            self.window['AtomAngle'].update(values=self.columns_names)
-            self.window['WeightAtom'].update(values=self.columns_names)
-            self.window['WeightList'].update('')
-            self.window['AddAtomWeight'].update(disabled=True)
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.weightmass_cols.append(column_name)
-            if len(self.weightmass_cols) == 1:
-                self.window['COMAdded'].update(disabled=False)
-            self.window['COMAdded'].update(values=self.weightmass_cols)
-            self.update_choose_elements()
-            self.print(f'Column {self.e_columns[-1]} has been added.')
-        else:
-            self.popup('Column has already been added!', title='DuplicateError')
-
-    def sum_add(self):
-        sum_names = self.value['SumAtom']
-        sum_str = 'Sm_' + '_'.join(sum_names)
-        if sum_str not in self.sum_cols:
-            df_columns = [f'{name}' for name in sum_names]
-            self.base_df[sum_str] = self.base_df[df_columns[0]]
-            for col in df_columns[1:]:
-                self.base_df[sum_str] += self.base_df[col]
-            if not self.value['EnergyCheck']:
-                self.main_df[sum_str] = self.base_df[sum_str]
-            self.window['SumList'].update('')
-            self.window['AddAtomSum'].update(disabled=True)
-            self.update_choose_elements()
-            self.sum_cols.append(sum_str)
-            if len(self.sum_cols) == 1:
-                self.window['SumAdded'].update(disabled=False)
-            self.window['SumAdded'].update(values=self.sum_cols)
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.e_columns.append(sum_str)
-            self.print(f'Column {sum_str} has been added.')
-        else:
-            self.popup('Column has already been added!', title='DuplicateError')
-
-    def remove_sum(self):
-        deleting_sum = self.value['SumAdded']
-        self.sum_cols.remove(deleting_sum)
-        self.base_df.drop(columns=deleting_sum, inplace=True)
-        if not self.value['EnergyCheck']:
-            self.main_df.drop(columns=deleting_sum, inplace=True)
-        if not self.sum_cols:
-            self.window['SumAdded'].update(disabled=True)
-            self.window['SumAdded'].update(values=[])
-            self.window['RemoveAtomSum'].update(disabled=True)
-        else:
-            self.window['SumAdded'].update(disabled=False)
-            self.window['SumAdded'].update(values=self.sum_cols)
-            self.window['RemoveAtomSum'].update(disabled=True)
-        self.update_choose_elements()
-        self.e_columns.remove(deleting_sum)
-        if self.value['TableActiveCheck']:
-            self.window['TablePreview'].update(preview_columns_form(self.main_df))
-        self.print(f'Column {deleting_sum} has been removed.')
-
-    def difference_add(self):
-        first, second = difference_names = self.difference_names_selected
-        difference_str = 'Df_' + '_'.join(difference_names)
-        if difference_str not in self.difference_cols:
-            self.base_df[difference_str] = self.base_df[first] - self.base_df[second]
-            if not self.value['EnergyCheck']:
-                self.main_df[difference_str] = self.base_df[difference_str]
-            self.window['MinusList'].update('')
-            self.window['AddAtomMinus'].update(disabled=True)
-            self.window['MinusAtom'].update(values=self.main_df.columns[1:])
-            self.difference_cols.append(difference_str)
-            if len(self.difference_cols) == 1:
-                self.window['MinusAdded'].update(disabled=False)
-            self.window['MinusAdded'].update(values=self.difference_cols)
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.update_choose_elements()
-            self.difference_names_selected.clear()
-            self.e_columns.append(difference_str)
-            self.print(f'Column {difference_str} has been added.')
-        else:
-            self.popup('Column has already been added!', title='DuplicateError')
-
-    def remove_difference(self):
-        deleting_difference = self.value['MinusAdded']
-        self.difference_cols.remove(deleting_difference)
-        self.base_df.drop(columns=deleting_difference, inplace=True)
-        if not self.value['EnergyCheck']:
-            self.main_df.drop(columns=deleting_difference, inplace=True)
-        if not self.difference_cols:
-            self.window['MinusAdded'].update(disabled=True)
-            self.window['MinusAdded'].update(values=[])
-            self.window['RemoveAtomMinus'].update(disabled=True)
-        else:
-            self.window['MinusAdded'].update(disabled=False)
-            self.window['MinusAdded'].update(values=self.difference_cols)
-            self.window['RemoveAtomMinus'].update(disabled=True)
-        if self.value['TableActiveCheck']:
-            self.window['TablePreview'].update(preview_columns_form(self.main_df))
-        self.update_choose_elements()
-        self.e_columns.remove(deleting_difference)
-        self.print(f'Column {deleting_difference} has been removed.')
-
-    def two_variants_listbox_click(self, names_buffer, listbox_name, selected, button_name, join_separator, sort_output):
-        values = self.value[listbox_name]
-        if values:
-            if not names_buffer:
-                names_buffer = values.copy()
-            else:
-                if len(values) > len(names_buffer):
-                    if len(names_buffer) < 2:
-                        for value in values:
-                            if value not in names_buffer:
-                                names_buffer.append(value)
-                        self.window[button_name].update(disabled=False)
-                    else:
-                        for value in values:
-                            if value not in names_buffer:
-                                names_buffer.append(value)
-                        names_buffer.pop(0)
-                        self.window[listbox_name].update(set_to_index=[index for index, name in enumerate(self.columns_names) if name in names_buffer])
-                else:
-                    for value in names_buffer:
-                        if value not in values:
-                            names_buffer.remove(value)
-                    self.window[listbox_name].update(set_to_index=[index for index, name in enumerate(self.columns_names) if name in names_buffer])
-                    self.window[button_name].update(disabled=True)
-        else:
-            names_buffer.clear()
-        if sort_output:
-            self.window[selected].update(join_separator.join(sorted(names_buffer, key=lambda x: x.split('_')[-1])))
-        else:
-            self.window[selected].update(join_separator.join(names_buffer))
-        return names_buffer
-
-    def divide_add(self):
-        temporary_columns = []
-        atoms = self.divide_names_selected
-        col_name = '_'.join(atoms)
-        if col_name not in self.divide_cols:
-            self.value['WeightAtom'] = atoms
-            self.weight_add()
-            for atom in atoms:
-                self.base_df[f'cm_{col_name}--{atom}'] = np.sqrt((self.base_df[f'cm_{col_name}_x'] - self.base_df[f'{atom}_x']) ** 2 + (self.base_df[f'cm_{col_name}_y'] - self.base_df[f'{atom}_y']) ** 2 + (self.base_df[f'cm_{col_name}_z'] - self.base_df[f'{atom}_z']) ** 2)
-                temporary_columns.append(f'cm_{col_name}--{atom}')
-            for atom in atoms:
-                self.base_df[f'Vvib_{col_name}({atom})'] = self.base_df[f'cm_{col_name}--{atom}'].diff() * 1000
-                self.divine_on_POTIM(f'Vvib_{col_name}({atom})', is_COM=True)
-                self.base_df[f'Evib_{col_name}({atom})'] = self.base_df[f'Vvib_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
-                self.base_df[f'Vsum_{col_name}({atom})'] = np.sqrt((self.base_df[f'{atom}_x'].diff() - self.base_df[f'cm_{col_name}_x'].diff()) ** 2 + (self.base_df[f'{atom}_y'].diff() - self.base_df[f'cm_{col_name}_y'].diff()) ** 2 + (self.base_df[f'{atom}_z'].diff() - self.base_df[f'cm_{col_name}_z'].diff()) ** 2) * 1000
-                self.divine_on_POTIM(f'Vsum_{col_name}({atom})', is_COM=True)
-                self.base_df[f'Vrot_{col_name}({atom})'] = np.sqrt((self.base_df[f'Vsum_{col_name}({atom})'] ** 2 - self.base_df[f'Vvib_{col_name}({atom})'] ** 2).clip(lower=0))
-                self.base_df[f'Erot_{col_name}({atom})'] = self.base_df[f'Vrot_{col_name}({atom})'] ** 2 * self.masses[self.columns_names.index(atom)] / self.calc_const
-                self.e_columns.extend([f'Evib_{col_name}({atom})', f'Erot_{col_name}({atom})'])
-                temporary_columns.extend([f'Vvib_{col_name}({atom})', f'Vsum_{col_name}({atom})', f'Vrot_{col_name}({atom})'])
-                if not self.value['EnergyCheck']:
-                    self.main_df.insert(len(self.main_df.columns), f'Evib_{col_name}({atom})', self.base_df[f'Evib_{col_name}({atom})'])
-                    self.main_df.insert(len(self.main_df.columns), f'Erot_{col_name}({atom})', self.base_df[f'Erot_{col_name}({atom})'])
-            self.base_df[f'Evib_{col_name}'] = sum(self.base_df[f'Evib_{col_name}({atom})'] for atom in atoms)
-            self.base_df[f'Erot_{col_name}'] = sum(self.base_df[f'Erot_{col_name}({atom})'] for atom in atoms)
-            self.base_df.drop(columns=temporary_columns, inplace=True)
-            temporary_columns.clear()
-            self.e_columns.extend([f'Evib_{col_name}', f'Erot_{col_name}'])
-            if not self.value['EnergyCheck']:
-                self.main_df.insert(len(self.main_df.columns), f'Evib_{col_name}', self.base_df[f'Evib_{col_name}'])
-                self.main_df.insert(len(self.main_df.columns), f'Erot_{col_name}', self.base_df[f'Erot_{col_name}'])
-
-            self.divide_cols.append(col_name)
-            self.divide_names_selected.clear()
-            self.window['DivideAtoms'].update(self.columns_names)
-            self.window['DivideList'].update('')
-            self.window['AddAtomsDivide'].update(disabled=True)
-            self.window['DivideAdded'].update(values=self.divide_cols, disabled=False)
-            self.update_choose_elements()
-            if self.value['TableActiveCheck']:
-                self.window['TablePreview'].update(preview_columns_form(self.main_df))
-            self.print(f'Columns divided to vibrational and rotational energy {col_name} have been added.')
-        else:
-            self.popup('Column has already been added!', title='DuplicateError')
-
-    def remove_divide(self):
-        deleting_divide = self.value['DivideAdded']
-        elements = deleting_divide.split('_')
-        atoms = []
-        for num, element in enumerate(elements):
-            if num % 2 == 0:
-                atoms.append(element)
-            else:
-                atoms[-1] = atoms[-1] + '_' + element
-        to_delete_cols = [f'Evib_{deleting_divide}', f'Erot_{deleting_divide}']
-        for atom in atoms:
-            to_delete_cols.extend([f'Evib_{deleting_divide}({atom})', f'Erot_{deleting_divide}({atom})'])
-        self.divide_cols.remove(deleting_divide)
-        self.base_df.drop(columns=to_delete_cols, inplace=True)
-        if not self.value['EnergyCheck']:
-            self.main_df.drop(columns=to_delete_cols, inplace=True)
-        [self.e_columns.remove(value) for value in to_delete_cols]
-        if not self.divide_cols:
-            self.window['DivideAdded'].update(disabled=True)
-            self.window['DivideAdded'].update(values=[])
-            self.window['RemoveAtomsDivide'].update(disabled=True)
-        else:
-            self.window['DivideAdded'].update(disabled=False)
-            self.window['DivideAdded'].update(values=self.difference_cols)
-            self.window['RemoveAtomsDivide'].update(disabled=True)
-        if self.value['TableActiveCheck']:
-            self.window['TablePreview'].update(preview_columns_form(self.main_df))
-        self.update_choose_elements()
-        self.print(f'Columns divided to vibrational and rotational energy {deleting_divide} have been removed.')
-
-    def update_choose_elements(self):
-        columns = list(self.main_df.columns[1:])
-        upd_columns = []
-        if self.value is not None and not self.value['DelCoordCheck']:
-            for column in columns:
-                if '_x' not in column and '_y' not in column and '_z' not in column and '_dir_1' not in column and '_dir_2' not in column and '_dir_3' not in column:
-                    upd_columns.append(column)
-        else:
-            upd_columns = columns
-        self.window['RenameColChoose'].update(values=upd_columns)
-        self.window['RenameInput'].update('', disabled=True)
-        self.window['SumAtom'].update(values=self.main_df.columns[1:])
-        self.window['MinusAtom'].update(values=self.main_df.columns[1:])
-
     def mainloop(self):
-        # self.window['TablePreview'].update(list(self.main_df.columns))
-        self.window.perform_long_operation(lambda: self.window['TablePreview'].update(preview_columns_form(self.main_df)), end_key='None')
+        # self.window['TablePreview'].update(list(self.mainDf.columns))
+        self.window.perform_long_operation(lambda: self.window['TablePreview'].update(preview_columns_form(self.mainDf)), end_key='None')
         while True:
             self.event, self.value = self.window.read()
             if self.event == sg.WINDOW_CLOSED or self.event == 'Exit':
@@ -709,51 +726,51 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                     self.window['TablePreview'].update('', disabled=True)
                     self.print('Table preview has been turned off.')
                 else:
-                    self.window['TablePreview'].update(preview_columns_form(self.main_df), disabled=True)
+                    self.window['TablePreview'].update(preview_columns_form(self.mainDf), disabled=True)
                     self.print('Table preview has been turned on.')
             if self.event == 'DelCoordCheck':
                 if self.value['DelCoordCheck']:
-                    for name in self.columns_names:
+                    for name in self.columnsNames:
                         for proj in ['_x', '_y', '_z']:
-                            self.main_df.drop(columns=f'{name}{proj}', inplace=True)
+                            self.mainDf.drop(columns=f'{name}{proj}', inplace=True)
                     self.print('Columns with coordinates of atoms have been removed.')
                     self.update_choose_elements()
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
                 else:
-                    for name in reversed(self.columns_names):
+                    for name in reversed(self.columnsNames):
                         for proj in reversed(['_x', '_y', '_z']):
-                            self.main_df.insert(1, name + proj, self.base_df[name + proj])
+                            self.mainDf.insert(1, name + proj, self.baseDf[name + proj])
                     self.print('Columns with coordinates of atoms have been added.')
                     self.update_choose_elements()
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
 
             if self.event == 'OSZICARcheck':
                 if self.value['OSZICARcheck']:
                     osz_dataframe = VROszicarProcessing(self.calculation['DIRECTORY'], self.calculation['STEPS_LIST'], self.calculation['POTIM']).oszicar_df
-                    self.main_df = pd.concat([self.main_df, osz_dataframe[osz_dataframe.columns[1:]]], axis=1)
+                    self.mainDf = pd.concat([self.mainDf, osz_dataframe[osz_dataframe.columns[1:]]], axis=1)
                     self.print('OSZICAR dataframe has been added.')
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
                 else:
-                    self.main_df.drop(columns=['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True)
+                    self.mainDf.drop(columns=['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True)
                     self.print('OSZICAR dataframe has been removed.')
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
 
             if self.event == 'EnergyCheck':
                 if self.value['EnergyCheck']:
-                    self.main_df.drop(columns=self.e_columns, inplace=True)
+                    self.mainDf.drop(columns=self.eColumns, inplace=True)
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
                     self.print('Columns with energy have been removed.')
                 else:
-                    for column in self.e_columns:
-                        self.main_df.insert(len(self.main_df.columns), column, self.base_df[column])
+                    for column in self.eColumns:
+                        self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
                     self.print('Columns with energy have been added.')
                     if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
 
             if self.event == 'DistAtoms':
                 self.distance_names_selected = self.two_variants_listbox_click(self.distance_names_selected, 'DistAtoms', 'DistList', 'AddDist', ', ', True)
@@ -763,7 +780,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 if self.value['DistAdded'] != '':
                     self.window['RemoveDist'].update(disabled=False)
             if self.event == 'RemoveDist':
-                self.remove_columns('DistAdded', 'RemoveDist', self.distance_cols)
+                self.removeColumns('DistAdded', 'RemoveDist', self.distanceCols)
 
             if self.event == 'AtomAngle':
                 self.angle_listbox_event()
@@ -782,7 +799,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 if self.value['AngleAdded'] != '':
                     self.window['RemoveAngle'].update(disabled=False)
             if self.event == 'RemoveAngle':
-                self.remove_columns('AngleAdded', 'RemoveAngle', self.angle_cols)
+                self.removeColumns('AngleAdded', 'RemoveAngle', self.angleCols)
 
             if self.event == 'WeightAtom':
                 if len(self.value['WeightAtom']) > 1:
@@ -841,14 +858,14 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                     self.window['RenameSubmit'].update(disabled=True)
             if self.event == 'RenameSubmit':
                 name = self.value['RenameInput']
-                for array in [self.e_columns, self.distance_cols, self.angle_cols, self.sum_cols, self.difference_cols, self.divide_names_selected, self.distance_names_selected, self.difference_names_selected]:
+                for array in [self.eColumns, self.distanceCols, self.angleCols, self.sumCols, self.differenceCols, self.divide_names_selected, self.distance_names_selected, self.difference_names_selected]:
                     for column in array.copy():
                         if column == self.value['RenameColChoose']:
                             array[array.index(column)] = name
-                self.base_df.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
-                self.main_df.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
+                self.baseDf.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
+                self.mainDf.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
                 if self.value['TableActiveCheck']:
-                    self.window['TablePreview'].update(preview_columns_form(self.main_df))
+                    self.window['TablePreview'].update(preview_columns_form(self.mainDf))
                 self.print(f'Column {self.value["RenameColChoose"]} has been renamed. New name is {name}.')
                 self.update_choose_elements()
 
@@ -885,5 +902,5 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             if self.event == 'GraphMode':
                 self.window.hide()
                 self.print('Entering graph window.')
-                VRGraphsProcessing(self.main_df, theme=self.theme).mainloop()
+                VRGraphsProcessing(self.mainDf, theme=self.theme).mainloop()
                 self.window.un_hide()

@@ -212,10 +212,10 @@ class VROpenGL:
         glShadeModel(GL_SMOOTH)
 
         vendor, renderer, version = GL_version()
-        self.__logger.addMessage(f"GL Vendor version: {vendor}", self.__class__.__name__)
-        self.__logger.addMessage(f"GL Renderer version: {renderer}", self.__class__.__name__)
-        self.__logger.addMessage(f"GL Version: {version}", self.__class__.__name__)
-        self.__logger.addMessage(f"Pygame Version: {pygame.__version__}\n", self.__class__.__name__)
+        self.getLogger().addMessage(f"GL Vendor version: {vendor}", self.__class__.__name__)
+        self.getLogger().addMessage(f"GL Renderer version: {renderer}", self.__class__.__name__)
+        self.getLogger().addMessage(f"GL Version: {version}", self.__class__.__name__)
+        self.getLogger().addMessage(f"Pygame Version: {pygame.__version__}\n", self.__class__.__name__)
 
         gluPerspective(45, (self.__default_display[0] / self.__default_display[1]), 0.1, 60.0)
         gluLookAt(0, 20, 0, 0, 0, 0, 0, 0, 1)
@@ -232,7 +232,7 @@ class VROpenGL:
         self._VBO_Buffers = [VRVBO(self.__primitives['Primitive'][:-1], self.__primitives['Primitive'][-1]).create_vao_buffer()]
         self.load_texture()
 
-    def get_logger(self):
+    def getLogger(self):
         return self.__logger
 
     @sendDataToLogger
@@ -435,7 +435,7 @@ class VROpenGL:
                 elif selected and self.__calculation['ATOMNAMES'][num].split('_')[-1] != 'Sel':
                     already_selected = True
         if already_selected:
-            self.__logger.addMessage('This atom was already chose.' if select else 'This atom was already deleted.', self.__class__.__name__)
+            self.getLogger().addMessage('This atom was already chose.' if select else 'This atom was already deleted.', self.__class__.__name__)
         pygame.time.wait(200)
 
     @staticmethod

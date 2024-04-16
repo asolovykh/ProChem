@@ -337,7 +337,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <item>
                 <widget class="QLineEdit" name="DCSelected">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -431,14 +434,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <item>
                 <widget class="QLineEdit" name="PMSelected">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="PMRadioLayout" stretch="1,1">
                  <item>
-                  <widget class="QRadioButton" name="PlusRadio_2">
+                  <widget class="QRadioButton" name="PlusRadio">
                    <property name="text">
                     <string>+</string>
                    </property>
@@ -448,7 +454,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QRadioButton" name="MinusRadio_2">
+                  <widget class="QRadioButton" name="MinusRadio">
                    <property name="text">
                     <string>-</string>
                    </property>
@@ -525,28 +531,34 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <item>
                 <widget class="QLineEdit" name="AngleSelected">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="AnglePlaneSelectLayout" stretch="0,0,0">
                  <item>
-                  <widget class="QCheckBox" name="AnglePlaneXY">
+                  <widget class="QRadioButton" name="AnglePlaneXY">
                    <property name="text">
                     <string>xy</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="AnglePlaneYZ">
+                  <widget class="QRadioButton" name="AnglePlaneYZ">
                    <property name="text">
                     <string>yz</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="AnglePlaneZX">
+                  <widget class="QRadioButton" name="AnglePlaneZX">
                    <property name="text">
                     <string>zx</string>
                    </property>
@@ -623,7 +635,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
                <item>
                 <widget class="QLineEdit" name="DivideSelected">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -882,10 +897,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     <addaction name="AOSZICAR"/>
     <addaction name="separator"/>
     <addaction name="AInclude_OSZICAR"/>
-    <addaction name="separator"/>
-    <addaction name="ATable"/>
-    <addaction name="separator"/>
-    <addaction name="APreview_of_table"/>
    </widget>
    <addaction name="ProcessingMenuWindow"/>
    <addaction name="ProcessingMenuOptions"/>

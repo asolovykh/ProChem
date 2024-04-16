@@ -57,7 +57,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.ToLastStep.clicked.connect(self.to_last_step)
         self.AProcessing.triggered.connect(self.processing_start)
 
-    def get_logger(self):
+    def getLogger(self):
         return self.__logger
 
     @sendDataToLogger(operation_type='user')
@@ -89,9 +89,9 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
     @sendDataToLogger
     def closeEvent(self, event):
         self.__settings.visual_window_location = self.pos().toTuple()
-        self.__logger.close()
+        self.getLogger().close()
         self.__open_gl_window._parent_window_closed = True
-        self.__logger._visual_window_closed = True
+        self.getLogger()._visual_window_closed = True
         event.accept()
 
     @sendDataToLogger(operation_type='user')
@@ -100,12 +100,12 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.APerspective.setChecked(True)
             self.AOrthographic.setChecked(False)
             self.__open_gl_window.is_perspective = True
-            self.__logger.addMessage('Changed to perspective view', self.__class__.__name__)
+            self.getLogger().addMessage('Changed to perspective view', self.__class__.__name__)
         else:
             self.APerspective.setChecked(False)
             self.AOrthographic.setChecked(True)
             self.__open_gl_window.is_perspective = False
-            self.__logger.addMessage('Changed to orthographic view', self.__class__.__name__)
+            self.getLogger().addMessage('Changed to orthographic view', self.__class__.__name__)
 
     @sendDataToLogger(operation_type='user')
     def orthographic_chose(self, checked, *args):
@@ -113,12 +113,12 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.APerspective.setChecked(False)
             self.AOrthographic.setChecked(True)
             self.__open_gl_window.is_perspective = False
-            self.__logger.addMessage('Changed to orthographic view', self.__class__.__name__)
+            self.getLogger().addMessage('Changed to orthographic view', self.__class__.__name__)
         else:
             self.APerspective.setChecked(True)
             self.AOrthographic.setChecked(False)
             self.__open_gl_window.is_perspective = True
-            self.__logger.addMessage('Changed to perspective view', self.__class__.__name__)
+            self.getLogger().addMessage('Changed to perspective view', self.__class__.__name__)
 
     @sendDataToLogger(operation_type='user')
     def background_color_change(self):
@@ -126,7 +126,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self._backgroundColor = tuple([self._backgroundColor[i] / 255 for i in range(len(self._backgroundColor))])
         self.__open_gl_window._background_color = self._backgroundColor
         self.__open_gl_window._fogColor = self._backgroundColor
-        self.__logger.addMessage(f'Background color changed to {self._backgroundColor}', self.__class__.__name__)
+        self.getLogger().addMessage(f'Background color changed to {self._backgroundColor}', self.__class__.__name__)
 
     def calculation_step_change(self):
         self.stop_step_changing()
@@ -141,16 +141,16 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.stop_step_changing()
         self.calculation_folder = self.DirectoryPath.text()
         if self.calculation_folder not in self.__calculations:
-            parser_obj = VRMD(self.calculation_folder, self.__logger)
+            parser_obj = VRMD(self.calculation_folder, self.getLogger())
             self.__calculations[self.calculation_folder] = parser_obj._parser_parameters
             if parser_obj.breaker:
                 self.__calculations.pop(self.calculation_folder)
-                parser_obj = QEMD(self.calculation_folder, self.__logger)
+                parser_obj = QEMD(self.calculation_folder, self.getLogger())
                 self.__calculations[self.calculation_folder] = parser_obj._parser_parameters
 
             if not parser_obj.breaker:
                 self.__open_gl_window.load_calculation_info(self.__calculations[self.calculation_folder])
-                self.__logger.addMessage(f'Chosen {self.calculation_folder} appended.\n', self.__class__.__name__)
+                self.getLogger().addMessage(f'Chosen {self.calculation_folder} appended.\n', self.__class__.__name__)
                 self.AddedCalculations.addItem(self.calculation_folder)
                 self.AddedCalculations.setPlaceholderText(self.calculation_folder)
                 self.StepSlider.setMaximum(self.__calculations[self.calculation_folder]['STEPS'] - 1)
@@ -168,7 +168,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.calculation_folder = list(self.__calculations.keys())[-1]
             self.__open_gl_window.load_calculation_info(self.__calculations[self.calculation_folder])
             self.StepSlider.setMaximum(self.__calculations[self.calculation_folder]['STEPS'] - 1)
-            self.__logger.addMessage(f'Changed to {self.calculation_folder}.\n', self.__class__.__name__)
+            self.getLogger().addMessage(f'Changed to {self.calculation_folder}.\n', self.__class__.__name__)
             self.AddedCalculations.setPlaceholderText(self.calculation_folder)
             index = [self.AddedCalculations.itemText(i) for i in range(self.AddedCalculations.count())].index(
                 folder_to_delete)
@@ -192,12 +192,12 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.StepSlider.setMaximum(self.__calculations[self.calculation_folder]['STEPS'] - 1)
             self.StepSlider.setValue(0)
             self.__open_gl_window._step = 0
-            self.__logger.addMessage(f'Changed to {self.calculation_folder}.\n', self.__class__.__name__)
+            self.getLogger().addMessage(f'Changed to {self.calculation_folder}.\n', self.__class__.__name__)
 
     @sendDataToLogger(operation_type='user')
     def processing_start(self):
         if self.__calculations[self.calculation_folder]['STEPS']:
-            self.__processing_window = VRProcessing(self.__app, self.__settings, self, self.__logger,
+            self.__processing_window = VRProcessing(self.__app, self.__settings, self, self.getLogger(),
                                                     self.__open_gl_window, self.__calculations[self.calculation_folder], self.calculation_folder,
                                                     self.ADelete_coordinates_after_leave_cell.isChecked())
             self.__processing_window.show()
@@ -207,7 +207,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         message = '''VaspReader is a program firstly for processing and visualizing the results of VASP calculations. \
 Have additional modes for simplify your life as more as it possible. \
 It was developed at the end of 2021 and has undergone many changes described in other features of the help menu.\n'''
-        self.__logger.addMessage(message, self.__class__.__name__, "Wrote about the program", 'user')
+        self.getLogger().addMessage(message, self.__class__.__name__, "Wrote about the program", 'user')
 
     @sendDataToLogger(operation_type='user')
     def about_the_window(self):
@@ -217,7 +217,7 @@ with POSCAR files and some others functions and visualizing of calculations wind
 lightning, background color, bounds draw and some others functions. Key assignments: +, - on keypad or keyboard or \
 mouse scroll to zoom, a - to add an atom to the list, d - to remove an atom from the list, z - to move camera left, \
 x - right, u - up, j - down, Backspace - return model to the first position, use arrows to rotate the model.\n'''
-        self.__logger.addMessage(message, self.__class__.__name__, "Wrote about the visual window", 'user')
+        self.getLogger().addMessage(message, self.__class__.__name__, "Wrote about the visual window", 'user')
 
     @sendDataToLogger(operation_type='user')
     def lattest_update(self):
@@ -234,10 +234,10 @@ keys in the visual description of the window.\n9. The bonds calculation function
 window with 3 modes: all bonds, selected bonds and the drawing trajectory tab. A description of these options can be \
 found in the update history.\n10. Reworked windows OSZICAR, POSCAR. The new graphical interface for these windows \
 allows, for example, checking curves from an OSZICAR file or drawing POSCAR/CONTCAR files in the visual window.\n'''
-        self.__logger.addMessage(message, self.__class__.__name__, "Wrote latest update info", 'user')
+        self.getLogger().addMessage(message, self.__class__.__name__, "Wrote latest update info", 'user')
 
     @sendDataToLogger(operation_type='user')
     def changes_history(self):
         with codecs.open('PreviousChanges.txt', 'r', encoding='utf-8') as previous_file:
             message = previous_file.read()
-            self.__logger.addMessage(f'{message}\n', self.__class__.__name__, "Wrote previous changes", 'user')
+            self.getLogger().addMessage(f'{message}\n', self.__class__.__name__, "Wrote previous changes", 'user')

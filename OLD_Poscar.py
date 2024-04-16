@@ -47,7 +47,7 @@ class VRPoscarForm(VRGUI, VRPrint):
             return ''.join([f'  {line[0]:24.18f}{line[1]:24.18f}{line[2]:24.18f} {self.fix_array[num][0]:2}{self.fix_array[num][1]:2}{self.fix_array[num][2]:2}\n' for num, line in enumerate(array)]) + '\n'
 
     def calculate_velocities(self):
-        self.velocities = (self.calculation['POSITIONS'][self.step + 1] - self.calculation['POSITIONS'][self.step]) / self.calculation['POTIM']
+        self.velocities = (self.calculation['POSITIONS'][self.step + 1] - self.calculation['POSITIONS'][self.step]) / self.calculation['POTIM'][-1]
 
     def velocities_to_string_POSCAR(self):
         """Calculate numpy array of velocities and convert array into string."""

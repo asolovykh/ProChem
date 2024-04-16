@@ -187,7 +187,7 @@ class VRMD:
                     self.breaker = True
                     self.__logger.addMessage('There are mistakes with reading positions and/or basis.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
 
-    def get_logger(self):
+    def getLogger(self):
         return self.__logger
 
     def __call__(self, *args, **kwargs):
@@ -229,6 +229,7 @@ class VRMD:
 
 class QEMD:
     __atomic_units_distance_constant = 1.889725988579
+    __atomic_units_time_constant_to_fs = 0.024189
 
     @sendDataToLogger
     def __init__(self, directory, logger):
@@ -239,6 +240,7 @@ class QEMD:
         self.input_file = None
         self.breaker = False
         self.number_of_atom_types = 0
+        self.masses_labels = dict()
         self._parser_parameters = {'DIRECTORY': directory, 'ATOMNAMES': [], 'ATOMSINFO': dict(), 'POTIM': [], 'STEPS_LIST': [], 'POSITIONS': [], 'POMASS': [], 'MASSES': [], 'CALC_TYPE': 'QE'}
         if self.check_for_QE_files(self.directory):
             self.read_cell_file()
@@ -248,14 +250,20 @@ class QEMD:
             self._parser_parameters = atoms_info_filling(self._parser_parameters)
             self._parser_parameters['ID'] = [self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parser_parameters['ATOMNUMBER'])]
             self._parser_parameters['ID-TO-NUM'] = {self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parser_parameters['ATOMNUMBER'])}
+            self.potim_to_fs()
         else:
             self.breaker = True
 
-    def get_logger(self):
+    def getLogger(self):
         return self.__logger
 
     def __call__(self, *args, **kwargs):
         return self._parser_parameters
+
+    @sendDataToLogger
+    def potim_to_fs(self):
+        for num, potim in enumerate(self._parser_parameters['POTIM']):
+            self._parser_parameters['POTIM'][num] = potim / self.__atomic_units_time_constant_to_fs
 
     @sendDataToLogger
     def cartesian_to_direct(self):
@@ -274,9 +282,9 @@ class QEMD:
         requirements = ['vel', 'pos', 'cel']
         for file in files:
             extension = file.split('.')[-1]
-            if extension == file and os.path.isdir(directory + '\\' + file):
+            if extension == file and os.path.isdir(directory + '/' + file):
                 folders.append(file)
-            elif extension == 'in':
+            elif extension == 'in' and not self.input_file:
                 self.input_file = file
             elif extension in requirements:
                 requirements.remove(extension)
@@ -286,7 +294,7 @@ class QEMD:
             return True
         else:
             for folder in folders:
-                result = self.check_for_QE_files(directory + '\\' + folder)
+                result = self.check_for_QE_files(directory + '/' + folder)
                 if result:
                     return True
             return False
@@ -321,6 +329,8 @@ class QEMD:
                         temp_array = []
                 else:
                     temp_array.append(list(map(float, line_info)))
+            if temp_array:
+                self._parser_parameters['POSITIONS'].append(temp_array)
         self._parser_parameters['STEPS_LIST'].append(steps_counter)
         self._parser_parameters['STEPS'] = steps_counter - 1
         self._parser_parameters['POSITIONS'] = np.array(self._parser_parameters['POSITIONS']) / self.__atomic_units_distance_constant
@@ -340,7 +350,6 @@ class QEMD:
 
     @sendDataToLogger
     def read_input_file(self):
-        mass_count = 0
         with open(self.directory + '\\' + self.input_file) as inp:
             while True:
                 line = inp.readline()
@@ -354,10 +363,9 @@ class QEMD:
                     for _ in range(self.number_of_atom_types):
                         info = inp.readline().split()[:2]
                         self._parser_parameters['POMASS'].append(float(info[-1].split('d')[0]))
+                        self.masses_labels[info[0]] = float(info[-1].split('d')[0])
                 elif 'ATOMIC_POSITIONS' in line:
                     for _ in range(self._parser_parameters['ATOMNUMBER']):
                         info = inp.readline().split()[0]
                         self._parser_parameters['ATOMNAMES'].append(info)
-                        if len(self._parser_parameters['ATOMNAMES']) > 1 and self._parser_parameters['ATOMNAMES'][-1] != self._parser_parameters['ATOMNAMES'][-2]:
-                            mass_count += 1
-                        self._parser_parameters['MASSES'].append(self._parser_parameters['POMASS'][mass_count])
+                        self._parser_parameters['MASSES'].append(self.masses_labels[info])

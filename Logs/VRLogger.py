@@ -4,13 +4,17 @@ import sqlite3
 def sendDataToLogger(func=None, operation_type='program'):
     def wrapper(func):
         def wrapped_func(*args):
+            output = None
             try:
-                args[0].get_logger().insert_logs(args[0].__class__.__name__, func.__name__, operation_type, 'IN PROGRESS')
+                args[0].getLogger().insert_logs(args[0].__class__.__name__, func.__name__, operation_type, 'IN PROGRESS')
             except AttributeError:
                 pass
-            output = func(*args)
             try:
-                args[0].get_logger().insert_logs(args[0].__class__.__name__, func.__name__, operation_type)
+                output = func(*args)
+            except Exception as err:
+                args[0].getLogger().insert_logs(args[0].__class__.__name__, func.__name__, operation_type, 'FAILED', cause='Error in function', detailed_description=err)
+            try:
+                args[0].getLogger().insert_logs(args[0].__class__.__name__, func.__name__, operation_type)
             except AttributeError:
                 pass
             return output

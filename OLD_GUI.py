@@ -437,4 +437,4 @@ class VRGUI:
         return self.window
 
 
-core_test = VRGUI(file_hosting, title='TEST', resizable=True).testloop()
+# core_test = VRGUI(file_hosting, title='TEST', resizable=True).testloop()

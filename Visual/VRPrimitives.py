@@ -21,7 +21,7 @@ class Primitives:
     def Quad(self, size):
         self.vertex_array = np.array([[-size, -size, 0.0], [size, -size, 0.0], [size, size, 0.0], [-size, size, 0.0]]) * self.scaling
         self.color_array = np.array([self.color] * len(self.vertex_array))
-        self.normal_array = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0]])
+        self.normal_array = np.array([[0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0]])
         self.textures_indexes = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
         self.indexes_array = np.array([0, 1, 2, 0, 2, 3])
         return self.vertex_array, self.color_array, self.normal_array, self.textures_indexes, self.indexes_array

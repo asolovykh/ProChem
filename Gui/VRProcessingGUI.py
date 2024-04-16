@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRProcessingGUIqfDbpD.ui'
+## Form generated from reading UI file 'VRProcessingGUIhWhnPI.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -16,11 +16,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
-    QHBoxLayout, QHeaderView, QLineEdit, QListWidget,
-    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
-    QPushButton, QRadioButton, QSizePolicy, QSpacerItem,
-    QTabWidget, QTableView, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QHBoxLayout,
+    QHeaderView, QLineEdit, QListWidget, QListWidgetItem,
+    QMainWindow, QMenu, QMenuBar, QPushButton,
+    QRadioButton, QSizePolicy, QSpacerItem, QTabWidget,
+    QTableView, QVBoxLayout, QWidget)
 import Gui.Resource_rc
 
 class Ui_VRProcessing(object):
@@ -327,7 +327,8 @@ class Ui_VRProcessing(object):
 
         self.DCSelected = QLineEdit(self.verticalLayoutWidget)
         self.DCSelected.setObjectName(u"DCSelected")
-        self.DCSelected.setEnabled(False)
+        self.DCSelected.setEnabled(True)
+        self.DCSelected.setReadOnly(True)
 
         self.DCVLayout.addWidget(self.DCSelected)
 
@@ -386,22 +387,23 @@ class Ui_VRProcessing(object):
 
         self.PMSelected = QLineEdit(self.verticalLayoutWidget_5)
         self.PMSelected.setObjectName(u"PMSelected")
-        self.PMSelected.setEnabled(False)
+        self.PMSelected.setEnabled(True)
+        self.PMSelected.setReadOnly(True)
 
         self.PMVLayout.addWidget(self.PMSelected)
 
         self.PMRadioLayout = QHBoxLayout()
         self.PMRadioLayout.setObjectName(u"PMRadioLayout")
-        self.PlusRadio_2 = QRadioButton(self.verticalLayoutWidget_5)
-        self.PlusRadio_2.setObjectName(u"PlusRadio_2")
-        self.PlusRadio_2.setChecked(True)
+        self.PlusRadio = QRadioButton(self.verticalLayoutWidget_5)
+        self.PlusRadio.setObjectName(u"PlusRadio")
+        self.PlusRadio.setChecked(True)
 
-        self.PMRadioLayout.addWidget(self.PlusRadio_2)
+        self.PMRadioLayout.addWidget(self.PlusRadio)
 
-        self.MinusRadio_2 = QRadioButton(self.verticalLayoutWidget_5)
-        self.MinusRadio_2.setObjectName(u"MinusRadio_2")
+        self.MinusRadio = QRadioButton(self.verticalLayoutWidget_5)
+        self.MinusRadio.setObjectName(u"MinusRadio")
 
-        self.PMRadioLayout.addWidget(self.MinusRadio_2)
+        self.PMRadioLayout.addWidget(self.MinusRadio)
 
         self.PMRadioLayout.setStretch(0, 1)
         self.PMRadioLayout.setStretch(1, 1)
@@ -445,23 +447,25 @@ class Ui_VRProcessing(object):
 
         self.AngleSelected = QLineEdit(self.verticalLayoutWidget_2)
         self.AngleSelected.setObjectName(u"AngleSelected")
-        self.AngleSelected.setEnabled(False)
+        self.AngleSelected.setEnabled(True)
+        self.AngleSelected.setReadOnly(True)
 
         self.AngleVLayout.addWidget(self.AngleSelected)
 
         self.AnglePlaneSelectLayout = QHBoxLayout()
         self.AnglePlaneSelectLayout.setObjectName(u"AnglePlaneSelectLayout")
-        self.AnglePlaneXY = QCheckBox(self.verticalLayoutWidget_2)
+        self.AnglePlaneXY = QRadioButton(self.verticalLayoutWidget_2)
         self.AnglePlaneXY.setObjectName(u"AnglePlaneXY")
+        self.AnglePlaneXY.setChecked(True)
 
         self.AnglePlaneSelectLayout.addWidget(self.AnglePlaneXY)
 
-        self.AnglePlaneYZ = QCheckBox(self.verticalLayoutWidget_2)
+        self.AnglePlaneYZ = QRadioButton(self.verticalLayoutWidget_2)
         self.AnglePlaneYZ.setObjectName(u"AnglePlaneYZ")
 
         self.AnglePlaneSelectLayout.addWidget(self.AnglePlaneYZ)
 
-        self.AnglePlaneZX = QCheckBox(self.verticalLayoutWidget_2)
+        self.AnglePlaneZX = QRadioButton(self.verticalLayoutWidget_2)
         self.AnglePlaneZX.setObjectName(u"AnglePlaneZX")
 
         self.AnglePlaneSelectLayout.addWidget(self.AnglePlaneZX)
@@ -506,7 +510,8 @@ class Ui_VRProcessing(object):
 
         self.DivideSelected = QLineEdit(self.verticalLayoutWidget_3)
         self.DivideSelected.setObjectName(u"DivideSelected")
-        self.DivideSelected.setEnabled(False)
+        self.DivideSelected.setEnabled(True)
+        self.DivideSelected.setReadOnly(True)
 
         self.DivideVLayout.addWidget(self.DivideSelected)
 
@@ -668,10 +673,6 @@ class Ui_VRProcessing(object):
         self.ProcessingMenuOptions.addAction(self.AOSZICAR)
         self.ProcessingMenuOptions.addSeparator()
         self.ProcessingMenuOptions.addAction(self.AInclude_OSZICAR)
-        self.ProcessingMenuOptions.addSeparator()
-        self.ProcessingMenuOptions.addAction(self.ATable)
-        self.ProcessingMenuOptions.addSeparator()
-        self.ProcessingMenuOptions.addAction(self.APreview_of_table)
 
         self.retranslateUi(VRProcessing)
 
@@ -698,8 +699,8 @@ class Ui_VRProcessing(object):
         self.DCAddCol.setText(QCoreApplication.translate("VRProcessing", u"Add Column", None))
         self.DCRemoveCol.setText(QCoreApplication.translate("VRProcessing", u"Remove Column", None))
         self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.DC), QCoreApplication.translate("VRProcessing", u"Distance|COM", None))
-        self.PlusRadio_2.setText(QCoreApplication.translate("VRProcessing", u"+", None))
-        self.MinusRadio_2.setText(QCoreApplication.translate("VRProcessing", u"-", None))
+        self.PlusRadio.setText(QCoreApplication.translate("VRProcessing", u"+", None))
+        self.MinusRadio.setText(QCoreApplication.translate("VRProcessing", u"-", None))
         self.PMAddCol.setText(QCoreApplication.translate("VRProcessing", u"Add Column", None))
         self.PMRemoveCol.setText(QCoreApplication.translate("VRProcessing", u"Remove Column", None))
         self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.PM), QCoreApplication.translate("VRProcessing", u"+|-", None))
