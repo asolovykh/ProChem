@@ -939,6 +939,9 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Add to table</string>
    </property>

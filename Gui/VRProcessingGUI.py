@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRProcessingGUIhWhnPI.ui'
+## Form generated from reading UI file 'VRProcessingGUIcaurwB.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -267,6 +267,7 @@ class Ui_VRProcessing(object):
         self.AInclude_OSZICAR = QAction(VRProcessing)
         self.AInclude_OSZICAR.setObjectName(u"AInclude_OSZICAR")
         self.AInclude_OSZICAR.setCheckable(True)
+        self.AInclude_OSZICAR.setEnabled(False)
         self.APreview_of_table = QAction(VRProcessing)
         self.APreview_of_table.setObjectName(u"APreview_of_table")
         self.APreview_of_table.setCheckable(True)

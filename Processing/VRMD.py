@@ -5,65 +5,65 @@ import numpy as np
 from Logs.VRLogger import sendDataToLogger
 
 
-def deleted_positions_to_none(direct_positions_array, positions_array):
-    for step in range(len(direct_positions_array)):
-        for atom in range(len(direct_positions_array[step])):
-            for proj in range(len(direct_positions_array[step][atom])):
-                if direct_positions_array[step][atom][proj] == 10.:
-                    positions_array[step][atom][proj] = None
+def deletedPositionsToNone(directPositionsArray, positionsArray):
+    for step in range(len(directPositionsArray)):
+        for atom in range(len(directPositionsArray[step])):
+            for proj in range(len(directPositionsArray[step][atom])):
+                if directPositionsArray[step][atom][proj] == 10.:
+                    positionsArray[step][atom][proj] = None
 
 
-def atoms_info_filling(dictionary):
+def atomsInfoFilling(dictionary):
     dictionary['RADII'] = []
     for _, name in enumerate(set(dictionary['ATOMNAMES'])):
         dictionary['ATOMSINFO'][name] = {'COLORVALUE': [], 'RADII': 1, 'FILLED': False}
 
     for i in range(dictionary['ATOMNUMBER']):
         atom = dictionary['ATOMNAMES'][i]
-        now_filling_atom = dictionary['ATOMSINFO'][dictionary['ATOMNAMES'][i]]
-        if not now_filling_atom['FILLED']:
+        nowFillingAtom = dictionary['ATOMSINFO'][dictionary['ATOMNAMES'][i]]
+        if not nowFillingAtom['FILLED']:
             if atom == 'O':
-                now_filling_atom['COLORVALUE'] = np.asarray([1, 0, 0]) # 'red'
-                now_filling_atom['RADII'] = 0.3
+                nowFillingAtom['COLORVALUE'] = np.asarray([1, 0, 0]) # 'red'
+                nowFillingAtom['RADII'] = 0.3
             elif atom == 'Si':
-                now_filling_atom['COLORVALUE'] = np.asarray([1, 1, 0])  # 'yellow'
-                now_filling_atom['RADII'] = 0.4
+                nowFillingAtom['COLORVALUE'] = np.asarray([1, 1, 0])  # 'yellow'
+                nowFillingAtom['RADII'] = 0.4
             elif atom == 'H':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.5, 0.5, 0.5])  # 'gray'
-                now_filling_atom['RADII'] = 0.2
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.5, 0.5, 0.5])  # 'gray'
+                nowFillingAtom['RADII'] = 0.2
             elif atom == 'C':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.2, 0.2, 0.2])  # 'black'
-                now_filling_atom['RADII'] = 0.33
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.2, 0.2, 0.2])  # 'black'
+                nowFillingAtom['RADII'] = 0.33
             elif atom == 'He':
-                now_filling_atom['COLORVALUE'] = np.asarray([0, 1, 0])  # 'green'
-                now_filling_atom['RADII'] = 0.18
+                nowFillingAtom['COLORVALUE'] = np.asarray([0, 1, 0])  # 'green'
+                nowFillingAtom['RADII'] = 0.18
             elif atom == 'Ar':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.6, 0, 0.6])  # 'purple'
-                now_filling_atom['RADII'] = 0.34
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.6, 0, 0.6])  # 'purple'
+                nowFillingAtom['RADII'] = 0.34
             elif atom == 'Xe':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.05, 0, 0.6])  # 'blue'
-                now_filling_atom['RADII'] = 0.38
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.05, 0, 0.6])  # 'blue'
+                nowFillingAtom['RADII'] = 0.38
             elif atom == 'Mo':
-                now_filling_atom['COLORVALUE'] = np.asarray([0, 0.78, 0.78]) # old violet 0.63, 0, 0.63 '#00c6c6' #a100a1
-                now_filling_atom['RADII'] = 0.5
+                nowFillingAtom['COLORVALUE'] = np.asarray([0, 0.78, 0.78]) # old violet 0.63, 0, 0.63 '#00c6c6' #a100a1
+                nowFillingAtom['RADII'] = 0.5
             elif atom == 'S':
-                now_filling_atom['COLORVALUE'] = np.asarray([1.0, 1.0, 0])  # '#ffff00'
-                now_filling_atom['RADII'] = 0.36
+                nowFillingAtom['COLORVALUE'] = np.asarray([1.0, 1.0, 0])  # '#ffff00'
+                nowFillingAtom['RADII'] = 0.36
             elif atom == 'N':
-                now_filling_atom['COLORVALUE'] = np.asarray([0, 0, 1]) # old light blue '#0000ff'
-                now_filling_atom['RADII'] = 0.24
+                nowFillingAtom['COLORVALUE'] = np.asarray([0, 0, 1]) # old light blue '#0000ff'
+                nowFillingAtom['RADII'] = 0.24
             elif atom == 'Ne':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.543, 0.27, 0.07])  # '#8b4513'
-                now_filling_atom['RADII'] = 0.16
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.543, 0.27, 0.07])  # '#8b4513'
+                nowFillingAtom['RADII'] = 0.16
             elif atom == 'Cl':
-                now_filling_atom['COLORVALUE'] = np.asarray([0.12, 0.77, 0.65])  # '1fc4a6'
-                now_filling_atom['RADII'] = 0.3
+                nowFillingAtom['COLORVALUE'] = np.asarray([0.12, 0.77, 0.65])  # '1fc4a6'
+                nowFillingAtom['RADII'] = 0.3
             else:
                 r, g, b = random.random(), random.random(), random.random()
                 rad = random.uniform(0.24, 0.42)
-                now_filling_atom['COLORVALUE'] = np.asarray([r, g, b])
-                now_filling_atom['RADII'] = rad
-            now_filling_atom['FILLED'] = True
+                nowFillingAtom['COLORVALUE'] = np.asarray([r, g, b])
+                nowFillingAtom['RADII'] = rad
+            nowFillingAtom['FILLED'] = True
 
 
     for i in range(dictionary['ATOMNUMBER']):
@@ -71,18 +71,18 @@ def atoms_info_filling(dictionary):
     return dictionary
 
 
-def form_atoms_with_nums_dict(parser_parameters):
-    parser_parameters['ATOM-NUMBERS'] = dict()
-    for uniq_atom in set(parser_parameters['ATOMNAMES']):
-        for number, atom in enumerate(parser_parameters['ATOMNAMES']):
-            if atom == uniq_atom:
-                stripped_atom = uniq_atom.rstrip()
-                if stripped_atom in parser_parameters['ATOM-NUMBERS']:
-                    parser_parameters['ATOM-NUMBERS'][stripped_atom].append(number)
+def formAtomsWithNumsDict(parserParameters):
+    parserParameters['ATOM-NUMBERS'] = dict()
+    for uniqAtom in set(parserParameters['ATOMNAMES']):
+        for number, atom in enumerate(parserParameters['ATOMNAMES']):
+            if atom == uniqAtom:
+                strippedAtom = uniqAtom.rstrip()
+                if strippedAtom in parserParameters['ATOM-NUMBERS']:
+                    parserParameters['ATOM-NUMBERS'][strippedAtom].append(number)
                 else:
-                    parser_parameters['ATOM-NUMBERS'][stripped_atom] = [number]
-    for key in parser_parameters['ATOM-NUMBERS']:
-        parser_parameters['ATOM-NUMBERS'][key] = np.array(parser_parameters['ATOM-NUMBERS'][key])
+                    parserParameters['ATOM-NUMBERS'][strippedAtom] = [number]
+    for key in parserParameters['ATOM-NUMBERS']:
+        parserParameters['ATOM-NUMBERS'][key] = np.array(parserParameters['ATOM-NUMBERS'][key])
 
 
 class VRMD:
@@ -90,99 +90,99 @@ class VRMD:
     @sendDataToLogger
     def __init__(self, directory, logger):
         self.__logger = logger
-        self._parser_parameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP'}
+        self._parserParameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP'}
         self.XMLLIST = []
         vaspnum, self.breaker = 0, False
         try:
             for vaspfile in os.listdir(directory):
                 if vaspfile.endswith('.xml'):
                     vaspnum += 1
-                    self._parser_parameters[vaspfile] = {'ATOMNAMES': [], 'ATOMNUMBER': 0, 'POMASS': [], 'POSITIONS': [], 'POTIM': 0., 'TYPE': []}
+                    self._parserParameters[vaspfile] = {'ATOMNAMES': [], 'ATOMNUMBER': 0, 'POMASS': [], 'POSITIONS': [], 'POTIM': 0., 'TYPE': []}
                     self.XMLLIST.append(vaspfile)
         except AttributeError as err:
             self.__logger.addMessage('Exception occurred when watching for vaspruns in directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Directory reading', detailed_description=err)
         self.XMLLIST.sort()
-        self._parser_parameters['XMLLIST'] = self.XMLLIST
+        self._parserParameters['XMLLIST'] = self.XMLLIST
         if vaspnum == 0:
             self.breaker = True
             self.__logger.addMessage('There are no Vasprun files in the directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='No vaspruns')
         elif vaspnum != 0:
-            for v_ind in range(len(self.XMLLIST)):
-                POTIM_read, BASIS_read = True, True
-                first_read_check, first_cord_read = True, True
-                with open(directory + '\\' + self.XMLLIST[v_ind], 'r') as VASP:
+            for vInd in range(len(self.XMLLIST)):
+                POTIMRead, BASISRead = True, True
+                firstReadCheck, firstCoordRead = True, True
+                with open(directory + '\\' + self.XMLLIST[vInd], 'r') as VASP:
                     while True:
                         line = VASP.readline()
                         if not line:
                             break
                         if '<atoms>' in line:
-                            self._parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER'] = int(line.split()[1])
+                            self._parserParameters[self.XMLLIST[vInd]]['ATOMNUMBER'] = int(line.split()[1])
                         if '<field type="int">atomtype</field>' in line:
                             VASP.readline()
-                            for index in range(self._parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER']):
+                            for index in range(self._parserParameters[self.XMLLIST[vInd]]['ATOMNUMBER']):
                                 atomtype = VASP.readline()
-                                self._parser_parameters[self.XMLLIST[v_ind]]['ATOMNAMES'].append((atomtype.split('>')[2]).split('<')[0])
-                                self._parser_parameters[self.XMLLIST[v_ind]]['TYPE'].append(int(atomtype.split('<')[4].split('>')[1]))
-                        if POTIM_read and 'name="POTIM">' in line:
-                            self._parser_parameters[self.XMLLIST[v_ind]]['POTIM'] = float(line.split()[2].split('<')[0])
-                            POTIM_read = False
+                                self._parserParameters[self.XMLLIST[vInd]]['ATOMNAMES'].append((atomtype.split('>')[2]).split('<')[0])
+                                self._parserParameters[self.XMLLIST[vInd]]['TYPE'].append(int(atomtype.split('<')[4].split('>')[1]))
+                        if POTIMRead and 'name="POTIM">' in line:
+                            self._parserParameters[self.XMLLIST[vInd]]['POTIM'] = float(line.split()[2].split('<')[0])
+                            POTIMRead = False
                         if 'name="POMASS">' in line:
                             for mass in line.split()[2:-1]:
-                                self._parser_parameters[self.XMLLIST[v_ind]]['POMASS'].append(float(mass))
-                            self._parser_parameters[self.XMLLIST[v_ind]]['POMASS'].append(float((line.split()[-1]).split('<')[0]))
+                                self._parserParameters[self.XMLLIST[vInd]]['POMASS'].append(float(mass))
+                            self._parserParameters[self.XMLLIST[vInd]]['POMASS'].append(float((line.split()[-1]).split('<')[0]))
                         if '<varray name="positions" >' in line:  # <varray name="positions" >
                             try:
-                                if first_read_check:
-                                    first_read_check = False
+                                if firstReadCheck:
+                                    firstReadCheck = False
                                 else:
-                                    array = [list(map(float, VASP.readline().split()[1:4])) for _ in range(self._parser_parameters[self.XMLLIST[v_ind]]['ATOMNUMBER'])]
-                                    if first_cord_read:
-                                        self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'].append(array)
-                                        first_cord_read = False
-                                    if array != self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'][-1]:
-                                        self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'].append(array)
+                                    array = [list(map(float, VASP.readline().split()[1:4])) for _ in range(self._parserParameters[self.XMLLIST[vInd]]['ATOMNUMBER'])]
+                                    if firstCoordRead:
+                                        self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'].append(array)
+                                        firstCoordRead = False
+                                    if array != self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'][-1]:
+                                        self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'].append(array)
                             except Exception as err:
                                 self.breaker = True
                                 self.__logger.addMessage('There are mistakes with reading positions.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
-                        if BASIS_read and '<varray name="basis" >' in line:
-                            basis_str = [VASP.readline() for _ in range(3)]
-                            basis = [list(map(float, basis_str[index].split()[1:4])) for index in range(len(basis_str))]
-                            self._parser_parameters[self.XMLLIST[v_ind]]['BASIS'] = basis
-                            BASIS_read = False
-                self._parser_parameters[self.XMLLIST[v_ind]]['VASPLEN'] = len(self._parser_parameters[self.XMLLIST[v_ind]]['POSITIONS'])
-            self._parser_parameters['MASSES'] = [self._parser_parameters[self.XMLLIST[0]]['POMASS'][index - 1] for index in self._parser_parameters[self.XMLLIST[0]]['TYPE']]
-            self._parser_parameters['STEPS_LIST'] = [self._parser_parameters[self.XMLLIST[0]]['VASPLEN']]
+                        if BASISRead and '<varray name="basis" >' in line:
+                            basisStr = [VASP.readline() for _ in range(3)]
+                            basis = [list(map(float, basisStr[index].split()[1:4])) for index in range(len(basisStr))]
+                            self._parserParameters[self.XMLLIST[vInd]]['BASIS'] = basis
+                            BASISRead = False
+                self._parserParameters[self.XMLLIST[vInd]]['VASPLEN'] = len(self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'])
+            self._parserParameters['MASSES'] = [self._parserParameters[self.XMLLIST[0]]['POMASS'][index - 1] for index in self._parserParameters[self.XMLLIST[0]]['TYPE']]
+            self._parserParameters['STEPS_LIST'] = [self._parserParameters[self.XMLLIST[0]]['VASPLEN']]
             for xml in self.XMLLIST[1:]:
-                self._parser_parameters['STEPS_LIST'].append(self._parser_parameters['STEPS_LIST'][-1] + self._parser_parameters[xml]['VASPLEN'] - 1)
-            self._parser_parameters['STEPS'] = sum([self._parser_parameters[xml]['VASPLEN'] for xml in self.XMLLIST]) - len(self.XMLLIST) + 1
-            self._parser_parameters['ATOMNAMES'] = self._parser_parameters[self.XMLLIST[0]]['ATOMNAMES']
-            form_atoms_with_nums_dict(self._parser_parameters)
-            self.removed_atoms_find(self._parser_parameters)
-            self.position_array_form(self._parser_parameters)
-            self._parser_parameters['POTIM'] = [self._parser_parameters[xml_file]['POTIM'] for xml_file in self._parser_parameters['XMLLIST']]
+                self._parserParameters['STEPS_LIST'].append(self._parserParameters['STEPS_LIST'][-1] + self._parserParameters[xml]['VASPLEN'] - 1)
+            self._parserParameters['STEPS'] = sum([self._parserParameters[xml]['VASPLEN'] for xml in self.XMLLIST]) - len(self.XMLLIST) + 1
+            self._parserParameters['ATOMNAMES'] = self._parserParameters[self.XMLLIST[0]]['ATOMNAMES']
+            formAtomsWithNumsDict(self._parserParameters)
+            self.removedAtomsFind(self._parserParameters)
+            self.positionArrayForm(self._parserParameters)
+            self._parserParameters['POTIM'] = [self._parserParameters[xml_file]['POTIM'] for xml_file in self._parserParameters['XMLLIST']]
             if not self.breaker:
                 try:
-                    self._parser_parameters['POSITIONS'] = np.array(self._parser_parameters['POSITIONS'])
-                    self._parser_parameters['BASIS'] = self._parser_parameters[self._parser_parameters['XMLLIST'][0]]['BASIS']
-                    self._parser_parameters['ATOMNUMBER'] = self._parser_parameters[self._parser_parameters['XMLLIST'][0]]['ATOMNUMBER']
-                    for i in range(self._parser_parameters['ATOMNUMBER']):
-                        if self._parser_parameters['ATOMNAMES'][i][-1] == ' ':
-                            self._parser_parameters['ATOMNAMES'][i] = self._parser_parameters['ATOMNAMES'][i][:-1]
-                    self._parser_parameters['BASIS'] = np.array(self._parser_parameters['BASIS'])
-                    cube_vert = [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5],
+                    self._parserParameters['POSITIONS'] = np.array(self._parserParameters['POSITIONS'])
+                    self._parserParameters['BASIS'] = self._parserParameters[self._parserParameters['XMLLIST'][0]]['BASIS']
+                    self._parserParameters['ATOMNUMBER'] = self._parserParameters[self._parserParameters['XMLLIST'][0]]['ATOMNUMBER']
+                    for i in range(self._parserParameters['ATOMNUMBER']):
+                        if self._parserParameters['ATOMNAMES'][i][-1] == ' ':
+                            self._parserParameters['ATOMNAMES'][i] = self._parserParameters['ATOMNAMES'][i][:-1]
+                    self._parserParameters['BASIS'] = np.array(self._parserParameters['BASIS'])
+                    cubeVert = [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5],
                                  [-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5], [0.5, -0.5, 0.5],
                                  [0.5, 0.5, 0.5], [-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5]]
                     # Создание вершин границы ячейки
-                    self._parser_parameters['BASIS_VERT'] = np.dot(np.asarray(cube_vert), self._parser_parameters['BASIS'])
-                    self._parser_parameters['DIRECT'] = np.copy(self._parser_parameters['POSITIONS'])
-                    self._parser_parameters['POSITIONS'] = self._parser_parameters['POSITIONS'] - 0.5
+                    self._parserParameters['BASIS_VERT'] = np.dot(np.asarray(cubeVert), self._parserParameters['BASIS'])
+                    self._parserParameters['DIRECT'] = np.copy(self._parserParameters['POSITIONS'])
+                    self._parserParameters['POSITIONS'] = self._parserParameters['POSITIONS'] - 0.5
                     # Преобразование координат из дискретных в декартовы в соответствии с базисом
-                    for m in range(self._parser_parameters['STEPS']):
-                        self._parser_parameters['POSITIONS'][m] = np.dot(self._parser_parameters['POSITIONS'][m], self._parser_parameters['BASIS'])
-                    deleted_positions_to_none(self._parser_parameters['DIRECT'], self._parser_parameters['POSITIONS'])
-                    self._parser_parameters = atoms_info_filling(self._parser_parameters)
-                    self._parser_parameters['ID'] = [self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parser_parameters['ATOMNUMBER'])]
-                    self._parser_parameters['ID-TO-NUM'] = {self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parser_parameters['ATOMNUMBER'])}
+                    for m in range(self._parserParameters['STEPS']):
+                        self._parserParameters['POSITIONS'][m] = np.dot(self._parserParameters['POSITIONS'][m], self._parserParameters['BASIS'])
+                    deletedPositionsToNone(self._parserParameters['DIRECT'], self._parserParameters['POSITIONS'])
+                    self._parserParameters = atomsInfoFilling(self._parserParameters)
+                    self._parserParameters['ID'] = [self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parserParameters['ATOMNUMBER'])]
+                    self._parserParameters['ID-TO-NUM'] = {self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parserParameters['ATOMNUMBER'])}
                 except KeyError as err:
                     self.breaker = True
                     self.__logger.addMessage('There are mistakes with reading positions and/or basis.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
@@ -191,17 +191,17 @@ class VRMD:
         return self.__logger
 
     def __call__(self, *args, **kwargs):
-        return self._parser_parameters
+        return self._parserParameters
 
-    def removed_atoms_find(self, dictionary):
+    def removedAtomsFind(self, dictionary):
         XML = dictionary.get('XMLLIST')
         self.breaker = False
         if len(XML) > 1:
             for file in range(len(XML) - 1):
-                index_f2, differ = 0, []
-                for f1_element in dictionary[XML[file]]['POSITIONS'][-1]:
-                    if f1_element == dictionary[XML[file + 1]]['POSITIONS'][0][index_f2]:
-                        index_f2 += 1 if index_f2 < len(dictionary[XML[file + 1]]['POSITIONS'][0]) - 1 else 0
+                indexF2, differ = 0, []
+                for f1Element in dictionary[XML[file]]['POSITIONS'][-1]:
+                    if f1Element == dictionary[XML[file + 1]]['POSITIONS'][0][indexF2]:
+                        indexF2 += 1 if indexF2 < len(dictionary[XML[file + 1]]['POSITIONS'][0]) - 1 else 0
                         differ.append(False)
                         continue
                     else:
@@ -216,41 +216,41 @@ class VRMD:
                     self.__logger.addMessage('Vasprun files present different calculations.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Different calculations')
 
     @ staticmethod
-    def position_array_form(dictionary):
+    def positionArrayForm(dictionary):
         XML = dictionary['XMLLIST']
         dictionary['POSITIONS'] = copy.deepcopy(dictionary[XML[0]]['POSITIONS'])
         for positions in range(1, len(XML)):
-            for different_pos in range(len(dictionary[XML[positions]]['REMOVED'])):
-                if dictionary[XML[positions]]['REMOVED'][different_pos]:
-                    for array_value in range(len(dictionary[XML[positions]]['POSITIONS'])):
-                        dictionary[XML[positions]]['POSITIONS'][array_value].insert(different_pos, [10., 10., 10.])
+            for differentPos in range(len(dictionary[XML[positions]]['REMOVED'])):
+                if dictionary[XML[positions]]['REMOVED'][differentPos]:
+                    for arrayValue in range(len(dictionary[XML[positions]]['POSITIONS'])):
+                        dictionary[XML[positions]]['POSITIONS'][arrayValue].insert(differentPos, [10., 10., 10.])
             dictionary['POSITIONS'] += dictionary[XML[positions]]['POSITIONS'][1:]
 
 
 class QEMD:
-    __atomic_units_distance_constant = 1.889725988579
-    __atomic_units_time_constant_to_fs = 0.024189
+    __atomicUnitsDistanceConstant = 1.889725988579
+    __atomicUnitsTimeConstantToFs = 0.024189
 
     @sendDataToLogger
     def __init__(self, directory, logger):
         self.__logger = logger
         self.directory = directory
-        self.calculation_files = dict()
-        self.dir_to_read_files = None
-        self.input_file = None
+        self.calculationFiles = dict()
+        self.dirToReadFiles = None
+        self.inputFile = None
         self.breaker = False
-        self.number_of_atom_types = 0
-        self.masses_labels = dict()
-        self._parser_parameters = {'DIRECTORY': directory, 'ATOMNAMES': [], 'ATOMSINFO': dict(), 'POTIM': [], 'STEPS_LIST': [], 'POSITIONS': [], 'POMASS': [], 'MASSES': [], 'CALC_TYPE': 'QE'}
-        if self.check_for_QE_files(self.directory):
-            self.read_cell_file()
+        self.numberOfAtomTypes = 0
+        self.massesLabels = dict()
+        self._parserParameters = {'DIRECTORY': directory, 'ATOMNAMES': [], 'ATOMSINFO': dict(), 'POTIM': [], 'STEPS_LIST': [], 'POSITIONS': [], 'POMASS': [], 'MASSES': [], 'CALC_TYPE': 'QE'}
+        if self.checkForQEFiles(self.directory):
+            self.readCellFile()
             self.read_coord_file()
-            self.read_input_file()
-            form_atoms_with_nums_dict(self._parser_parameters)
-            self._parser_parameters = atoms_info_filling(self._parser_parameters)
-            self._parser_parameters['ID'] = [self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parser_parameters['ATOMNUMBER'])]
-            self._parser_parameters['ID-TO-NUM'] = {self._parser_parameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parser_parameters['ATOMNUMBER'])}
-            self.potim_to_fs()
+            self.readInputFile()
+            formAtomsWithNumsDict(self._parserParameters)
+            self._parserParameters = atomsInfoFilling(self._parserParameters)
+            self._parserParameters['ID'] = [self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parserParameters['ATOMNUMBER'])]
+            self._parserParameters['ID-TO-NUM'] = {self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parserParameters['ATOMNUMBER'])}
+            self.potimToFs()
         else:
             self.breaker = True
 
@@ -258,25 +258,25 @@ class QEMD:
         return self.__logger
 
     def __call__(self, *args, **kwargs):
-        return self._parser_parameters
+        return self._parserParameters
 
     @sendDataToLogger
-    def potim_to_fs(self):
-        for num, potim in enumerate(self._parser_parameters['POTIM']):
-            self._parser_parameters['POTIM'][num] = potim / self.__atomic_units_time_constant_to_fs
+    def potimToFs(self):
+        for num, potim in enumerate(self._parserParameters['POTIM']):
+            self._parserParameters['POTIM'][num] = potim / self.__atomicUnitsTimeConstantToFs
 
     @sendDataToLogger
-    def cartesian_to_direct(self):
-        self._parser_parameters['DIRECT'] = np.array([np.dot(self._parser_parameters['POSITIONS'], np.linalg.inv(self._parser_parameters['BASIS']))])[0]
-        self._parser_parameters['DIRECT'] = self._parser_parameters['DIRECT'] - 0.5
-        self.direct_to_cartesian()
+    def cartesianToDirect(self):
+        self._parserParameters['DIRECT'] = np.array([np.dot(self._parserParameters['POSITIONS'], np.linalg.inv(self._parserParameters['BASIS']))])[0]
+        self._parserParameters['DIRECT'] = self._parserParameters['DIRECT'] - 0.5
+        self.directToCartesian()
 
     @sendDataToLogger
-    def direct_to_cartesian(self):
-        self._parser_parameters['POSITIONS'] = np.array([np.dot(self._parser_parameters['DIRECT'], self._parser_parameters['BASIS'])])[0]
+    def directToCartesian(self):
+        self._parserParameters['POSITIONS'] = np.array([np.dot(self._parserParameters['DIRECT'], self._parserParameters['BASIS'])])[0]
 
     @sendDataToLogger
-    def check_for_QE_files(self, directory):
+    def checkForQEFiles(self, directory):
         files = os.listdir(directory)
         folders = []
         requirements = ['vel', 'pos', 'cel']
@@ -284,88 +284,88 @@ class QEMD:
             extension = file.split('.')[-1]
             if extension == file and os.path.isdir(directory + '/' + file):
                 folders.append(file)
-            elif extension == 'in' and not self.input_file:
-                self.input_file = file
+            elif extension == 'in' and not self.inputFile:
+                self.inputFile = file
             elif extension in requirements:
                 requirements.remove(extension)
-                self.calculation_files[extension] = file
+                self.calculationFiles[extension] = file
         if not requirements:
-            self.dir_to_read_files = directory
+            self.dirToReadFiles = directory
             return True
         else:
             for folder in folders:
-                result = self.check_for_QE_files(directory + '/' + folder)
+                result = self.checkForQEFiles(directory + '/' + folder)
                 if result:
                     return True
             return False
 
     @sendDataToLogger
     def read_coord_file(self):
-        steps_counter = 0
-        now_potim = None
-        prev_time = None
-        temp_array = []
-        with open(self.dir_to_read_files + '\\' + self.calculation_files['pos']) as coord:
+        stepsCounter = 0
+        nowPotim = None
+        prevTime = None
+        tempArray = []
+        with open(self.dirToReadFiles + '\\' + self.calculationFiles['pos']) as coord:
             while True:
                 line = coord.readline()
-                line_info = line.split()
+                lineInfo = line.split()
                 if not line:
                     break
-                if len(line_info) == 2:
-                    if now_potim is None:
-                        now_potim = float(line_info[-1])
-                        prev_time = now_potim
-                        self._parser_parameters['POTIM'].append(now_potim)
+                if len(lineInfo) == 2:
+                    if nowPotim is None:
+                        nowPotim = float(lineInfo[-1])
+                        prevTime = nowPotim
+                        self._parserParameters['POTIM'].append(nowPotim)
                     else:
-                        now_time = float(line_info[-1])
-                        if round((now_time - prev_time), 6) != round(now_potim, 6):
-                            now_potim = now_time - prev_time
-                            self._parser_parameters['STEPS_LIST'].append(steps_counter)
-                            self._parser_parameters['POTIM'].append(now_potim)
-                        prev_time = now_time
-                    steps_counter += 1
-                    if temp_array:
-                        self._parser_parameters['POSITIONS'].append(temp_array)
-                        temp_array = []
+                        nowTime = float(lineInfo[-1])
+                        if round((nowTime - prevTime), 6) != round(nowPotim, 6):
+                            nowPotim = nowTime - prevTime
+                            self._parserParameters['STEPS_LIST'].append(stepsCounter)
+                            self._parserParameters['POTIM'].append(nowPotim)
+                        prevTime = nowTime
+                    stepsCounter += 1
+                    if tempArray:
+                        self._parserParameters['POSITIONS'].append(tempArray)
+                        tempArray = []
                 else:
-                    temp_array.append(list(map(float, line_info)))
-            if temp_array:
-                self._parser_parameters['POSITIONS'].append(temp_array)
-        self._parser_parameters['STEPS_LIST'].append(steps_counter)
-        self._parser_parameters['STEPS'] = steps_counter - 1
-        self._parser_parameters['POSITIONS'] = np.array(self._parser_parameters['POSITIONS']) / self.__atomic_units_distance_constant
-        self.cartesian_to_direct()
+                    tempArray.append(list(map(float, lineInfo)))
+            if tempArray:
+                self._parserParameters['POSITIONS'].append(tempArray)
+        self._parserParameters['STEPS_LIST'].append(stepsCounter)
+        self._parserParameters['STEPS'] = stepsCounter - 1
+        self._parserParameters['POSITIONS'] = np.array(self._parserParameters['POSITIONS']) / self.__atomicUnitsDistanceConstant
+        self.cartesianToDirect()
 
     @sendDataToLogger
-    def read_cell_file(self):
-        with open(self.dir_to_read_files + '\\' + self.calculation_files['cel']) as cell:
+    def readCellFile(self):
+        with open(self.dirToReadFiles + '\\' + self.calculationFiles['cel']) as cell:
             cell.readline()
-            self._parser_parameters['BASIS'] = np.array([list(map(float, cell.readline().split())), list(map(float, cell.readline().split())), list(map(float, cell.readline().split()))])
-            self._parser_parameters['BASIS'] = self._parser_parameters['BASIS'] / self.__atomic_units_distance_constant
-            cube_vert = [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5],
+            self._parserParameters['BASIS'] = np.array([list(map(float, cell.readline().split())), list(map(float, cell.readline().split())), list(map(float, cell.readline().split()))])
+            self._parserParameters['BASIS'] = self._parserParameters['BASIS'] / self.__atomicUnitsDistanceConstant
+            cubeVert = [[0.5, -0.5, -0.5], [0.5, 0.5, -0.5],
                          [-0.5, 0.5, -0.5], [-0.5, -0.5, -0.5], [0.5, -0.5, 0.5],
                          [0.5, 0.5, 0.5], [-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5]]
             # Создание вершин границы ячейки
-            self._parser_parameters['BASIS_VERT'] = np.dot(np.asarray(cube_vert), self._parser_parameters['BASIS'])
+            self._parserParameters['BASIS_VERT'] = np.dot(np.asarray(cubeVert), self._parserParameters['BASIS'])
 
     @sendDataToLogger
-    def read_input_file(self):
-        with open(self.directory + '\\' + self.input_file) as inp:
+    def readInputFile(self):
+        with open(self.directory + '\\' + self.inputFile) as inp:
             while True:
                 line = inp.readline()
                 if not line:
                     break
                 elif 'nat' in line:
-                    self._parser_parameters['ATOMNUMBER'] = int(line.split('nat')[-1].split()[1].split(',')[0])
+                    self._parserParameters['ATOMNUMBER'] = int(line.split('nat')[-1].split()[1].split(',')[0])
                 elif 'ntyp' in line:
-                    self.number_of_atom_types = int(line.split('ntyp')[-1].split()[1].split(',')[0])
+                    self.numberOfAtomTypes = int(line.split('ntyp')[-1].split()[1].split(',')[0])
                 elif 'ATOMIC_SPECIES' in line:
-                    for _ in range(self.number_of_atom_types):
+                    for _ in range(self.numberOfAtomTypes):
                         info = inp.readline().split()[:2]
-                        self._parser_parameters['POMASS'].append(float(info[-1].split('d')[0]))
-                        self.masses_labels[info[0]] = float(info[-1].split('d')[0])
+                        self._parserParameters['POMASS'].append(float(info[-1].split('d')[0]))
+                        self.massesLabels[info[0]] = float(info[-1].split('d')[0])
                 elif 'ATOMIC_POSITIONS' in line:
-                    for _ in range(self._parser_parameters['ATOMNUMBER']):
+                    for _ in range(self._parserParameters['ATOMNUMBER']):
                         info = inp.readline().split()[0]
-                        self._parser_parameters['ATOMNAMES'].append(info)
-                        self._parser_parameters['MASSES'].append(self.masses_labels[info])
+                        self._parserParameters['ATOMNAMES'].append(info)
+                        self._parserParameters['MASSES'].append(self.massesLabels[info])

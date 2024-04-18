@@ -9,48 +9,48 @@ class Primitives:
     def __init__(self, scaling, color: list, vertices=None, colors=None, normal=None, textures=None, indexes=None):
         self.scaling = scaling
         self.color = color
-        self.vertex_array = np.array([]) if vertices is None else vertices
-        self.color_array = np.array([]) if colors is None else colors
-        self.normal_array = np.array([]) if normal is None else normal
-        self.textures_indexes = np.array([]) if textures is None else textures
-        self.indexes_array = np.array([]) if indexes is None else indexes
+        self.vertexArray = np.array([]) if vertices is None else vertices
+        self.colorArray = np.array([]) if colors is None else colors
+        self.normalArray = np.array([]) if normal is None else normal
+        self.texturesIndexes = np.array([]) if textures is None else textures
+        self.indexesArray = np.array([]) if indexes is None else indexes
 
     def get_coordinates(self):
-        return self.vertex_array, self.color_array
+        return self.vertexArray, self.colorArray
 
     def Quad(self, size):
-        self.vertex_array = np.array([[-size, -size, 0.0], [size, -size, 0.0], [size, size, 0.0], [-size, size, 0.0]]) * self.scaling
-        self.color_array = np.array([self.color] * len(self.vertex_array))
-        self.normal_array = np.array([[0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0]])
-        self.textures_indexes = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
-        self.indexes_array = np.array([0, 1, 2, 0, 2, 3])
-        return self.vertex_array, self.color_array, self.normal_array, self.textures_indexes, self.indexes_array
+        self.vertexArray = np.array([[-size, -size, 0.0], [size, -size, 0.0], [size, size, 0.0], [-size, size, 0.0]]) * self.scaling
+        self.colorArray = np.array([self.color] * len(self.vertexArray))
+        self.normalArray = np.array([[0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0]])
+        self.texturesIndexes = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+        self.indexesArray = np.array([0, 1, 2, 0, 2, 3])
+        return self.vertexArray, self.colorArray, self.normalArray, self.texturesIndexes, self.indexesArray
 
     def Cube(self, draw_type=GL_TRIANGLE_STRIP):
-        self.vertex_array = np.array([[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
+        self.vertexArray = np.array([[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
                                       [1.0, 1.0, 1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [1.0, -1.0, 1.0],
                                       [1.0, -1.0, -1.0], [1.0, -1.0, 1.0], [-1.0, -1.0, 1.0], [-1.0, -1.0, -1.0],
                                       [-1.0, -1.0, 1.0], [-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
                                       [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0],
                                       [-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0]]) * self.scaling
-        self.color_array = np.array([self.color] * len(self.vertex_array))
-        self.normal_array = np.array([[0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+        self.colorArray = np.array([self.color] * len(self.vertexArray))
+        self.normalArray = np.array([[0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0],
                                       [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
                                       [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0],
                                       [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, 0.0, 0.0],
                                       [0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0],
                                       [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0], [0.0, 0.0, -1.0]])
-        self.textures_indexes = np.array([[1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0],
+        self.texturesIndexes = np.array([[1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0],
                                           [1.0, 1.0], [1.0, 0.0], [0.0, 0.0], [0.0, 1.0],
                                           [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0],
                                           [1.0, 1.0], [1.0, 0.0], [0.0, 0.0], [0.0, 1.0],
                                           [0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0],
                                           [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]])
         if draw_type == GL_TRIANGLES:
-            self.indexes_array = np.array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23])
+            self.indexesArray = np.array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23])
         elif draw_type == GL_QUADS:
-            self.indexes_array = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
-        return self.vertex_array, self.color_array, self.normal_array, self.textures_indexes, self.indexes_array
+            self.indexesArray = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
+        return self.vertexArray, self.colorArray, self.normalArray, self.texturesIndexes, self.indexesArray
 
     def Sphere(self, radius, nSlices, nStacks):
         nVerts = (nSlices + 1) * (nStacks + 1)

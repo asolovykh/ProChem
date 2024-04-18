@@ -3,53 +3,11 @@ import traceback
 import numpy as np
 import pandas as pd
 from Gui.VRProcessingGUI import Ui_VRProcessing, QMainWindow
-from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel
-from PIL import Image, ImageTk, ImageSequence
+from Processing.VROszicar import VROszicarProcessing, VRPdModel
+from PySide6.QtCore import QItemSelectionModel
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtGui import QCloseEvent
 from Logs.VRLogger import sendDataToLogger
-
-
-class VRPdModel(QAbstractTableModel):
-    def __init__(self, data):
-        QAbstractTableModel.__init__(self)
-        self._data = data
-
-    def refreshTable(self, df):
-        self.beginResetModel()
-        self._data = df
-        self.endResetModel()
-
-    def rowCount(self, parent=None):
-        return len(self._data.values)
-
-    def columnCount(self, parent=None):
-        return self._data.columns.size
-
-    def data(self, index, role=Qt.DisplayRole):
-        if index.isValid():
-            if role == Qt.DisplayRole:
-                return f'{self._data.values[index.row()][index.column()]:f}'
-        return None
-
-    def headerData(self, col, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._data.columns[col]
-        return None
-
-    def insertColumn(self, column, place, parent=None):
-        self.beginInsertColumns(parent, place, place)
-        self.endInsertColumns()
-
-    def insertRow(self, row, place, parent=None):
-        self.beginInsertRows(parent, place, place)
-        self.endInsertRows()
-
-    def removeColumn(self, column, place, parent=None):
-        self.beginRemoveColumns(parent, place, place)
-        self.endRemoveColumns()
-
-    def removeRow(self, column, place, parent=None):
-        self.beginRemoveRows(parent, place, place)
-        self.endRemoveRows()
 
 
 class VRProcessing(Ui_VRProcessing, QMainWindow):
@@ -95,6 +53,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 del self.mainDf[d]
             self.coordinatesDelete()
             self.refreshLists()
+            self.oszicarCheckboxUnlock()
         else:
             self.mainDf = pd.DataFrame()
             timeArr = np.arange(0, float(self.__calculation['POTIM'][0]) * self.__calculation['STEPS_LIST'][0], float(self.__calculation['POTIM'][0]))
@@ -109,6 +68,11 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
 
     def getLogger(self):
         return self.__logger
+
+    def addMessage(self, message, fromWindow=None, operation=None, operationType='user', result='SUCCESS', cause=None, detailedDescription=None):
+        if fromWindow is None:
+            fromWindow = self.__class__.__name__
+        self.__logger.addMessage(message, fromWindow, operation, operationType, result, cause, detailedDescription)
 
     @sendDataToLogger
     def linkElementsWithFunctions(self):
@@ -130,11 +94,24 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.DivideAddCol.clicked.connect(self.DivideButtonClicked)
         self.DivideAdded.activated.connect(self.DivideChooseToRemove)
         self.DivideRemoveCol.clicked.connect(lambda: self.removeColumns(self.DivideAdded, self.DivideRemoveCol))
+        self.AInclude_OSZICAR.toggled.connect(self.oszicarAction)
+        self.ADel_coords_of_sel_atoms.toggled.connect(self.delCoordsAction)
+        self.ADel_energy_of_sel_atoms.toggled.connect(self.delEnergyAction)
+        self.CreateExcel.clicked.connect(self.saveTable)
+        self.Back.clicked.connect(self.closeEvent)
+        self.ABack.toggled.connect(self.closeEvent)
+        self.AExit.toggled.connect(self.closeAll)
 
     @sendDataToLogger
-    def closeEvent(self, event):
+    def closeAll(self, event):
+        self.__parent.close()
+        event.accept()
+
+    @sendDataToLogger
+    def closeEvent(self, event=QCloseEvent()):
         self.__parent.show()
         self.__openGl.show()
+        self.__parent.destroyProcessingWindow()
         event.accept()
 
     @sendDataToLogger
@@ -243,7 +220,21 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             periodical_coefficients.append(round(self.baseDf[second + proj][0] - self.baseDf[first + proj][0]))
         return np.dot(np.asarray(periodical_coefficients), self.__calculation['BASIS'])
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger
+    def divineOnPOTIM(self, column, isCOM=False):
+        prev_index = 0
+        for index, POTIM in enumerate(self.__calculation['POTIM']):
+            if isCOM:
+                if index != len(self.__calculation['POTIM']) - 1:
+                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] / POTIM
+                    prev_index = self.__calculation['STEPS_LIST'][index] - 1
+                else:
+                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
+            else:
+                self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
+                prev_index = self.__calculation['STEPS_LIST'][index]
+
+    @sendDataToLogger(operationType='user')
     def removeColumns(self, addedColsElement, removeElement):
         toDelete = addedColsElement.currentText()
         colsList = []
@@ -260,14 +251,14 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.baseDf.drop(columns=toDelete, inplace=True)
             self.mainDf.drop(columns=toDelete, inplace=True)
             colsList.remove(toDelete)
-            self.getLogger().addMessage(f'Column {toDelete} has been removed.', self.__class__.__name__)
+            self.addMessage(f'Column {toDelete} has been removed.')
         elif colsList == self.sumCols or colsList == self.differenceCols:
             self.baseDf.drop(columns=toDelete, inplace=True)
             if not self.ADel_energy_of_sel_atoms.isChecked():
                 self.mainDf.drop(columns=toDelete, inplace=True)
             colsList.remove(toDelete)
             self.eColumns.remove(toDelete)
-            self.getLogger().addMessage(f'Column {toDelete} has been removed.', self.__class__.__name__)
+            self.addMessage(f'Column {toDelete} has been removed.')
         elif colsList == self.divideCols:
             elements = toDelete.split('_')
             atoms = []
@@ -284,7 +275,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.mainDf.drop(columns=toDeleteCols, inplace=True)
             colsList.remove(toDelete)
             [self.eColumns.remove(value) for value in toDeleteCols]
-            self.getLogger().addMessage(f'Columns divided to vibrational and rotational energy {toDelete} have been removed.', self.__class__.__name__)
+            self.addMessage(f'Columns divided to vibrational and rotational energy {toDelete} have been removed.')
         else:
             toDeleteList = [f'{toDelete}_x', f'{toDelete}_y', f'{toDelete}_z', f'V{toDelete}', f'E{toDelete}']
             self.baseDf.drop(columns=toDeleteList, inplace=True)
@@ -295,7 +286,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 if not self.ADel_energy_of_sel_atoms.isChecked():
                     self.mainDf.drop(columns=toDeleteList[-1], inplace=True)
             self.vColumns.remove(f'V{toDelete}')
-            self.getLogger().addMessage(f'Column {self.eColumns[-1]} and linked columns have been removed.', self.__class__.__name__)
+            self.addMessage(f'Column {self.eColumns[-1]} and linked columns have been removed.')
             self.eColumns.remove(f'E{toDelete}')
             self.columnsNames.remove(toDelete)
             self.weightmassCols.remove(toDelete)
@@ -306,7 +297,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.refreshLists()
         self._model.refreshTable(self.mainDf)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DCListAction(self, element):
         selectedColumns = self.DCList.selectedItems()
         listSize = len(selectedColumns)
@@ -327,7 +318,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.DCList.clearSelection()
         self.DCAddCol.setDisabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DCButtonClicked(self):
         if self.DistanceRadio.isChecked():
             self.DistanceCalculate()
@@ -338,7 +329,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
     def DistanceCalculate(self):
         first, second = sorted([item.text() for item in self.DCList.selectedItems()])
         if f'{first}--{second}' in self.baseDf:
-            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__, result='FAILED', cause='Column has already been added')
+            self.addMessage('Column has already been added!', result='FAILED', cause='Column has already been added')
             self.DCListClear()
         else:
             coefficients = self.directCurveChoose(first, second)
@@ -354,7 +345,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.refreshLists()
             self.DCListClear()
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f'Column {first}--{second} has been added.', self.__class__.__name__)
+            self.addMessage(f'Column {first}--{second} has been added.')
 
     @sendDataToLogger
     def COMCalculate(self, atomsList=None):
@@ -402,16 +393,16 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             if not self.DCRemoveCol.isEnabled():
                 self.DCRemoveCol.setEnabled(True)
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f'Column {self.eColumns[-1]} has been added.', self.__class__.__name__)
+            self.addMessage(f'Column {self.eColumns[-1]} has been added.')
         else:
-            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__, result='FAILED', cause='Column has already been added')
+            self.addMessage('Column has already been added!', result='FAILED', cause='Column has already been added')
             self.DCListClear()
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DCChooseToRemove(self, *args):
         self.DCRemoveCol.setEnabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def PMListAction(self, element):
         selectedColumns = self.PMList.selectedItems()
         listSize = len(selectedColumns)
@@ -432,7 +423,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.PMList.clearSelection()
         self.PMAddCol.setDisabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def PMButtonClicked(self):
         if self.MinusRadio.isChecked():
             self.DifferenceCalculate()
@@ -460,9 +451,9 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.PMRemoveCol.setEnabled(True)
             self.eColumns.append(sumStr)
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f'Column {sumStr} has been added.', self.__class__.__name__)
+            self.addMessage(f'Column {sumStr} has been added.')
         else:
-            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__)
+            self.addMessage('Column has already been added!')
 
     @sendDataToLogger
     def DifferenceCalculate(self):
@@ -482,25 +473,27 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.PMRemoveCol.setEnabled(True)
             self._model.refreshTable(self.mainDf)
             self.eColumns.append(differenceStr)
-            self.getLogger().addMessage(f'Column {differenceStr} has been added.', self.__class__.__name__)
+            self.addMessage(f'Column {differenceStr} has been added.')
         else:
-            self.getLogger().addMessage('Column has already been added!', self.__class__.__name__)
+            self.addMessage('Column has already been added!')
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def PMChooseToRemove(self, *args):
         self.PMRemoveCol.setEnabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def AngleListAction(self, element):
         selectedColumns = self.AngleList.selectedItems()
         listSize = len(selectedColumns)
 
-        if listSize < 2 and self.AnglePlaneXY.isEnabled():
+        if listSize == 0:
+            self.AngleAddCol.setDisabled(True)
+        elif listSize == 1:
             self.AnglePlaneXY.setEnabled(True)
             self.AnglePlaneYZ.setEnabled(True)
             self.AnglePlaneZX.setEnabled(True)
             self.AngleAddCol.setEnabled(True)
-        elif listSize == 2 and not self.AnglePlaneXY.isEnabled():
+        elif listSize == 2:
             self.AnglePlaneXY.setDisabled(True)
             self.AnglePlaneYZ.setDisabled(True)
             self.AnglePlaneZX.setDisabled(True)
@@ -518,12 +511,12 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.AngleList.clearSelection()
         self.AngleAddCol.setDisabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def AngleButtonClicked(self):
-        colsNumber = self.AngleList.count()
+        colsNumber = len(self.AngleList.selectedItems())
         if colsNumber == 1:
             self.AngleCalculate()
-        else:
+        elif colsNumber == 3:
             self.ValenceAngleCalculate()
 
     @sendDataToLogger
@@ -548,9 +541,9 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.refreshLists()
             self.AngleListClear()
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f"Column {atom}_{plane} has been added.", self.__class__.__name__)
+            self.addMessage(f"Column {atom}_{plane} has been added.")
         else:
-            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+            self.addMessage('Column already exists.')
 
     @sendDataToLogger
     def ValenceAngleCalculate(self):
@@ -573,16 +566,20 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.AngleRemoveCol.setEnabled(True)
             self.refreshLists()
             self.AngleListClear()
+            if not self.AnglePlaneXY.isEnabled():
+                self.AnglePlaneXY.setEnabled(True)
+                self.AnglePlaneYZ.setEnabled(True)
+                self.AnglePlaneZX.setEnabled(True)
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f"Column {atoms[0]}-{atoms[1]}-{atoms[2]} has been added.", self.__class__.__name__)
+            self.addMessage(f"Column {atoms[0]}-{atoms[1]}-{atoms[2]} has been added.")
         else:
-            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+            self.addMessage('Column already exists.')
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def AngleChooseToRemove(self, *args):
         self.AngleRemoveCol.setEnabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DivideListAction(self, element):
         selectedColumns = self.DivideList.selectedItems()
         listSize = len(selectedColumns)
@@ -592,6 +589,8 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         elif listSize == 1 and self.DivideAddCol.isEnabled():
             self.DivideAddCol.setDisabled(True)
 
+        if listSize > 2:
+            self.DivideList.setCurrentItem(element, QItemSelectionModel.Deselect)
         self.DivideSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
 
     @sendDataToLogger
@@ -600,7 +599,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.DivideList.clearSelection()
         self.DivideAddCol.setDisabled(True)
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DivideButtonClicked(self):
         self.DivideCalculate()
 
@@ -624,7 +623,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.baseDf[f'Erot_{colName}({atom})'] = self.baseDf[f'Vrot_{colName}({atom})'] ** 2 * self._masses[self.columnsNames.index(atom)] / self.calc_const
                 self.eColumns.extend([f'Evib_{colName}({atom})', f'Erot_{colName}({atom})'])
                 temporaryCols.extend([f'Vvib_{colName}({atom})', f'Vsum_{colName}({atom})', f'Vrot_{colName}({atom})'])
-                if not self.value['EnergyCheck']:
+                if not self.ADel_energy_of_sel_atoms.isChecked():
                     self.mainDf.insert(len(self.mainDf.columns), f'Evib_{colName}({atom})', self.baseDf[f'Evib_{colName}({atom})'])
                     self.mainDf.insert(len(self.mainDf.columns), f'Erot_{colName}({atom})', self.baseDf[f'Erot_{colName}({atom})'])
             self.baseDf[f'Evib_{colName}'] = sum(self.baseDf[f'Evib_{colName}({atom})'] for atom in atoms)
@@ -643,45 +642,99 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             if not self.DivideRemoveCol.isEnabled():
                 self.DivideRemoveCol.setEnabled(True)
             self.refreshLists()
-            self.AngleListClear()
+            self.DivideListClear()
             self._model.refreshTable(self.mainDf)
-            self.getLogger().addMessage(f'Columns divided to vibrational and rotational energy {colName} have been added.', self.__class__.__name__)
+            self.addMessage(f'Columns divided to vibrational and rotational energy {colName} have been added.')
         else:
-            self.getLogger().addMessage('Column already exists.', self.__class__.__name__)
+            self.addMessage('Column already exists.')
 
-    @sendDataToLogger(operation_type='user')
+    @sendDataToLogger(operationType='user')
     def DivideChooseToRemove(self, *args):
         self.DivideRemoveCol.setEnabled(True)
+
+    @sendDataToLogger(operationType='user')
+    def renameColumnChoose(self):
+        colName = self.RenameSelect.currentText()
+        if colName:
+            self.RenameLine.setText(colName)
+            self.RenameLine.setEnabled(True)
+
+    @sendDataToLogger(operationType='user')
+    def renameColumnAction(self):
+        if self.RenameSelect.currentText() != self.RenameLine.text():
+            self.RenameButton.setEnabled(True)
+        else:
+            self.RenameButton.setDisabled(True)
+
+    @sendDataToLogger(operationType='user')
+    def renameColumn(self):
+        newName = self.RenameLine.text()
+        oldName = self.RenameSelect.currentText()
+        for array in [self.eColumns, self.distanceCols, self.angleCols, self.sumCols, self.differenceCols]:
+            for column in array.copy():
+                if column == oldName:
+                    array[array.index(column)] = newName
+        self.baseDf.rename(columns={oldName: newName}, inplace=True)
+        self.mainDf.rename(columns={oldName: newName}, inplace=True)
+        self.refreshLists()
+        self._model.refreshTable(self.mainDf)
+        self.addMessage(f'Column {oldName} has been renamed. New name is {newName}.')
+
+    @sendDataToLogger(operationType='user')
+    def delCoordsAction(self, state):
+        if state:
+            for name in self.columnsNames:
+                for proj in ['_x', '_y', '_z']:
+                    self.mainDf.drop(columns=f'{name}{proj}', inplace=True)
+            self.refreshLists()
+            self._model.refreshTable(self.mainDf)
+            self.addMessage('Columns with coordinates of atoms have been removed.')
+        else:
+            for name in reversed(self.columnsNames):
+                for proj in reversed(['_x', '_y', '_z']):
+                    self.mainDf.insert(1, name + proj, self.baseDf[name + proj])
+            self.refreshLists()
+            self._model.refreshTable(self.mainDf)
+            self.addMessage('Columns with coordinates of atoms have been added.')
+
+    @sendDataToLogger(operationType='user')
+    def delEnergyAction(self, state):
+        if state:
+            self.mainDf.drop(columns=self.eColumns, inplace=True)
+            self._model.refreshTable(self.mainDf)
+            self.addMessage('Columns with energy have been removed.')
+        else:
+            for column in self.eColumns:
+                self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
+            self._model.refreshTable(self.mainDf)
+            self.addMessage('Columns with energy have been added.')
 
     @sendDataToLogger
     def oszicarCheckboxUnlock(self):
         files = os.listdir(self.__calculation['DIRECTORY'])
         for file in files:
             if 'OSZICAR' in file:
-                self.window['OSZICARcheck'].update(disabled=False)
+                self.AInclude_OSZICAR.setEnabled(True)
                 break
 
-    @sendDataToLogger
-    def divineOnPOTIM(self, column, isCOM=False):
-        prev_index = 0
-        for index, POTIM in enumerate(self.__calculation['POTIM']):
-            if isCOM:
-                if index != len(self.__calculation['POTIM']) - 1:
-                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index] - 1, column] / POTIM
-                    prev_index = self.__calculation['STEPS_LIST'][index] - 1
-                else:
-                    self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
-            else:
-                self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] = self.baseDf.loc[prev_index:self.__calculation['STEPS_LIST'][index], column] / POTIM
-                prev_index = self.__calculation['STEPS_LIST'][index]
+    @sendDataToLogger(operationType='user')
+    def oszicarAction(self, state):
+        if state:
+            oszicarDataframe = VROszicarProcessing(self.__calculation['DIRECTORY'], self.getLogger(), self.__calculation['STEPS_LIST'], self.__calculation['POTIM']).oszicarDf
+            self.mainDf = pd.concat([self.mainDf, oszicarDataframe[oszicarDataframe.columns[1:]]], axis=1)
+            self.addMessage('OSZICAR dataframe has been added.')
+            self._model.refreshTable(self.mainDf)
+        else:
+            self.mainDf.drop(columns=['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True)
+            self.addMessage('OSZICAR dataframe has been removed.')
+            self._model.refreshTable(self.mainDf)
 
-    def save_table(self):
-        tabledir = sg.PopupGetFile(message='Input directory to save table', title='Save table', save_as=True,
-                                   no_window=True, keep_on_top=True, default_extension=self.name, default_path=self.name,
-                                   file_types=(("Excel File", "*.xlsx"), ("Csv File", "*.csv"), ("Html File", "*.html")))
-        if tabledir.endswith('.xlsx'):
+    @sendDataToLogger(operationType='user')
+    def saveTable(self):
+        tableDir = QFileDialog.getSaveFileName(None, caption='Save Table', filter="Excel (*.xlsx *.xls);;Csv (*.csv);;HTML (*.html)", selectedFilter="Excel (*.xlsx *.xls)")[0]
+        if tableDir.endswith('.xlsx'):
             try:
-                writer = pd.ExcelWriter(tabledir)
+                writer = pd.ExcelWriter(tableDir)
                 self.mainDf.to_excel(writer, sheet_name='my_analysis', index=False)
                 # Auto-adjust columns' width
                 for column in self.mainDf:
@@ -689,218 +742,23 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                     col_idx = self.mainDf.columns.get_loc(column)
                     writer.sheets['my_analysis'].set_column(col_idx, col_idx, column_width)
                 writer.close()
-                self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
+                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
             except PermissionError:
-                self.popup('Close Excel table before writing.', title='OpenXslError')
+                self.addMessage('Close Excel table before writing.') # title='OpenXslError')
             except Exception as err:
-                self.print('Caught exception: ' + traceback.format_exc() + '\n' +
-                           'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
-        elif tabledir.endswith('.csv'):
+                self.addMessage('Caught exception: ' + traceback.format_exc())
+        elif tableDir.endswith('.csv'):
             try:
-                self.mainDf.to_csv(tabledir, index=False)
-                self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
+                self.mainDf.to_csv(tableDir, index=False)
+                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
             except Exception as err:
-                self.print('Caught exception: ' + traceback.format_exc() + '\n' +
-                           'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
-        elif tabledir.endswith('.html'):
+                self.addMessage('Caught exception: ' + traceback.format_exc())
+        elif tableDir.endswith('.html'):
             try:
-                self.mainDf.to_html(tabledir, index=False, na_rep='')
-                self.print(f"File {tabledir.split('/')[-1]} was generated successful.")
+                self.mainDf.to_html(tableDir, index=False, na_rep='')
+                self.addMessage(f"File {tableDir.split('/')[-1]} was generated successful.")
             except Exception as err:
-                self.print('Caught exception: ' + traceback.format_exc() + '\n' +
-                           'Please report your error by e-mail: solovykh.aa19@physics.msu.ru')
+                self.addMessage('Caught exception: ' + traceback.format_exc())
 
-    def mainloop(self):
-        # self.window['TablePreview'].update(list(self.mainDf.columns))
-        self.window.perform_long_operation(lambda: self.window['TablePreview'].update(preview_columns_form(self.mainDf)), end_key='None')
-        while True:
-            self.event, self.value = self.window.read()
-            if self.event == sg.WINDOW_CLOSED or self.event == 'Exit':
-                self.window.close()
-                self.print('Processing window has been closed.')
-                break
-            if self.event == 'CreateExcel':
-                self.save_table()
-            if self.event == 'TableActiveCheck':
-                if not self.value['TableActiveCheck']:
-                    self.window['TablePreview'].update('', disabled=True)
-                    self.print('Table preview has been turned off.')
-                else:
-                    self.window['TablePreview'].update(preview_columns_form(self.mainDf), disabled=True)
-                    self.print('Table preview has been turned on.')
-            if self.event == 'DelCoordCheck':
-                if self.value['DelCoordCheck']:
-                    for name in self.columnsNames:
-                        for proj in ['_x', '_y', '_z']:
-                            self.mainDf.drop(columns=f'{name}{proj}', inplace=True)
-                    self.print('Columns with coordinates of atoms have been removed.')
-                    self.update_choose_elements()
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-                else:
-                    for name in reversed(self.columnsNames):
-                        for proj in reversed(['_x', '_y', '_z']):
-                            self.mainDf.insert(1, name + proj, self.baseDf[name + proj])
-                    self.print('Columns with coordinates of atoms have been added.')
-                    self.update_choose_elements()
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-
-            if self.event == 'OSZICARcheck':
-                if self.value['OSZICARcheck']:
-                    osz_dataframe = VROszicarProcessing(self.calculation['DIRECTORY'], self.calculation['STEPS_LIST'], self.calculation['POTIM']).oszicar_df
-                    self.mainDf = pd.concat([self.mainDf, osz_dataframe[osz_dataframe.columns[1:]]], axis=1)
-                    self.print('OSZICAR dataframe has been added.')
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-                else:
-                    self.mainDf.drop(columns=['T', 'E', 'F', 'E0', 'EK', 'SP', 'SK', 'mag'], inplace=True)
-                    self.print('OSZICAR dataframe has been removed.')
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-
-            if self.event == 'EnergyCheck':
-                if self.value['EnergyCheck']:
-                    self.mainDf.drop(columns=self.eColumns, inplace=True)
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-                    self.print('Columns with energy have been removed.')
-                else:
-                    for column in self.eColumns:
-                        self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
-                    self.print('Columns with energy have been added.')
-                    if self.value['TableActiveCheck']:
-                        self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-
-            if self.event == 'DistAtoms':
-                self.distance_names_selected = self.two_variants_listbox_click(self.distance_names_selected, 'DistAtoms', 'DistList', 'AddDist', ', ', True)
-            if self.event == 'AddDist':
-                self.distance_add()
-            if self.event == 'DistAdded':
-                if self.value['DistAdded'] != '':
-                    self.window['RemoveDist'].update(disabled=False)
-            if self.event == 'RemoveDist':
-                self.removeColumns('DistAdded', 'RemoveDist', self.distanceCols)
-
-            if self.event == 'AtomAngle':
-                self.angle_listbox_event()
-            if self.event == 'xy':
-                self.angle_plane_events('xy', 'yz', 'zx')
-            if self.event == 'yz':
-                self.angle_plane_events('yz', 'xy', 'zx')
-            if self.event == 'zx':
-                self.angle_plane_events('zx', 'xy', 'yz')
-            if self.event == 'AddAngle':
-                if len(self.angle_names_selected) == 1:
-                    self.angle_add()
-                elif len(self.angle_names_selected) == 3:
-                    self.valence_angle_add()
-            if self.event == 'AngleAdded':
-                if self.value['AngleAdded'] != '':
-                    self.window['RemoveAngle'].update(disabled=False)
-            if self.event == 'RemoveAngle':
-                self.removeColumns('AngleAdded', 'RemoveAngle', self.angleCols)
-
-            if self.event == 'WeightAtom':
-                if len(self.value['WeightAtom']) > 1:
-                    self.window['AddAtomWeight'].update(disabled=False)
-                else:
-                    self.window['AddAtomWeight'].update(disabled=True)
-                self.window['WeightList'].update(', '.join(self.value['WeightAtom']))
-            if self.event == 'AddAtomWeight':
-                self.weight_add()
-            if self.event == 'COMAdded':
-                if self.value['COMAdded'] != '':
-                    self.window['RemoveAtomWeight'].update(disabled=False)
-            if self.event == 'RemoveAtomWeight':
-                self.remove_COM()
-
-            if self.event == 'SumAtom':
-                if len(self.value['SumAtom']) > 1:
-                    self.window['AddAtomSum'].update(disabled=False)
-                else:
-                    self.window['AddAtomSum'].update(disabled=True)
-                self.window['SumList'].update(', '.join(self.value['SumAtom']))
-            if self.event == 'AddAtomSum':
-                self.sum_add()
-            if self.event == 'SumAdded':
-                if self.value['SumAdded'] != '':
-                    self.window['RemoveAtomSum'].update(disabled=False)
-            if self.event == 'RemoveAtomSum':
-                self.remove_sum()
-
-            if self.event == 'MinusAtom':
-                self.difference_names_selected = self.two_variants_listbox_click(self.difference_names_selected, 'MinusAtom', 'MinusList', 'AddAtomMinus', '---', False)
-            if self.event == 'AddAtomMinus':
-                self.difference_add()
-            if self.event == 'MinusAdded':
-                if self.value['MinusAdded'] != '':
-                    self.window['RemoveAtomMinus'].update(disabled=False)
-            if self.event == 'RemoveAtomMinus':
-                self.remove_difference()
-
-            if self.event == 'DivideAtoms':
-                self.divide_names_selected = self.two_variants_listbox_click(self.divide_names_selected, 'DivideAtoms', 'DivideList', 'AddAtomsDivide', ', ', True)
-            if self.event == 'AddAtomsDivide':
-                self.divide_add()
-            if self.event == 'DivideAdded':
-                if self.value['DivideAdded'] != '':
-                    self.window['RemoveAtomsDivide'].update(disabled=False)
-            if self.event == 'RemoveAtomsDivide':
-                self.remove_divide()
-
-            if self.event == 'RenameColChoose':
-                self.window['RenameInput'].update(self.value['RenameColChoose'], disabled=False)
-            if self.event == 'RenameInput':
-                if self.value['RenameInput'] != self.value['RenameColChoose']:
-                    self.window['RenameSubmit'].update(disabled=False)
-                else:
-                    self.window['RenameSubmit'].update(disabled=True)
-            if self.event == 'RenameSubmit':
-                name = self.value['RenameInput']
-                for array in [self.eColumns, self.distanceCols, self.angleCols, self.sumCols, self.differenceCols, self.divide_names_selected, self.distance_names_selected, self.difference_names_selected]:
-                    for column in array.copy():
-                        if column == self.value['RenameColChoose']:
-                            array[array.index(column)] = name
-                self.baseDf.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
-                self.mainDf.rename(columns={self.value['RenameColChoose']: name}, inplace=True)
-                if self.value['TableActiveCheck']:
-                    self.window['TablePreview'].update(preview_columns_form(self.mainDf))
-                self.print(f'Column {self.value["RenameColChoose"]} has been renamed. New name is {name}.')
-                self.update_choose_elements()
-
-            if self.event == 'RenameImage':
-                if self.show_ester_egg < 4:
-                    self.print('Nothing here.')
-                    self.show_ester_egg += 1
-                elif self.show_ester_egg == 4:
-                    self.print('Do you really hope to find something clicking this image?')
-                    self.show_ester_egg += 1
-                elif self.show_ester_egg == 5:
-                    self.print('Come on. Click it much stronger.')
-                    self.show_ester_egg += 1
-                elif 5 < self.show_ester_egg < 10:
-                    self.show_ester_egg += 1
-                else:
-                    self.print('Wow wow, you are really crazy. Okay, I\'l show you something interesting!')
-                    self.show_ester_egg = 0
-                    window = VRGUI(egg_window, title='Something fine', location=self.window.current_location(), element_justification='c', margins=(0, 0), element_padding=(0, 0)).window_return()
-                    gif_filename = 'Debug_Wallpaper\\starwars.gif'
-
-                    interframe_duration = Image.open(gif_filename).info['duration']  # get how long to delay between frames
-                    win_closed = False
-                    while True:
-                        for frame in ImageSequence.Iterator(Image.open(gif_filename)):
-                            event, values = window.read(timeout=interframe_duration)
-                            if event == sg.WIN_CLOSED:
-                                win_closed = True
-                                break
-                            window['-EGGIMAGE-'].update(data=ImageTk.PhotoImage(frame))
-                        if win_closed:
-                            break
-
-            if self.event == 'GraphMode':
-                self.window.hide()
-                self.print('Entering graph window.')
-                VRGraphsProcessing(self.mainDf, theme=self.theme).mainloop()
-                self.window.un_hide()
+    def graphWindow(self):
+        ...
