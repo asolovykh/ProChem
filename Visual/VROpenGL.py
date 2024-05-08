@@ -197,6 +197,7 @@ class VROpenGL:
         self.__cellPosition = self.__eyePosition.copy()
         self._BondRadius, self._BondLength, self._allBondsCalculate, self._BondsInfo = None, None, True, dict()
         self._cubeCoveredTexture, self._cubeCoveredTexture_sampler = None, None
+        self.__isCalculationLoaded = False
         environ['SDL_VIDEODRIVER'] = 'windib'
         pygame.init()
         try:
@@ -229,6 +230,7 @@ class VROpenGL:
         self.__DisplayCenter = [self.__scree.get_size()[i] // 2 for i in range(2)]
         pygame.mouse.set_pos(self.__DisplayCenter)
         self.__program = VRShaders(self.__projectDirectory + '\\Visual\\Shaders', [r'vertex_shader.glsl', r'fragment_shader.glsl'], ['VERTEX', 'FRAGMENT'])
+        # self.__axesPrimitives = [Primitives(1.0, [i, j, k]).Tube(1.0, 1.0, 64)]
         self._VBOBuffers = [VRVBO(self.__primitives['Primitive'][:-1], self.__primitives['Primitive'][-1]).createVaoBuffer()]
         self.loadTexture()
 
@@ -296,16 +298,20 @@ class VROpenGL:
     @sendDataToLogger
     def loadCalculationInfo(self, calculation):
         self.__calculation = calculation
+        self.__isCalculationLoaded = True
+
+    def completeLoadOfCalculation(self):
         self.__primitives.clear()
         self._VBOBuffers.clear()
         self._BuffersLabels.clear()
         self.__cellPosition[1] = self.__calculation['BASIS_VERT'].max()
-        for _, atom in enumerate(calculation['ATOMSINFO']):
-            self.__primitives[atom] = Primitives(1, calculation['ATOMSINFO'][atom]['COLORVALUE']).Sphere(calculation['ATOMSINFO'][atom]['RADII'], 32, 32)
-            self.__primitives[f'{atom}_Sel'] = Primitives(1, calculation['ATOMSINFO'][atom]['COLORVALUE'] * 0.6).Sphere(calculation['ATOMSINFO'][atom]['RADII'] * 1.15, 32, 32)
+        for _, atom in enumerate(self.__calculation['ATOMSINFO']):
+            self.__primitives[atom] = Primitives(1, self.__calculation['ATOMSINFO'][atom]['COLORVALUE']).Sphere(self.__calculation['ATOMSINFO'][atom]['RADII'], 32, 32)
+            self.__primitives[f'{atom}_Sel'] = Primitives(1, self.__calculation['ATOMSINFO'][atom]['COLORVALUE'] * 0.6).Sphere(self.__calculation['ATOMSINFO'][atom]['RADII'] * 1.15, 32, 32)
         for _, key in enumerate(self.__primitives):
             self._VBOBuffers.append(VRVBO(self.__primitives[key][:-1], self.__primitives[key][-1]).createVaoBuffer())
             self._BuffersLabels.append(key)
+        self.__isCalculationLoaded = False
 
     @sendDataToLogger
     def withoutCalculation(self):
@@ -583,6 +589,8 @@ class VROpenGL:
         run = True
 
         while run:
+            if self.__isCalculationLoaded:
+                self.completeLoadOfCalculation()
             # glLoadIdentity()
             # glMultMatrixf(self.rotationMatrix)
             if self.isPerspective:

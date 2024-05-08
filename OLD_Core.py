@@ -1239,7 +1239,7 @@ class VRVisual(VRGUI, VRPrint):
         win32gui.SetForegroundWindow(hwnd)
         bbox = win32gui.GetWindowRect(hwnd)
         screenshot = ImageGrab.grab(bbox, include_layered_windows=True)
-        screenshot_dir = sg.PopupGetFile('Save screenshot', save_as=True, no_window=True, file_types=(("Png", "*.png"), ("Bmp", "*.bmp"), ("Jpg", "*.jpg"), ("Tiff", "*.tiff"), ("Tif", "*.tif")))
+        screenshot_dir = sg.PopupGetFile('Save screenshot', save_as=True, no_window=True, file_types=(("Png", "*.png"), ("Bmp", "*.bmp"), ("Jpg", "*.jpg"), ("Tiff", "*.tiff"), ("Tif", "*.tif"), ("Eps", "*.eps")))
         if screenshot_dir:
             screenshot.save(screenshot_dir, dpi=self.display)
 

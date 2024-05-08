@@ -253,3 +253,39 @@ class Primitives:
         p, n, t = p.reshape((-1, 3)), n.reshape((-1, 3)), t.reshape((-1, 2))
         color = np.array([self.color] * 2 * (nSlices + 1)).reshape((-1, 3))
         return p, color, n, t, el
+
+    def Cone(self, radius, height, nSlices):
+        p = np.zeros(6 * (nSlices + 1), dtype='f')
+        n = np.zeros(6 * (nSlices + 1), dtype='f')
+        el = np.zeros(6 * (nSlices + 1), dtype='i')
+        t = np.zeros(4 * (nSlices + 1), dtype='f')
+        p[0] = radius * self.scaling
+        p[3], p[5] = radius * self.scaling, height * self.scaling
+        phi_factor = 2 * np.pi / nSlices
+        n[0], n[1], n[3], n[4] = 1.0, 0.0, 1.0, 0.0
+        el[0], el[1], el[2], el[3], el[4], el[5] = 0, 1, 2, 1, 2, 3
+        tIdx = 2
+        t[0], t[1], t[2], t[3] = 0, 0, 1, 0
+        for ind in range(1, nSlices + 1):
+            nx = np.cos(phi_factor * ind)
+            ny = np.sin(phi_factor * ind)
+            nz = 0
+            px, py = radius * nx, radius * ny
+            p[6 * ind] = px * self.scaling
+            p[6 * ind + 1] = py * self.scaling
+
+            p[6 * ind + 3] = px * self.scaling
+            p[6 * ind + 4] = py * self.scaling
+            p[6 * ind + 5] = height * self.scaling
+
+            n[6 * ind], n[6 * ind + 1], n[6 * ind + 3], n[6 * ind + 4] = nx, ny, nx, ny
+
+            el[6 * ind], el[6 * ind + 1], el[6 * ind + 2], el[6 * ind + 3], el[6 * ind + 4], el[6 * ind + 5] = 2 * ind, 2 * ind + 1, 2 * ind + 2, 2 * ind + 1, 2 * ind + 2, 2 * ind + 3
+
+            tFactor = ind / nSlices
+            t[4 * ind], t[4 * ind + 1], t[4 * ind + 2], t[4 * ind + 3] = 0, tFactor, 1, tFactor
+            tIdx += 4
+        el[-4], el[-2], el[-1] = 0, 0, 1
+        p, n, t = p.reshape((-1, 3)), n.reshape((-1, 3)), t.reshape((-1, 2))
+        color = np.array([self.color] * 2 * (nSlices + 1)).reshape((-1, 3))
+        return p, color, n, t, el

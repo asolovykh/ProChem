@@ -1,8 +1,8 @@
 import os
 import copy
 import random
+import traceback
 import numpy as np
-from Logs.VRLogger import sendDataToLogger
 
 
 def deletedPositionsToNone(directPositionsArray, positionsArray):
@@ -87,12 +87,11 @@ def formAtomsWithNumsDict(parserParameters):
 
 class VRMD:
 
-    @sendDataToLogger
-    def __init__(self, directory, logger):
-        self.__logger = logger
-        self._parserParameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP'}
+    def __init__(self, directory, parserParametersDict):
+        self._parserParameters = parserParametersDict
+        self._parserParameters.update({'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP', 'BREAKER': False, 'MESSAGE': ''})
         self.XMLLIST = []
-        vaspnum, self.breaker = 0, False
+        vaspnum = 0
         try:
             for vaspfile in os.listdir(directory):
                 if vaspfile.endswith('.xml'):
@@ -100,12 +99,13 @@ class VRMD:
                     self._parserParameters[vaspfile] = {'ATOMNAMES': [], 'ATOMNUMBER': 0, 'POMASS': [], 'POSITIONS': [], 'POTIM': 0., 'TYPE': []}
                     self.XMLLIST.append(vaspfile)
         except AttributeError as err:
-            self.__logger.addMessage('Exception occurred when watching for vaspruns in directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Directory reading', detailed_description=err)
+            self._parserParameters['BREAKER'] = True
+            self._parserParameters['MESSAGE'] = 'Exception occurred when watching for vaspruns in directory.\n' + traceback.format_exc()
         self.XMLLIST.sort()
         self._parserParameters['XMLLIST'] = self.XMLLIST
         if vaspnum == 0:
-            self.breaker = True
-            self.__logger.addMessage('There are no Vasprun files in the directory.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='No vaspruns')
+            self._parserParameters['BREAKER'] = True
+            self._parserParameters['MESSAGE'] = 'There are no Vasprun files in the directory.'
         elif vaspnum != 0:
             for vInd in range(len(self.XMLLIST)):
                 POTIMRead, BASISRead = True, True
@@ -142,8 +142,8 @@ class VRMD:
                                     if array != self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'][-1]:
                                         self._parserParameters[self.XMLLIST[vInd]]['POSITIONS'].append(array)
                             except Exception as err:
-                                self.breaker = True
-                                self.__logger.addMessage('There are mistakes with reading positions.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
+                                self._parserParameters['BREAKER'] = True
+                                self._parserParameters['MESSAGE'] = 'There are mistakes with reading positions.\n' + traceback.format_exc()
                         if BASISRead and '<varray name="basis" >' in line:
                             basisStr = [VASP.readline() for _ in range(3)]
                             basis = [list(map(float, basisStr[index].split()[1:4])) for index in range(len(basisStr))]
@@ -184,11 +184,8 @@ class VRMD:
                     self._parserParameters['ID'] = [self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1) for ind in range(self._parserParameters['ATOMNUMBER'])]
                     self._parserParameters['ID-TO-NUM'] = {self._parserParameters['ATOMNAMES'][ind] + "_" + str(ind + 1): ind for ind in range(self._parserParameters['ATOMNUMBER'])}
                 except KeyError as err:
-                    self.breaker = True
-                    self.__logger.addMessage('There are mistakes with reading positions and/or basis.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Damaged vaspruns', detailed_description=err)
-
-    def getLogger(self):
-        return self.__logger
+                    self._parserParameters['BREAKER'] = True
+                    self._parserParameters['MESSAGE'] = 'There are mistakes with reading positions and/or basis.\n' + traceback.format_exc()
 
     def __call__(self, *args, **kwargs):
         return self._parserParameters
@@ -212,8 +209,8 @@ class VRMD:
                         if dictionary[XML[file]]['REMOVED'][index]:
                             dictionary[XML[file + 1]]['REMOVED'].insert(index, True)
                 if sum(differ) != dictionary[XML[0]]['ATOMNUMBER'] - dictionary[XML[file + 1]]['ATOMNUMBER']:
-                    self.breaker = True
-                    self.__logger.addMessage('Vasprun files present different calculations.', self.__class__.__name__, 'Parsing vaspruns', result='FAILED', cause='Different calculations')
+                    self._parserParameters['BREAKER'] = True
+                    self._parserParameters['MESSAGE'] = 'Vasprun files present different calculations.'
 
     @ staticmethod
     def positionArrayForm(dictionary):
@@ -231,7 +228,6 @@ class QEMD:
     __atomicUnitsDistanceConstant = 1.889725988579
     __atomicUnitsTimeConstantToFs = 0.024189
 
-    @sendDataToLogger
     def __init__(self, directory, logger):
         self.__logger = logger
         self.directory = directory
@@ -260,22 +256,18 @@ class QEMD:
     def __call__(self, *args, **kwargs):
         return self._parserParameters
 
-    @sendDataToLogger
     def potimToFs(self):
         for num, potim in enumerate(self._parserParameters['POTIM']):
             self._parserParameters['POTIM'][num] = potim / self.__atomicUnitsTimeConstantToFs
 
-    @sendDataToLogger
     def cartesianToDirect(self):
         self._parserParameters['DIRECT'] = np.array([np.dot(self._parserParameters['POSITIONS'], np.linalg.inv(self._parserParameters['BASIS']))])[0]
         self._parserParameters['DIRECT'] = self._parserParameters['DIRECT'] - 0.5
         self.directToCartesian()
 
-    @sendDataToLogger
     def directToCartesian(self):
         self._parserParameters['POSITIONS'] = np.array([np.dot(self._parserParameters['DIRECT'], self._parserParameters['BASIS'])])[0]
 
-    @sendDataToLogger
     def checkForQEFiles(self, directory):
         files = os.listdir(directory)
         folders = []
@@ -299,7 +291,6 @@ class QEMD:
                     return True
             return False
 
-    @sendDataToLogger
     def read_coord_file(self):
         stepsCounter = 0
         nowPotim = None
@@ -336,7 +327,6 @@ class QEMD:
         self._parserParameters['POSITIONS'] = np.array(self._parserParameters['POSITIONS']) / self.__atomicUnitsDistanceConstant
         self.cartesianToDirect()
 
-    @sendDataToLogger
     def readCellFile(self):
         with open(self.dirToReadFiles + '\\' + self.calculationFiles['cel']) as cell:
             cell.readline()
@@ -348,7 +338,6 @@ class QEMD:
             # Создание вершин границы ячейки
             self._parserParameters['BASIS_VERT'] = np.dot(np.asarray(cubeVert), self._parserParameters['BASIS'])
 
-    @sendDataToLogger
     def readInputFile(self):
         with open(self.directory + '\\' + self.inputFile) as inp:
             while True:

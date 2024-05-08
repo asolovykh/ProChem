@@ -22,7 +22,7 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         super(VRProcessing, self).__init__()
         self.__app = app
         self.__settings = settings
-        location = self.__settings.processing_window_location
+        location = self.__settings.processingWindowLocation
         self.__parent = visualWindowObject
         self.__logger = printWindowObject
         self.__openGl = openGlWindowObject
@@ -142,22 +142,16 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
     @sendDataToLogger
     def formBasePandasDf(self):
         data = []
+        selectedColumnsNums = [num for num, column in enumerate(self._selected_atoms) if 'Sel' in column]
         for step in range(self.__calculation['STEPS']):
             temp, counter = [], 0
-            for atom_num in range(self.__calculation['ATOMNUMBER']):
-                if 'Sel' in self._selected_atoms[atom_num]:
-                    if step > 0:
-                        badColumns = self.atomAway(self.__calculation['DIRECT'][step][atom_num], data[step - 1][counter])
-                        if badColumns:
-                            temp.append(self.atomAwayColumnsFix(data, counter, badColumns, step, atom_num))
-                        else:
-                            temp.append(self.__calculation['DIRECT'][step][atom_num])
-                        del badColumns
-                    else:
-                        temp.append(self.__calculation['DIRECT'][step][atom_num])
-                    counter += 1
+            for atom_num in selectedColumnsNums:
+                if step > 0:
+                    temp.append(self.atomAwayProcessing(self.__calculation['DIRECT'][step][atom_num], data[step - 1][counter]))
+                else:
+                    temp.append(self.__calculation['DIRECT'][step][atom_num])
+                counter += 1
             data.append(temp.copy())
-            del temp
         data = np.asarray(data)
         data = data.reshape((-1, 3 * len(self._selectedNames)))
         baseDf = pd.DataFrame(data, columns=self.directColumns)
@@ -175,25 +169,13 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         return baseDf
 
     @staticmethod
-    def atomAway(direct, data):
-        badColumns = []
+    def atomAwayProcessing(direct, data):
+        column = direct.copy()
         for num, _ in enumerate(direct):
-            if direct[num] - data[num] > 0.9:
-                badColumns.append((num, 'minus'))
-            elif data[num] - direct[num] > 0.9:
-                badColumns.append((num, 'plus'))
-        return badColumns
-
-    @sendDataToLogger
-    def atomAwayColumnsFix(self, data, counter, badColumns, step, atom_num):
-        newCol = self.__calculation['DIRECT'][step][atom_num].tolist()
-        for num, operation in badColumns:
-            exprFactor = round(abs(self.__calculation['DIRECT'][step][atom_num][num] - data[step - 1][counter][num]))
-            if operation == 'plus':
-                newCol[num] = newCol[num] + exprFactor
-            else:
-                newCol[num] = newCol[num] - exprFactor
-        return np.array(newCol)
+            exprFactor = round(data[num] - direct[num])
+            if exprFactor:
+                column[num] = column[num] + exprFactor
+        return column
 
     @sendDataToLogger
     def velocitiesAndEnergiesCalc(self):

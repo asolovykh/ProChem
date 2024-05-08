@@ -1,8 +1,11 @@
 import os
 import codecs
+import time
+
 from Processing.VRMD import VRMD, QEMD
 from Processing.VRProcessing import VRProcessing
 from Processing.VROszicar import VROszicar
+from threading import Thread, Lock, main_thread
 from Gui.VRVisualGUI import Ui_VRVisual, QColorDialog, QFileDialog, QMainWindow
 from PySide6.QtGui import QCloseEvent
 from Logs.VRLogger import sendDataToLogger
@@ -19,6 +22,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.__calculations = dict()
         self.__app = app
         self.__settings = settings
+        self.parserThreads, self.parserDicts = [], []
+        self.threadsLocker = Lock()
         location = self.__settings.visualWindowLocation
         self.setupUi(self)
         self.linkElementsWithFunctions()
@@ -32,6 +37,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self._stepSliderSpeed = 1
         self._backgroundColor = (0.6, 0.6, 0.6, 1.0)
         self._windowClosed = False
+        self.parserCheckThread = Thread(target=self.checkParsers, daemon=True)
+        self.parserCheckThread.start()
 
     def linkWithOpenGlWindow(self, windowObject):
         self.__openGlWindow = windowObject
@@ -53,6 +60,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.SpeedSlider.actionTriggered.connect(self.speedChange)
         self.APerspective.toggled.connect(self.perspectiveChose)
         self.AOrthographic.toggled.connect(self.orthographicChose)
+        self.AKeyboard.toggled.connect(self.keyboardSelect)
+        self.AMouse_keyboard.toggled.connect(self.mouseAndKeyboardSelect)
         self.MoveBack.clicked.connect(self.backwardMove)
         self.MoveForward.clicked.connect(self.forwardMove)
         self.ToFirstStep.clicked.connect(self.toFirstStep)
@@ -80,15 +89,15 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
 
     @sendDataToLogger(operationType='user')
     def backwardMove(self):
-        self.__openGlWindow.Back_Step = True
+        self.__openGlWindow.BackStep = True
 
     @sendDataToLogger(operationType='user')
     def forwardMove(self):
-        self.__openGlWindow.Forward_Step = True
+        self.__openGlWindow.ForwardStep = True
 
     def stopStepChanging(self):
-        self.__openGlWindow.Back_Step = False
-        self.__openGlWindow.Forward_Step = False
+        self.__openGlWindow.BackStep = False
+        self.__openGlWindow.ForwardStep = False
 
     @sendDataToLogger(operationType='user')
     def openCalculationFolder(self):
@@ -103,29 +112,51 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         event.accept()
 
     @sendDataToLogger(operationType='user')
+    def keyboardSelect(self, checked, *args):
+        if checked:
+            self.AKeyboard.setChecked(True)
+            self.AMouse_keyboard.setChecked(False)
+            self.__openGlWindow.onlyKeyboardSelect = True
+        else:
+            self.AKeyboard.setChecked(False)
+            self.AMouse_keyboard.setChecked(True)
+            self.__openGlWindow.onlyKeyboardSelect = False
+
+    @sendDataToLogger(operationType='user')
+    def mouseAndKeyboardSelect(self, checked, *args):
+        if checked:
+            self.AKeyboard.setChecked(False)
+            self.AMouse_keyboard.setChecked(True)
+            self.__openGlWindow.onlyKeyboardSelect = False
+            self.addMessage('Changed to mouse+keyboard mode.')
+        else:
+            self.AKeyboard.setChecked(True)
+            self.AMouse_keyboard.setChecked(False)
+            self.__openGlWindow.onlyKeyboardSelect = True
+            self.addMessage('Changed to keyboard mode.')
+
+    @sendDataToLogger(operationType='user')
     def perspectiveChose(self, checked, *args):
         if checked:
             self.APerspective.setChecked(True)
             self.AOrthographic.setChecked(False)
-            self.__openGlWindow.is_perspective = True
-            self.addMessage('Changed to perspective view')
+            self.__openGlWindow.isPerspective = True
         else:
             self.APerspective.setChecked(False)
             self.AOrthographic.setChecked(True)
-            self.__openGlWindow.is_perspective = False
-            self.addMessage('Changed to orthographic view')
+            self.__openGlWindow.isPerspective = False
 
     @sendDataToLogger(operationType='user')
     def orthographicChose(self, checked, *args):
         if checked:
             self.APerspective.setChecked(False)
             self.AOrthographic.setChecked(True)
-            self.__openGlWindow.is_perspective = False
+            self.__openGlWindow.isPerspective = False
             self.addMessage('Changed to orthographic view')
         else:
             self.APerspective.setChecked(True)
             self.AOrthographic.setChecked(False)
-            self.__openGlWindow.is_perspective = True
+            self.__openGlWindow.isPerspective = True
             self.addMessage('Changed to perspective view')
 
     @sendDataToLogger(operationType='user')
@@ -149,22 +180,37 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.stopStepChanging()
         self.calculationFolder = self.DirectoryPath.text()
         if self.calculationFolder not in self.__calculations:
-            parserObj = VRMD(self.calculationFolder, self.getLogger())
-            self.__calculations[self.calculationFolder] = parserObj._parser_parameters
-            if parserObj.breaker:
-                self.__calculations.pop(self.calculationFolder)
-                parserObj = QEMD(self.calculationFolder, self.getLogger())
-                self.__calculations[self.calculationFolder] = parserObj._parser_parameters
-            if not parserObj.breaker:
-                self.__openGlWindow.loadCalculationInfo(self.__calculations[self.calculationFolder])
-                self.addMessage(f'Chosen {self.calculationFolder} appended.\n')
-                self.AddedCalculations.addItem(self.calculationFolder)
-                self.AddedCalculations.setPlaceholderText(self.calculationFolder)
-                self.StepSlider.setMaximum(self.__calculations[self.calculationFolder]['STEPS'] - 1)
-                self.StepSlider.setValue(0)
-                self.__openGlWindow._step = 0
-            else:
-                self.__calculations.pop(self.calculationFolder)
+            self.parserDicts.append(dict())
+            self.parserThreads.append(Thread(target=VRMD, args=(self.calculationFolder, self.parserDicts[-1],), daemon=True))
+            self.parserThreads[-1].start()
+
+    def checkParsers(self):
+        while True:
+            if self.parserThreads:
+                for num, thread in enumerate(self.parserThreads.copy()):
+                    if not thread.is_alive():
+                        with self.threadsLocker:
+                            self.processAddAction(self.parserDicts[num])
+                            self.parserThreads.pop(num)
+                            self.parserDicts.pop(num)
+            time.sleep(0.1)
+
+    def processAddAction(self, parserParameters):
+        self.__calculations[self.calculationFolder] = parserParameters
+        if parserParameters['BREAKER']:
+            self.__calculations.pop(self.calculationFolder)
+            self.addMessage(parserParameters['MESSAGE'], fromWindow='VRMD', result='FAILED',
+                            detailedDescription=parserParameters['MESSAGE'])
+            # parserObj = QEMD(self.calculationFolder, self.getLogger())
+            # self.__calculations[self.calculationFolder] = parserObj._parserParameters
+        else:
+            self.__openGlWindow.loadCalculationInfo(self.__calculations[self.calculationFolder])
+            self.addMessage(f'Chosen {self.calculationFolder} appended.\n')
+            self.AddedCalculations.addItem(self.calculationFolder)
+            self.AddedCalculations.setPlaceholderText(self.calculationFolder)
+            self.StepSlider.setMaximum(self.__calculations[self.calculationFolder]['STEPS'] - 1)
+            self.StepSlider.setValue(0)
+            self.__openGlWindow._step = 0
 
     @sendDataToLogger(operationType='user')
     def deleteCalculation(self):
@@ -189,7 +235,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.__openGlWindow._step = 0
 
     @sendDataToLogger(operationType='user')
-    def changeActiveCalculation(self):
+    def changeActiveCalculation(self, *args):
         self.stopStepChanging()
         newCalculationFolder = self.AddedCalculations.currentText()
         if newCalculationFolder != self.calculationFolder:
