@@ -1,18 +1,20 @@
 import os
 import codecs
 import time
-
+from multiprocessing import Process, Lock as MLock, cpu_count, Manager
+from threading import Thread, Lock as TLock
 from Processing.VRMD import VRMD, QEMD
 from Processing.VRProcessing import VRProcessing
 from Processing.VROszicar import VROszicar
-from threading import Thread, Lock, main_thread
-from Gui.VRVisualGUI import Ui_VRVisual, QColorDialog, QFileDialog, QMainWindow
+from Gui.VRVisualGUI import Ui_VRVisual, QMainWindow
 from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QColorDialog, QFileDialog
 from Logs.VRLogger import sendDataToLogger
 
 
 class VRVisualWindow(Ui_VRVisual, QMainWindow):
     __project_directory = os.path.abspath('')
+    __cpu_count = cpu_count()
 
     @sendDataToLogger
     def __init__(self, app, settings, printWindowObject):
@@ -22,13 +24,17 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.__calculations = dict()
         self.__app = app
         self.__settings = settings
-        self.parserThreads, self.parserDicts = [], []
-        self.threadsLocker = Lock()
+        self.parserThreads, self.parserProcesses, self.parserDicts = [], [], []
+        self.threadsLocker, self.processesLocker = TLock(), MLock()
+        self.isThreadingMode = True
         location = self.__settings.visualWindowLocation
         self.setupUi(self)
         self.linkElementsWithFunctions()
         if location is not None:
             self.move(location[0], location[1])
+        if self.__cpu_count > 4:
+            self.AThreading.setEnabled(True)
+            self.AMultiprocessing.setEnabled(True)
         self.show()
 
         self.__openGlWindow = None
@@ -68,6 +74,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.ToLastStep.clicked.connect(self.toLastStep)
         self.AProcessing.triggered.connect(self.processingStart)
         self.AOSZICAR.triggered.connect(self.oszicarWindow)
+        self.AThreading.toggled.connect(self.settingsThreading)
+        self.AMultiprocessing.toggled.connect(self.settingsMultiprocessing)
 
     def getLogger(self):
         return self.__logger
@@ -76,6 +84,36 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         if fromWindow is None:
             fromWindow = self.__class__.__name__
         self.__logger.addMessage(message, fromWindow, operation, operationType, result, cause, detailedDescription)
+
+    @sendDataToLogger(operationType='user')
+    def settingsMultiprocessing(self, checked):
+        if checked:
+            self.AThreading.setChecked(False)
+            self.AMultiprocessing.setChecked(True)
+        else:
+            self.AThreading.setChecked(True)
+            self.AMultiprocessing.setChecked(False)
+        self.isThreadingMode = not checked
+
+    @sendDataToLogger(operationType='user')
+    def settingsThreading(self, checked):
+        if checked:
+            self.AThreading.setChecked(True)
+            self.AMultiprocessing.setChecked(False)
+        else:
+            self.AThreading.setChecked(False)
+            self.AMultiprocessing.setChecked(True)
+        self.isThreadingMode = checked
+
+    @sendDataToLogger
+    def blockParserModeChanging(self):
+        self.AThreading.setEnabled(False)
+        self.AMultiprocessing.setEnabled(False)
+
+    @sendDataToLogger
+    def enableParserModeChanging(self):
+        self.AThreading.setEnabled(True)
+        self.AMultiprocessing.setEnabled(True)
 
     @sendDataToLogger(operationType='user')
     def toFirstStep(self):
@@ -180,37 +218,67 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.stopStepChanging()
         self.calculationFolder = self.DirectoryPath.text()
         if self.calculationFolder not in self.__calculations:
-            self.parserDicts.append(dict())
-            self.parserThreads.append(Thread(target=VRMD, args=(self.calculationFolder, self.parserDicts[-1],), daemon=True))
-            self.parserThreads[-1].start()
+            if self.isThreadingMode:
+                self.parserDicts.append(dict())
+                self.parserThreads.append(Thread(target=VRMD, args=(self.calculationFolder, self.parserDicts[-1],), daemon=True))
+                self.parserThreads[-1].start()
+            else:
+                self.parserDicts.append(Manager().dict())
+                self.parserProcesses.append(Process(target=VRMD, args=(self.calculationFolder, self.parserDicts[-1],), daemon=True))
+                self.parserProcesses[-1].start()
+            self.blockParserModeChanging()
 
     def checkParsers(self):
         while True:
-            if self.parserThreads:
+            if self.isThreadingMode and self.parserThreads:
                 for num, thread in enumerate(self.parserThreads.copy()):
                     if not thread.is_alive():
                         with self.threadsLocker:
-                            self.processAddAction(self.parserDicts[num])
+                            self.processAddAction(self.parserDicts.pop(num))
                             self.parserThreads.pop(num)
-                            self.parserDicts.pop(num)
+                if not self.parserThreads:
+                    self.enableParserModeChanging()
+            elif not self.isThreadingMode and self.parserProcesses:
+                for num, process in enumerate(self.parserProcesses.copy()):
+                    if not process.is_alive():
+                        with self.processesLocker:
+                            self.processAddAction(dict(self.parserDicts.pop(num)))
+                            self.parserProcesses.pop(num)
+                if not self.parserProcesses:
+                    self.enableParserModeChanging()
             time.sleep(0.1)
 
     def processAddAction(self, parserParameters):
-        self.__calculations[self.calculationFolder] = parserParameters
+        directory = parserParameters['DIRECTORY']
+        self.__calculations[directory] = parserParameters
         if parserParameters['BREAKER']:
-            self.__calculations.pop(self.calculationFolder)
-            self.addMessage(parserParameters['MESSAGE'], fromWindow='VRMD', result='FAILED',
-                            detailedDescription=parserParameters['MESSAGE'])
+            self.__calculations.pop(directory)
+            self.addMessage(parserParameters['MESSAGE'], fromWindow='VRMD', result='FAILED', detailedDescription=parserParameters['MESSAGE'])
             # parserObj = QEMD(self.calculationFolder, self.getLogger())
             # self.__calculations[self.calculationFolder] = parserObj._parserParameters
         else:
-            self.__openGlWindow.loadCalculationInfo(self.__calculations[self.calculationFolder])
-            self.addMessage(f'Chosen {self.calculationFolder} appended.\n')
-            self.AddedCalculations.addItem(self.calculationFolder)
-            self.AddedCalculations.setPlaceholderText(self.calculationFolder)
-            self.StepSlider.setMaximum(self.__calculations[self.calculationFolder]['STEPS'] - 1)
+            self.__openGlWindow.loadCalculationInfo(self.__calculations[directory])
+            self.addMessage(f'Chosen {directory} appended.\n')
+            self.AddedCalculations.addItem(directory)
+            self.AddedCalculations.setCurrentText(directory)
+            self.StepSlider.setMaximum(self.__calculations[directory]['STEPS'] - 1)
             self.StepSlider.setValue(0)
             self.__openGlWindow._step = 0
+
+    @sendDataToLogger
+    def stopAllThreadsOrProcesses(self):
+        for num, process in enumerate(self.parserProcesses.copy()):
+            with self.processesLocker:
+                self.parserProcesses.pop(num)
+                self.parserDicts.pop(num)
+                process.terminate()
+            self.enableParserModeChanging()
+        for num, thread in enumerate(self.parserThreads.copy()):
+            with self.threadsLocker:
+                self.parserDicts.pop(num)
+                self.parserThreads.pop(num)
+            self.enableParserModeChanging()
+
 
     @sendDataToLogger(operationType='user')
     def deleteCalculation(self):
@@ -222,7 +290,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.__openGlWindow.loadCalculationInfo(self.__calculations[self.calculationFolder])
             self.StepSlider.setMaximum(self.__calculations[self.calculationFolder]['STEPS'] - 1)
             self.addMessage(f'Changed to {self.calculationFolder}.\n')
-            self.AddedCalculations.setPlaceholderText(self.calculationFolder)
+            self.AddedCalculations.setCurrentText(self.calculationFolder)
             index = [self.AddedCalculations.itemText(i) for i in range(self.AddedCalculations.count())].index(folderToDelete)
             self.AddedCalculations.removeItem(index)
         else:
@@ -230,7 +298,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.__openGlWindow.withoutCalculation()
             self.StepSlider.setMaximum(100)
             self.AddedCalculations.removeItem(0)
-            self.AddedCalculations.setPlaceholderText('Choose calculation to delete.')
+            self.AddedCalculations.setCurrentText('Choose calculation to delete.')
         self.StepSlider.setValue(0)
         self.__openGlWindow._step = 0
 
@@ -248,7 +316,9 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
 
     @sendDataToLogger(operationType='user')
     def processingStart(self):
+        self.calculationFolder = self.AddedCalculations.currentText() if self.AddedCalculations.count() else self.calculationFolder
         if self.__calculations[self.calculationFolder]['STEPS']:
+            self.stopAllThreadsOrProcesses()
             self.__processingWindow = VRProcessing(self.__app, self.__settings, self, self.getLogger(),
                                                    self.__openGlWindow, self.__calculations[self.calculationFolder], self.calculationFolder,
                                                    self.ADelete_coordinates_after_leave_cell.isChecked())
@@ -260,7 +330,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
 
     @sendDataToLogger(operationType='user')
     def oszicarWindow(self):
-        self.__oszicarWindow = VROszicar(self.calculationFolder, self.__app, self.__settings, self, self.__openGlWindow, self.__logger)
+        self.stopAllThreadsOrProcesses()
+        self.__oszicarWindow = VROszicar(self.DirectoryPath.text(), self.__app, self.__settings, self, self.__openGlWindow, self.__logger)
         self.__oszicarWindow.show()
 
     @sendDataToLogger(operationType='user')

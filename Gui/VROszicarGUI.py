@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VROszicarGUIBSYmze.ui'
+## Form generated from reading UI file 'VROszicarGUIeKFXEK.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -18,8 +18,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWindow,
     QMenu, QMenuBar, QPushButton, QSizePolicy,
-    QSpacerItem, QTableWidget, QTableWidgetItem, QVBoxLayout,
-    QWidget)
+    QSpacerItem, QTableView, QVBoxLayout, QWidget)
 import Gui.Resource_rc
 
 class Ui_VROszicar(object):
@@ -182,7 +181,7 @@ class Ui_VROszicar(object):
         self.verticalLayout.setSpacing(14)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(18, 9, 18, 18)
-        self.OszicarTableView = QTableWidget(self.OszicarMainWidget)
+        self.OszicarTableView = QTableView(self.OszicarMainWidget)
         self.OszicarTableView.setObjectName(u"OszicarTableView")
         self.OszicarTableView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.OszicarTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
@@ -219,7 +218,6 @@ class Ui_VROszicar(object):
 
         self.verticalLayout.addLayout(self.BottomLayout)
 
-        self.verticalLayout.setStretch(0, 1)
         VROszicar.setCentralWidget(self.OszicarMainWidget)
         self.OszicarMenubar = QMenuBar(VROszicar)
         self.OszicarMenubar.setObjectName(u"OszicarMenubar")

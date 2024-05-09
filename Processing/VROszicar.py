@@ -143,6 +143,7 @@ class VROszicar(Ui_VROszicar, QMainWindow):
             self.move(location[0], location[1])
         self.oszicarDf = VROszicarProcessing(directory, printWindowObject, [], []).oszicarDf
         self._model = VRPdModel(self.oszicarDf)
+        self.OszicarTableView.setModel(self._model)
         self.__parent.hide()
         self.__openGLWindow.hide()
 

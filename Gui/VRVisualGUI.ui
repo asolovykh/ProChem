@@ -710,7 +710,7 @@ border-radius: 2px;
      <addaction name="AConsole"/>
      <addaction name="AFileSharing"/>
     </widget>
-    <addaction name="AProvessing"/>
+    <addaction name="AProcessing"/>
     <addaction name="AOSZICAR"/>
     <addaction name="APOSCAR"/>
     <addaction name="ACHGCAR"/>
@@ -801,11 +801,25 @@ border-radius: 2px;
     <addaction name="separator"/>
     <addaction name="ABonds"/>
    </widget>
+   <widget class="QMenu" name="VisualSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <widget class="QMenu" name="menuParsing_using">
+     <property name="title">
+      <string>Parsing using</string>
+     </property>
+     <addaction name="AThreading"/>
+     <addaction name="AMultiprocessing"/>
+    </widget>
+    <addaction name="menuParsing_using"/>
+   </widget>
    <addaction name="VisualMenuFile"/>
    <addaction name="VisualMenuEdit"/>
    <addaction name="VisualMenuView"/>
    <addaction name="VisualMenuMods"/>
    <addaction name="VisualMenuTools"/>
+   <addaction name="VisualSettings"/>
    <addaction name="VisualMenuHelp"/>
   </widget>
   <action name="AOpen_calculation">
@@ -1011,7 +1025,7 @@ border-radius: 2px;
     </font>
    </property>
   </action>
-  <action name="AProvessing">
+  <action name="AProcessing">
    <property name="text">
     <string>Processing</string>
    </property>
@@ -1164,6 +1178,31 @@ border-radius: 2px;
    </property>
    <property name="text">
     <string>Orthographic</string>
+   </property>
+  </action>
+  <action name="AThreading">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Threading</string>
+   </property>
+  </action>
+  <action name="AMultiprocessing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Multiprocessing</string>
    </property>
   </action>
  </widget>

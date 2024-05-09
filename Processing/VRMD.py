@@ -88,8 +88,8 @@ def formAtomsWithNumsDict(parserParameters):
 class VRMD:
 
     def __init__(self, directory, parserParametersDict):
-        self._parserParameters = parserParametersDict
-        self._parserParameters.update({'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP', 'BREAKER': False, 'MESSAGE': ''})
+        self._toReturn = parserParametersDict
+        self._parserParameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP', 'BREAKER': False, 'MESSAGE': ''}
         self.XMLLIST = []
         vaspnum = 0
         try:
@@ -186,6 +186,7 @@ class VRMD:
                 except KeyError as err:
                     self._parserParameters['BREAKER'] = True
                     self._parserParameters['MESSAGE'] = 'There are mistakes with reading positions and/or basis.\n' + traceback.format_exc()
+        self._toReturn.update(self._parserParameters)
 
     def __call__(self, *args, **kwargs):
         return self._parserParameters

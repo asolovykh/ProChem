@@ -164,7 +164,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="OszicarMainWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
     <property name="spacing">
      <number>14</number>
     </property>
@@ -181,7 +181,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
      <number>18</number>
     </property>
     <item>
-     <widget class="QTableWidget" name="OszicarTableView">
+     <widget class="QTableView" name="OszicarTableView">
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
