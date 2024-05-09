@@ -98,9 +98,9 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.ADel_coords_of_sel_atoms.toggled.connect(self.delCoordsAction)
         self.ADel_energy_of_sel_atoms.toggled.connect(self.delEnergyAction)
         self.CreateExcel.clicked.connect(self.saveTable)
-        self.Back.clicked.connect(self.closeEvent)
-        self.ABack.toggled.connect(self.closeEvent)
-        self.AExit.toggled.connect(self.closeAll)
+        self.Back.clicked.connect(self.window().close)
+        self.ABack.triggered.connect(self.window().close)
+        self.AExit.triggered.connect(lambda: self.closeAll(QCloseEvent()))
 
     @sendDataToLogger
     def closeAll(self, event):

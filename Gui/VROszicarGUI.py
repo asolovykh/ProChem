@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VROszicarGUIeKFXEK.ui'
+## Form generated from reading UI file 'VROszicarGUItfFLii.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -25,7 +25,7 @@ class Ui_VROszicar(object):
     def setupUi(self, VROszicar):
         if not VROszicar.objectName():
             VROszicar.setObjectName(u"VROszicar")
-        VROszicar.resize(650, 500)
+        VROszicar.resize(800, 600)
         VROszicar.setMinimumSize(QSize(350, 400))
         icon = QIcon()
         icon.addFile(u":/VRlogo/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
@@ -191,6 +191,7 @@ class Ui_VROszicar(object):
         self.verticalLayout.addWidget(self.OszicarTableView)
 
         self.BottomLayout = QHBoxLayout()
+        self.BottomLayout.setSpacing(3)
         self.BottomLayout.setObjectName(u"BottomLayout")
         self.OszicarCreateExcelButton = QPushButton(self.OszicarMainWidget)
         self.OszicarCreateExcelButton.setObjectName(u"OszicarCreateExcelButton")
@@ -211,9 +212,9 @@ class Ui_VROszicar(object):
 
         self.BottomLayout.addItem(self.BottomHSpacer)
 
-        self.BottomLayout.setStretch(0, 1)
-        self.BottomLayout.setStretch(1, 1)
-        self.BottomLayout.setStretch(2, 1)
+        self.BottomLayout.setStretch(0, 2)
+        self.BottomLayout.setStretch(1, 2)
+        self.BottomLayout.setStretch(2, 2)
         self.BottomLayout.setStretch(3, 6)
 
         self.verticalLayout.addLayout(self.BottomLayout)
@@ -221,7 +222,7 @@ class Ui_VROszicar(object):
         VROszicar.setCentralWidget(self.OszicarMainWidget)
         self.OszicarMenubar = QMenuBar(VROszicar)
         self.OszicarMenubar.setObjectName(u"OszicarMenubar")
-        self.OszicarMenubar.setGeometry(QRect(0, 0, 650, 22))
+        self.OszicarMenubar.setGeometry(QRect(0, 0, 800, 22))
         self.OszicarMenuWindow = QMenu(self.OszicarMenubar)
         self.OszicarMenuWindow.setObjectName(u"OszicarMenuWindow")
         VROszicar.setMenuBar(self.OszicarMenubar)

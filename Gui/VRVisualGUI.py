@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRVisualGUIFXuaaC.ui'
+## Form generated from reading UI file 'VRVisualGUIZjhrkx.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -17,9 +17,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QHBoxLayout, QLineEdit, QMainWindow, QMenu,
-    QMenuBar, QPushButton, QSizePolicy, QSlider,
-    QSpacerItem, QTabWidget, QVBoxLayout, QWidget)
+    QHBoxLayout, QLabel, QLineEdit, QMainWindow,
+    QMenu, QMenuBar, QPushButton, QSizePolicy,
+    QSlider, QSpacerItem, QTabWidget, QVBoxLayout,
+    QWidget)
 import Gui.Resource_rc
 
 class Ui_VRVisual(object):
@@ -317,8 +318,9 @@ class Ui_VRVisual(object):
         self.MainWidget.setSizePolicy(sizePolicy)
         self.MainWidget.setStyleSheet(u"")
         self.gridLayout = QGridLayout(self.MainWidget)
-        self.gridLayout.setSpacing(8)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setHorizontalSpacing(8)
+        self.gridLayout.setVerticalSpacing(0)
         self.gridLayout.setContentsMargins(-1, 12, -1, -1)
         self.CentralWidget = QWidget(self.MainWidget)
         self.CentralWidget.setObjectName(u"CentralWidget")
@@ -390,37 +392,12 @@ class Ui_VRVisual(object):
         self.horizontalLayout.addWidget(self.ToLastStep)
 
 
-        self.gridLayout.addWidget(self.CentralWidget, 3, 0, 1, 4)
+        self.gridLayout.addWidget(self.CentralWidget, 5, 0, 1, 4)
 
-        self.DeleteCalculationButton = QPushButton(self.MainWidget)
-        self.DeleteCalculationButton.setObjectName(u"DeleteCalculationButton")
-        self.DeleteCalculationButton.setFont(font1)
-        self.DeleteCalculationButton.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.gridLayout.addWidget(self.DeleteCalculationButton, 1, 2, 1, 2)
-
-        self.BrowseButton = QPushButton(self.MainWidget)
-        self.BrowseButton.setObjectName(u"BrowseButton")
-        self.BrowseButton.setFont(font1)
-        self.BrowseButton.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.gridLayout.addWidget(self.BrowseButton, 0, 2, 1, 1)
-
-        self.CalculationAddButton = QPushButton(self.MainWidget)
-        self.CalculationAddButton.setObjectName(u"CalculationAddButton")
-        self.CalculationAddButton.setFont(font1)
-        self.CalculationAddButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.CalculationAddButton.setFlat(False)
-
-        self.gridLayout.addWidget(self.CalculationAddButton, 0, 3, 1, 1)
-
-        self.AddedCalculations = QComboBox(self.MainWidget)
-        self.AddedCalculations.setObjectName(u"AddedCalculations")
-        self.AddedCalculations.setFont(font)
-        self.AddedCalculations.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.gridLayout.addWidget(self.AddedCalculations, 1, 0, 1, 2)
-
+        self.TopWidget = QHBoxLayout()
+        self.TopWidget.setSpacing(6)
+        self.TopWidget.setObjectName(u"TopWidget")
+        self.TopWidget.setContentsMargins(-1, -1, -1, 8)
         self.DirectoryPath = QLineEdit(self.MainWidget)
         self.DirectoryPath.setObjectName(u"DirectoryPath")
         palette = QPalette()
@@ -438,13 +415,34 @@ class Ui_VRVisual(object):
         self.DirectoryPath.setPalette(palette)
         self.DirectoryPath.setFont(font)
 
-        self.gridLayout.addWidget(self.DirectoryPath, 0, 0, 1, 2)
+        self.TopWidget.addWidget(self.DirectoryPath)
+
+        self.BrowseButton = QPushButton(self.MainWidget)
+        self.BrowseButton.setObjectName(u"BrowseButton")
+        self.BrowseButton.setFont(font1)
+        self.BrowseButton.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.TopWidget.addWidget(self.BrowseButton)
+
+        self.CalculationAddButton = QPushButton(self.MainWidget)
+        self.CalculationAddButton.setObjectName(u"CalculationAddButton")
+        self.CalculationAddButton.setFont(font1)
+        self.CalculationAddButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.CalculationAddButton.setFlat(False)
+
+        self.TopWidget.addWidget(self.CalculationAddButton)
+
+        self.TopWidget.setStretch(0, 5)
+        self.TopWidget.setStretch(1, 1)
+        self.TopWidget.setStretch(2, 1)
+
+        self.gridLayout.addLayout(self.TopWidget, 0, 0, 1, 4)
 
         self.LowerWidget = QWidget(self.MainWidget)
         self.LowerWidget.setObjectName(u"LowerWidget")
         self.horizontalLayout_2 = QHBoxLayout(self.LowerWidget)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setContentsMargins(0, 8, 0, 8)
         self.HSpaser1 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_2.addItem(self.HSpaser1)
@@ -486,9 +484,53 @@ class Ui_VRVisual(object):
         self.horizontalLayout_2.setStretch(1, 3)
         self.horizontalLayout_2.setStretch(2, 1)
 
-        self.gridLayout.addWidget(self.LowerWidget, 4, 0, 1, 4)
+        self.gridLayout.addWidget(self.LowerWidget, 7, 0, 1, 4)
 
-        self.gridLayout.setColumnStretch(1, 1)
+        self.StepLabalWidget = QHBoxLayout()
+        self.StepLabalWidget.setObjectName(u"StepLabalWidget")
+        self.HSpacer3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.StepLabalWidget.addItem(self.HSpacer3)
+
+        self.StepLabel = QLabel(self.MainWidget)
+        self.StepLabel.setObjectName(u"StepLabel")
+        self.StepLabel.setAlignment(Qt.AlignCenter)
+
+        self.StepLabalWidget.addWidget(self.StepLabel)
+
+        self.HSpacer4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.StepLabalWidget.addItem(self.HSpacer4)
+
+        self.StepLabalWidget.setStretch(0, 1)
+        self.StepLabalWidget.setStretch(1, 5)
+        self.StepLabalWidget.setStretch(2, 1)
+
+        self.gridLayout.addLayout(self.StepLabalWidget, 6, 0, 1, 4)
+
+        self.DeleteCalculationWidget = QHBoxLayout()
+        self.DeleteCalculationWidget.setSpacing(6)
+        self.DeleteCalculationWidget.setObjectName(u"DeleteCalculationWidget")
+        self.DeleteCalculationWidget.setContentsMargins(-1, -1, -1, 8)
+        self.AddedCalculations = QComboBox(self.MainWidget)
+        self.AddedCalculations.setObjectName(u"AddedCalculations")
+        self.AddedCalculations.setFont(font)
+        self.AddedCalculations.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.DeleteCalculationWidget.addWidget(self.AddedCalculations)
+
+        self.DeleteCalculationButton = QPushButton(self.MainWidget)
+        self.DeleteCalculationButton.setObjectName(u"DeleteCalculationButton")
+        self.DeleteCalculationButton.setFont(font1)
+        self.DeleteCalculationButton.setCursor(QCursor(Qt.PointingHandCursor))
+
+        self.DeleteCalculationWidget.addWidget(self.DeleteCalculationButton)
+
+        self.DeleteCalculationWidget.setStretch(0, 7)
+        self.DeleteCalculationWidget.setStretch(1, 3)
+
+        self.gridLayout.addLayout(self.DeleteCalculationWidget, 1, 0, 1, 4)
+
         VRVisual.setCentralWidget(self.MainWidget)
         self.VisualMenubar = QMenuBar(VRVisual)
         self.VisualMenubar.setObjectName(u"VisualMenubar")
@@ -529,11 +571,6 @@ class Ui_VRVisual(object):
         self.menuParsing_using = QMenu(self.VisualSettings)
         self.menuParsing_using.setObjectName(u"menuParsing_using")
         VRVisual.setMenuBar(self.VisualMenubar)
-        QWidget.setTabOrder(self.DirectoryPath, self.BrowseButton)
-        QWidget.setTabOrder(self.BrowseButton, self.CalculationAddButton)
-        QWidget.setTabOrder(self.CalculationAddButton, self.AddedCalculations)
-        QWidget.setTabOrder(self.AddedCalculations, self.DeleteCalculationButton)
-        QWidget.setTabOrder(self.DeleteCalculationButton, self.StepSlider)
 
         self.VisualMenubar.addAction(self.VisualMenuFile.menuAction())
         self.VisualMenubar.addAction(self.VisualMenuEdit.menuAction())
@@ -672,16 +709,17 @@ class Ui_VRVisual(object):
 #endif // QT_CONFIG(tooltip)
         self.MoveForward.setText(QCoreApplication.translate("VRVisual", u">", None))
         self.ToLastStep.setText(QCoreApplication.translate("VRVisual", u">>", None))
-        self.DeleteCalculationButton.setText(QCoreApplication.translate("VRVisual", u"Delete", None))
-        self.BrowseButton.setText(QCoreApplication.translate("VRVisual", u"Browse", None))
-        self.CalculationAddButton.setText(QCoreApplication.translate("VRVisual", u"Add", None))
-        self.AddedCalculations.setCurrentText("")
-        self.AddedCalculations.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Choose calculation to delete", None))
         self.DirectoryPath.setText("")
         self.DirectoryPath.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Input calculation folder", None))
+        self.BrowseButton.setText(QCoreApplication.translate("VRVisual", u"Browse", None))
+        self.CalculationAddButton.setText(QCoreApplication.translate("VRVisual", u"Add", None))
 #if QT_CONFIG(tooltip)
         self.SpeedSlider.setToolTip("")
 #endif // QT_CONFIG(tooltip)
+        self.StepLabel.setText("")
+        self.AddedCalculations.setCurrentText("")
+        self.AddedCalculations.setPlaceholderText(QCoreApplication.translate("VRVisual", u"Choose calculation to delete", None))
+        self.DeleteCalculationButton.setText(QCoreApplication.translate("VRVisual", u"Delete", None))
         self.VisualMenuFile.setTitle(QCoreApplication.translate("VRVisual", u"File", None))
         self.VisualMenuEdit.setTitle(QCoreApplication.translate("VRVisual", u"Edit", None))
         self.VisualMenuLight.setTitle(QCoreApplication.translate("VRVisual", u"Light", None))

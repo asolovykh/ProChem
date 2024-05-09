@@ -119,19 +119,23 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
     def toFirstStep(self):
         self.__openGlWindow._step = 0
         self.StepSlider.setSliderPosition(0)
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     @sendDataToLogger(operationType='user')
     def toLastStep(self):
         self.__openGlWindow._step = self.__calculations[self.calculationFolder]['STEPS'] - 1
         self.StepSlider.setSliderPosition(self.__calculations[self.calculationFolder]['STEPS'] - 1)
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     @sendDataToLogger(operationType='user')
     def backwardMove(self):
         self.__openGlWindow.BackStep = True
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     @sendDataToLogger(operationType='user')
     def forwardMove(self):
         self.__openGlWindow.ForwardStep = True
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     def stopStepChanging(self):
         self.__openGlWindow.BackStep = False
@@ -208,6 +212,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
     def calculationStepChange(self):
         self.stopStepChanging()
         self.__openGlWindow._step = self.StepSlider.sliderPosition()
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     def speedChange(self):
         self._stepSliderSpeed = self.SpeedSlider.sliderPosition()
@@ -264,6 +269,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.StepSlider.setMaximum(self.__calculations[directory]['STEPS'] - 1)
             self.StepSlider.setValue(0)
             self.__openGlWindow._step = 0
+            self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     @sendDataToLogger
     def stopAllThreadsOrProcesses(self):
@@ -301,6 +307,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.AddedCalculations.setCurrentText('Choose calculation to delete.')
         self.StepSlider.setValue(0)
         self.__openGlWindow._step = 0
+        self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
 
     @sendDataToLogger(operationType='user')
     def changeActiveCalculation(self, *args):
@@ -312,12 +319,13 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
             self.StepSlider.setMaximum(self.__calculations[self.calculationFolder]['STEPS'] - 1)
             self.StepSlider.setValue(0)
             self.__openGlWindow._step = 0
+            self.StepLabel.setText(f'Step:\t{self.__openGlWindow._step}\tfrom\t{self.StepSlider.maximum()}')
             self.addMessage(f'Changed to {self.calculationFolder}.\n')
 
     @sendDataToLogger(operationType='user')
     def processingStart(self):
         self.calculationFolder = self.AddedCalculations.currentText() if self.AddedCalculations.count() else self.calculationFolder
-        if self.__calculations[self.calculationFolder]['STEPS']:
+        if self.__calculations.get(self.calculationFolder, None) is not None:
             self.stopAllThreadsOrProcesses()
             self.__processingWindow = VRProcessing(self.__app, self.__settings, self, self.getLogger(),
                                                    self.__openGlWindow, self.__calculations[self.calculationFolder], self.calculationFolder,

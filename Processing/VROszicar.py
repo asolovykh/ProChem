@@ -156,6 +156,11 @@ class VROszicar(Ui_VROszicar, QMainWindow):
         self.__logger.addMessage(message, fromWindow, operation, operationType, result, cause, detailedDescription)
 
     @sendDataToLogger
+    def closeAll(self, event):
+        self.__parent.close()
+        event.accept()
+
+    @sendDataToLogger
     def closeEvent(self, event=QCloseEvent()):
         self.__parent.show()
         self.__openGLWindow.show()
@@ -163,7 +168,10 @@ class VROszicar(Ui_VROszicar, QMainWindow):
 
     @sendDataToLogger
     def linkElementsWithFunctions(self):
-        ...
+        self.OszicarCreateExcelButton.clicked.connect(self.saveTable)
+        self.OszicarBack.clicked.connect(self.window().close)
+        self.ABack.triggered.connect(self.window().close)
+        self.AExit.triggered.connect(lambda: self.closeAll(QCloseEvent()))
 
     @sendDataToLogger(operationType='user')
     def saveTable(self):

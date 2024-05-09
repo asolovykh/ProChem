@@ -212,14 +212,17 @@ border-radius: 2px;
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0" columnstretch="0,1,0,0">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0" columnstretch="0,0,0,0">
     <property name="topMargin">
      <number>12</number>
     </property>
-    <property name="spacing">
+    <property name="horizontalSpacing">
      <number>8</number>
     </property>
-    <item row="3" column="0" colspan="4">
+    <property name="verticalSpacing">
+     <number>0</number>
+    </property>
+    <item row="5" column="0" colspan="4">
      <widget class="QWidget" name="CentralWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="leftMargin">
@@ -369,146 +372,120 @@ border-radius: 2px;
       </layout>
      </widget>
     </item>
-    <item row="1" column="2" colspan="2">
-     <widget class="QPushButton" name="DeleteCalculationButton">
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>12</pointsize>
-        <bold>true</bold>
-       </font>
+    <item row="0" column="0" colspan="4">
+     <layout class="QHBoxLayout" name="TopWidget" stretch="5,1,1">
+      <property name="spacing">
+       <number>6</number>
       </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
+      <property name="bottomMargin">
+       <number>8</number>
       </property>
-      <property name="text">
-       <string>Delete</string>
-      </property>
-     </widget>
+      <item>
+       <widget class="QLineEdit" name="DirectoryPath">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="PlaceholderText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="PlaceholderText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="PlaceholderText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Input calculation folder</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="BrowseButton">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>12</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Browse</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="CalculationAddButton">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>12</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
-    <item row="0" column="2">
-     <widget class="QPushButton" name="BrowseButton">
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>12</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>Browse</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QPushButton" name="CalculationAddButton">
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>12</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="text">
-       <string>Add</string>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QComboBox" name="AddedCalculations">
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="currentText">
-       <string/>
-      </property>
-      <property name="placeholderText">
-       <string>Choose calculation to delete</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QLineEdit" name="DirectoryPath">
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="PlaceholderText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="PlaceholderText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="PlaceholderText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <family>Times New Roman</family>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="placeholderText">
-       <string>Input calculation folder</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="4">
+    <item row="7" column="0" colspan="4">
      <widget class="QWidget" name="LowerWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,3,1">
        <property name="leftMargin">
         <number>0</number>
        </property>
        <property name="topMargin">
-        <number>0</number>
+        <number>8</number>
        </property>
        <property name="rightMargin">
         <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>0</number>
+        <number>8</number>
        </property>
        <item>
         <spacer name="HSpaser1">
@@ -614,6 +591,92 @@ border-radius: 2px;
        </item>
       </layout>
      </widget>
+    </item>
+    <item row="6" column="0" colspan="4">
+     <layout class="QHBoxLayout" name="StepLabalWidget" stretch="1,5,1">
+      <item>
+       <spacer name="HSpacer3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="StepLabel">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="HSpacer4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0" colspan="4">
+     <layout class="QHBoxLayout" name="DeleteCalculationWidget" stretch="7,3">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QComboBox" name="AddedCalculations">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="currentText">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Choose calculation to delete</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="DeleteCalculationButton">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>12</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -1207,11 +1270,6 @@ border-radius: 2px;
   </action>
  </widget>
  <tabstops>
-  <tabstop>DirectoryPath</tabstop>
-  <tabstop>BrowseButton</tabstop>
-  <tabstop>CalculationAddButton</tabstop>
-  <tabstop>AddedCalculations</tabstop>
-  <tabstop>DeleteCalculationButton</tabstop>
   <tabstop>StepSlider</tabstop>
  </tabstops>
  <resources>

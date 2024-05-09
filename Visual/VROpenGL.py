@@ -138,7 +138,7 @@ def GL_version():
 class VROpenGL:
     """Class for visualisation VASP and not only VASP calculation results. Have many features connected with bonds,
     cell and axes drawing and others options."""
-    __defaultDisplay = (800, 600)
+    __defaultDisplay = (1000, 750)
     __lightVariables = (GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7)
     __lightStates = {i: False for i in range(8)}
     __lightPositions = [[10, 10, 10], [10, 10, -10], [10, -10, 10], [10, -10, -10], [-10, 10, 10], [-10, 10, -10],

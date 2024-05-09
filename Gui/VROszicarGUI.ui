@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>500</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -197,7 +197,10 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="BottomLayout" stretch="1,1,1,6">
+     <layout class="QHBoxLayout" name="BottomLayout" stretch="2,2,2,6">
+      <property name="spacing">
+       <number>3</number>
+      </property>
       <item>
        <widget class="QPushButton" name="OszicarCreateExcelButton">
         <property name="text">
@@ -241,7 +244,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>650</width>
+     <width>800</width>
      <height>22</height>
     </rect>
    </property>
