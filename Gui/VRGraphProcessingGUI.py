@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRGraphProcessingGUIUDBxXF.ui'
+## Form generated from reading UI file 'VRGraphProcessingGUIVOvRGP.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -523,6 +523,9 @@ class Ui_VRGraphProcessing(object):
 
         self.GraphsView = QGraphicsView(self.MainWidget)
         self.GraphsView.setObjectName(u"GraphsView")
+        self.GraphsView.setDragMode(QGraphicsView.RubberBandDrag)
+        self.GraphsView.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+        self.GraphsView.setRubberBandSelectionMode(Qt.IntersectsItemBoundingRect)
 
         self.TopLayout.addWidget(self.GraphsView)
 

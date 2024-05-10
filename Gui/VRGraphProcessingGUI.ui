@@ -701,7 +701,17 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
        </layout>
       </item>
       <item>
-       <widget class="QGraphicsView" name="GraphsView"/>
+       <widget class="QGraphicsView" name="GraphsView">
+        <property name="dragMode">
+         <enum>QGraphicsView::RubberBandDrag</enum>
+        </property>
+        <property name="viewportUpdateMode">
+         <enum>QGraphicsView::SmartViewportUpdate</enum>
+        </property>
+        <property name="rubberBandSelectionMode">
+         <enum>Qt::IntersectsItemBoundingRect</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
