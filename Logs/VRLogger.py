@@ -1,3 +1,4 @@
+import os.path
 import sqlite3
 import traceback
 
@@ -29,8 +30,8 @@ def sendDataToLogger(func=None, operationType='program'):
 
 class VRLogger:
 
-    def __init__(self, dbName='logs.db'):
-        self._db_path = f'Logs\\{dbName}'
+    def __init__(self, project_dir, dbName='logs.db'):
+        self._db_path = project_dir + f'Logs\\{dbName}'
         self.__operationNumber = 1
         with sqlite3.connect(self._db_path) as con:
             cursor = con.cursor()

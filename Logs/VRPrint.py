@@ -7,7 +7,7 @@ from Gui.VRPrintGUI import Ui_VRPrint, QMainWindow
 class VRPrintWindow(Ui_VRPrint, QMainWindow):
 
     @sendDataToLogger
-    def __init__(self, app, settings, logger):
+    def __init__(self, app, settings, logger, project_dir):
         super(VRPrintWindow, self).__init__()
         self.__logger = logger
         self.__app = app
@@ -15,6 +15,7 @@ class VRPrintWindow(Ui_VRPrint, QMainWindow):
         self._visualWindowClosed = False
         self.__openGlWindow = None
         self.__settings = settings
+        self.__project_dir = project_dir
         location = self.__settings.printWindowLocation
         self.setupUi(self)
         if location is not None:
@@ -26,6 +27,9 @@ class VRPrintWindow(Ui_VRPrint, QMainWindow):
 
     def getLogger(self):
         return self.__logger
+
+    def getProjectDir(self):
+        return self.__project_dir
 
     def insertLogs(self, window, operation, operationType, result='SUCCESS', cause=None, detailedDescription=None):
         self.getLogger().insertLogs(window, operation, operationType, result, cause, detailedDescription)

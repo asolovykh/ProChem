@@ -773,11 +773,42 @@ border-radius: 2px;
      <addaction name="AConsole"/>
      <addaction name="AFileSharing"/>
     </widget>
-    <addaction name="AProcessing"/>
-    <addaction name="AOSZICAR"/>
-    <addaction name="APOSCAR"/>
-    <addaction name="ACHGCAR"/>
-    <addaction name="AIR_and_RAMAN"/>
+    <widget class="QMenu" name="menuVASP">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>VASP</string>
+     </property>
+     <addaction name="VASP_Processing"/>
+     <addaction name="VASP_OSZICAR"/>
+     <addaction name="VASP_POSCAR"/>
+     <addaction name="VASP_CHGCAR"/>
+     <addaction name="VASP_IR_and_RAMAN"/>
+    </widget>
+    <widget class="QMenu" name="menuLAMMPS">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>LAMMPS</string>
+     </property>
+     <addaction name="LAMMPS_Processing"/>
+    </widget>
+    <widget class="QMenu" name="menuSRIM">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>SRIM</string>
+     </property>
+     <addaction name="SRIM_Processing"/>
+    </widget>
+    <addaction name="menuVASP"/>
+    <addaction name="separator"/>
+    <addaction name="menuLAMMPS"/>
+    <addaction name="separator"/>
+    <addaction name="menuSRIM"/>
     <addaction name="separator"/>
     <addaction name="VisualMenuSupercomputer"/>
     <addaction name="separator"/>
@@ -1266,6 +1297,41 @@ border-radius: 2px;
    </property>
    <property name="text">
     <string>Multiprocessing</string>
+   </property>
+  </action>
+  <action name="LAMMPS_Processing">
+   <property name="text">
+    <string>Processing</string>
+   </property>
+  </action>
+  <action name="SRIM_Processing">
+   <property name="text">
+    <string>Processing</string>
+   </property>
+  </action>
+  <action name="VASP_Processing">
+   <property name="text">
+    <string>Processing</string>
+   </property>
+  </action>
+  <action name="VASP_OSZICAR">
+   <property name="text">
+    <string>OSZICAR</string>
+   </property>
+  </action>
+  <action name="VASP_POSCAR">
+   <property name="text">
+    <string>POSCAR</string>
+   </property>
+  </action>
+  <action name="VASP_CHGCAR">
+   <property name="text">
+    <string>CHGCAR</string>
+   </property>
+  </action>
+  <action name="VASP_IR_and_RAMAN">
+   <property name="text">
+    <string>IR and RAMAN</string>
    </property>
   </action>
  </widget>

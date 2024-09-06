@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRTransferredGUIGbJoPn.ui'
+## Form generated from reading UI file 'VRTransferredGUImLslbO.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -24,9 +24,9 @@ class Ui_VRTransferProgress(object):
     def setupUi(self, VRTransferProgress):
         if not VRTransferProgress.objectName():
             VRTransferProgress.setObjectName(u"VRTransferProgress")
-        VRTransferProgress.resize(456, 126)
-        VRTransferProgress.setMinimumSize(QSize(456, 126))
-        VRTransferProgress.setMaximumSize(QSize(456, 126))
+        VRTransferProgress.resize(456, 112)
+        VRTransferProgress.setMinimumSize(QSize(456, 112))
+        VRTransferProgress.setMaximumSize(QSize(456, 124))
         icon = QIcon()
         icon.addFile(u":/VRlogo/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
         VRTransferProgress.setWindowIcon(icon)
@@ -54,7 +54,9 @@ class Ui_VRTransferProgress(object):
         self.VRTransferProgressWidget = QWidget(VRTransferProgress)
         self.VRTransferProgressWidget.setObjectName(u"VRTransferProgressWidget")
         self.verticalLayout = QVBoxLayout(self.VRTransferProgressWidget)
+        self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(-1, 5, 5, 5)
         self.TransferTopWidget = QFrame(self.VRTransferProgressWidget)
         self.TransferTopWidget.setObjectName(u"TransferTopWidget")
         self.TransferTopWidget.setFrameShape(QFrame.StyledPanel)

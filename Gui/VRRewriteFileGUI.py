@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRRewriteFileGUISQhPSU.ui'
+## Form generated from reading UI file 'VRRewriteFileGUIZlZTNy.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -141,6 +141,7 @@ class Ui_RewriteFile(object):
         self.RewriteFileMainWidget.setObjectName(u"RewriteFileMainWidget")
         self.verticalLayout = QVBoxLayout(self.RewriteFileMainWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.RewriteAskLabel = QLabel(self.RewriteFileMainWidget)
         self.RewriteAskLabel.setObjectName(u"RewriteAskLabel")
         self.RewriteAskLabel.setAlignment(Qt.AlignCenter)

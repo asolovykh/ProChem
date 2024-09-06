@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VROszicarGUItfFLii.ui'
+## Form generated from reading UI file 'VROszicarGUINheJGE.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -178,9 +178,9 @@ class Ui_VROszicar(object):
         self.OszicarMainWidget = QWidget(VROszicar)
         self.OszicarMainWidget.setObjectName(u"OszicarMainWidget")
         self.verticalLayout = QVBoxLayout(self.OszicarMainWidget)
-        self.verticalLayout.setSpacing(14)
+        self.verticalLayout.setSpacing(6)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(18, 9, 18, 18)
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.OszicarTableView = QTableView(self.OszicarMainWidget)
         self.OszicarTableView.setObjectName(u"OszicarTableView")
         self.OszicarTableView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)

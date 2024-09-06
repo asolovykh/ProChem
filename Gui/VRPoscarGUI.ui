@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
-    <height>250</height>
+    <width>330</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>330</width>
-    <height>250</height>
+    <height>200</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
-    <height>350</height>
+    <width>330</width>
+    <height>200</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -144,10 +144,16 @@ QCheckBox{
   <widget class="QWidget" name="PoscarMainWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="leftMargin">
-     <number>13</number>
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
     </property>
     <property name="rightMargin">
-     <number>12</number>
+     <number>5</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="PoscarTopLayout" stretch="1,1,3">
@@ -293,7 +299,7 @@ QCheckBox{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>332</width>
+     <width>330</width>
      <height>22</height>
     </rect>
    </property>

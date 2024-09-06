@@ -5,11 +5,11 @@ from Logs.VRLogger import sendDataToLogger
 
 
 class VRSettings:
-    __projectDirectory = os.path.abspath('')
 
     @sendDataToLogger
-    def __init__(self, logger):
+    def __init__(self, logger, projectDirectory):
         self.__loger = logger
+        self.__projectDirectory = projectDirectory
         self.printWindowLocation = None
         self.visualWindowLocation = None
         self.processingWindowLocation = None

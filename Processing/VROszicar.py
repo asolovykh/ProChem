@@ -1,5 +1,6 @@
 from Logs.VRLogger import sendDataToLogger
 from Gui.VROszicarGUI import Ui_VROszicar, QMainWindow
+from Processing.VRGraph import VRGraph
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel
@@ -138,12 +139,16 @@ class VROszicar(Ui_VROszicar, QMainWindow):
         self.__parent = visualWindowObject
         self.__openGLWindow = openGLWindow
         self.setupUi(self)
-        self.linkElementsWithFunctions()
+        self._selected_columns = []
+        self.OszicarBuildGraphButton.setDisabled(True)
         if location is not None:
             self.move(location[0], location[1])
         self.oszicarDf = VROszicarProcessing(directory, printWindowObject, [], []).oszicarDf
         self._model = VRPdModel(self.oszicarDf)
         self.OszicarTableView.setModel(self._model)
+        self._selectionModel = QItemSelectionModel(self._model)
+        self.OszicarTableView.setSelectionModel(self._selectionModel)
+        self.linkElementsWithFunctions()
         self.__parent.hide()
         self.__openGLWindow.hide()
 
@@ -172,6 +177,33 @@ class VROszicar(Ui_VROszicar, QMainWindow):
         self.OszicarBack.clicked.connect(self.window().close)
         self.ABack.triggered.connect(self.window().close)
         self.AExit.triggered.connect(lambda: self.closeAll(QCloseEvent()))
+        self._selectionModel.selectionChanged.connect(self.columnSelected)
+        self.OszicarBuildGraphButton.clicked.connect(self.plotGraph)
+
+    @sendDataToLogger(operationType='user')
+    def columnSelected(self, selected, deselected):
+        selected_list = selected.toList()
+        deselected_list = deselected.toList()
+        if selected_list and not selected_list[0].top() and selected_list[0].bottom() == len(self.oszicarDf) - 1 and selected_list[0].left() == selected_list[0].right():
+            self._selected_columns.append(selected_list[0].left())
+            self._selected_columns.sort()
+        if deselected_list and self._selected_columns and not deselected_list[0].top():
+            for column in deselected_list:
+                self._selected_columns.remove(column.left())
+        if self._selected_columns:
+            self.OszicarBuildGraphButton.setEnabled(True)
+        else:
+            self.OszicarBuildGraphButton.setDisabled(True)
+
+    @sendDataToLogger(operationType='user')
+    def plotGraph(self):
+        columns_indexes = [column.column() for column in self._selectionModel.selectedColumns()]
+        df = pd.DataFrame(self.oszicarDf[self.oszicarDf.columns[0]])
+        for index in columns_indexes:
+            df[self.oszicarDf.columns[index]] = self.oszicarDf[self.oszicarDf.columns[index]]
+        self.__graph = VRGraph(df)
+        self.OszicarBuildGraphButton.setDisabled(True)
+        self._selectionModel.clearSelection()
 
     @sendDataToLogger(operationType='user')
     def saveTable(self):

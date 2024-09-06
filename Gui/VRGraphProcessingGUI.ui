@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>600</height>
+    <width>1158</width>
+    <height>695</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -242,10 +242,19 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
   <widget class="QWidget" name="MainWidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="20,1">
     <property name="spacing">
-     <number>14</number>
+     <number>6</number>
+    </property>
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
     </property>
     <property name="bottomMargin">
-     <number>18</number>
+     <number>5</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="TopLayout" stretch="2,5">
@@ -702,6 +711,18 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
       </item>
       <item>
        <widget class="QGraphicsView" name="GraphsView">
+        <property name="minimumSize">
+         <size>
+          <width>810</width>
+          <height>610</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>810</width>
+          <height>610</height>
+         </size>
+        </property>
         <property name="dragMode">
          <enum>QGraphicsView::RubberBandDrag</enum>
         </property>
@@ -759,7 +780,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>1158</width>
      <height>22</height>
     </rect>
    </property>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRGraphProcessingGUIVOvRGP.ui'
+## Form generated from reading UI file 'VRGraphProcessingGUIwYPiYw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -27,7 +27,7 @@ class Ui_VRGraphProcessing(object):
     def setupUi(self, VRGraphProcessing):
         if not VRGraphProcessing.objectName():
             VRGraphProcessing.setObjectName(u"VRGraphProcessing")
-        VRGraphProcessing.resize(900, 600)
+        VRGraphProcessing.resize(1158, 695)
         VRGraphProcessing.setMinimumSize(QSize(900, 600))
         icon = QIcon()
         icon.addFile(u":/VRlogo/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
@@ -258,9 +258,9 @@ class Ui_VRGraphProcessing(object):
         self.MainWidget = QWidget(VRGraphProcessing)
         self.MainWidget.setObjectName(u"MainWidget")
         self.verticalLayout = QVBoxLayout(self.MainWidget)
-        self.verticalLayout.setSpacing(14)
+        self.verticalLayout.setSpacing(6)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(-1, -1, -1, 18)
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.TopLayout = QHBoxLayout()
         self.TopLayout.setSpacing(10)
         self.TopLayout.setObjectName(u"TopLayout")
@@ -523,6 +523,8 @@ class Ui_VRGraphProcessing(object):
 
         self.GraphsView = QGraphicsView(self.MainWidget)
         self.GraphsView.setObjectName(u"GraphsView")
+        self.GraphsView.setMinimumSize(QSize(810, 610))
+        self.GraphsView.setMaximumSize(QSize(810, 610))
         self.GraphsView.setDragMode(QGraphicsView.RubberBandDrag)
         self.GraphsView.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
         self.GraphsView.setRubberBandSelectionMode(Qt.IntersectsItemBoundingRect)
@@ -562,7 +564,7 @@ class Ui_VRGraphProcessing(object):
         VRGraphProcessing.setCentralWidget(self.MainWidget)
         self.GraphProcessingMenubar = QMenuBar(VRGraphProcessing)
         self.GraphProcessingMenubar.setObjectName(u"GraphProcessingMenubar")
-        self.GraphProcessingMenubar.setGeometry(QRect(0, 0, 900, 22))
+        self.GraphProcessingMenubar.setGeometry(QRect(0, 0, 1158, 22))
         self.GraphProcessingMenuWindow = QMenu(self.GraphProcessingMenubar)
         self.GraphProcessingMenuWindow.setObjectName(u"GraphProcessingMenuWindow")
         VRGraphProcessing.setMenuBar(self.GraphProcessingMenubar)

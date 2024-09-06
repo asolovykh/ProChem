@@ -276,7 +276,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
            <height>500</height>
           </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,30,3">
+         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,30,1,0">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -802,10 +802,20 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>30</height>
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="PlotGraphButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Plot Graph</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

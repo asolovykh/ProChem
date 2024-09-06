@@ -101,6 +101,9 @@ class VRMD:
         except AttributeError as err:
             self._parserParameters['BREAKER'] = True
             self._parserParameters['MESSAGE'] = 'Exception occurred when watching for vaspruns in directory.\n' + traceback.format_exc()
+        except FileNotFoundError as err:
+            self._parserParameters['BREAKER'] = True
+            self._parserParameters['MESSAGE'] = 'Exception occurred when watching for vaspruns in directory.\n' + traceback.format_exc()
         self.XMLLIST.sort()
         self._parserParameters['XMLLIST'] = self.XMLLIST
         if vaspnum == 0:

@@ -2,10 +2,11 @@ import os
 import traceback
 import numpy as np
 import pandas as pd
-from Gui.VRProcessingGUI import Ui_VRProcessing, QMainWindow
+from Gui.VRProcessingGUI_dev import Ui_VRProcessing, QMainWindow
 from Processing.VROszicar import VROszicarProcessing, VRPdModel
+from Processing.VRGraph import VRGraph
 from PySide6.QtCore import QItemSelectionModel
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QAbstractItemView
 from PySide6.QtGui import QCloseEvent
 from Logs.VRLogger import sendDataToLogger
 
@@ -27,7 +28,6 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.__logger = printWindowObject
         self.__openGl = openGlWindowObject
         self.setupUi(self)
-        self.linkElementsWithFunctions()
         if location is not None:
             self.move(location[0], location[1])
         self.__calculation = calculation
@@ -35,6 +35,8 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self._name = name
         self._selected_atoms = self.__calculation['ATOMNAMES']
 
+        self.__graph = None
+        self._selected_columns = []
         self._masses = self.selectedDataForm('MASSES')
         self._selectedNames = self.selectedDataForm('ID')
 
@@ -63,6 +65,9 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.mainDf.insert(0, 'Time, fs', timeArr[:self.__calculation['STEPS']])
         self._model = VRPdModel(self.mainDf)
         self.ViewTable.setModel(self._model)
+        self._selectionModel = QItemSelectionModel(self._model)
+        self.ViewTable.setSelectionModel(self._selectionModel)
+        self.linkElementsWithFunctions()
         self.__parent.hide()
         self.__openGl.hide()
 
@@ -101,6 +106,8 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.Back.clicked.connect(self.window().close)
         self.ABack.triggered.connect(self.window().close)
         self.AExit.triggered.connect(lambda: self.closeAll(QCloseEvent()))
+        self._selectionModel.selectionChanged.connect(self.columnSelected)
+        self.PlotGraphButton.clicked.connect(self.plotGraph)
 
     @sendDataToLogger
     def closeAll(self, event):
@@ -690,6 +697,31 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.mainDf.insert(len(self.mainDf.columns), column, self.baseDf[column])
             self._model.refreshTable(self.mainDf)
             self.addMessage('Columns with energy have been added.')
+
+    @sendDataToLogger(operationType='user')
+    def columnSelected(self, selected, deselected):
+        selected_list = selected.toList()
+        deselected_list = deselected.toList()
+        if selected_list and not selected_list[0].top() and selected_list[0].bottom() == len(self.mainDf) - 1 and selected_list[0].left() == selected_list[0].right():
+            self._selected_columns.append(selected_list[0].left())
+            self._selected_columns.sort()
+        if deselected_list and self._selected_columns and not deselected_list[0].top():
+            for column in deselected_list:
+                self._selected_columns.remove(column.left())
+        if self._selected_columns:
+            self.PlotGraphButton.setEnabled(True)
+        else:
+            self.PlotGraphButton.setDisabled(True)
+
+    @sendDataToLogger(operationType='user')
+    def plotGraph(self):
+        columns_indexes = [column.column() for column in self._selectionModel.selectedColumns()]
+        df = pd.DataFrame(self.mainDf[self.mainDf.columns[0]])
+        for index in columns_indexes:
+            df[self.mainDf.columns[index]] = self.mainDf[self.mainDf.columns[index]]
+        self.__graph = VRGraph(df)
+        self.PlotGraphButton.setDisabled(True)
+        self._selectionModel.clearSelection()
 
     @sendDataToLogger
     def oszicarCheckboxUnlock(self):

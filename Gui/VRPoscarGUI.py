@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRPoscarGUITyNEtl.ui'
+## Form generated from reading UI file 'VRPoscarGUIlpPrxY.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -26,9 +26,9 @@ class Ui_VRPoscar(object):
     def setupUi(self, VRPoscar):
         if not VRPoscar.objectName():
             VRPoscar.setObjectName(u"VRPoscar")
-        VRPoscar.resize(332, 250)
-        VRPoscar.setMinimumSize(QSize(330, 250))
-        VRPoscar.setMaximumSize(QSize(500, 350))
+        VRPoscar.resize(330, 200)
+        VRPoscar.setMinimumSize(QSize(330, 200))
+        VRPoscar.setMaximumSize(QSize(330, 200))
         icon = QIcon()
         icon.addFile(u":/VRlogo/VR-logo.ico", QSize(), QIcon.Normal, QIcon.Off)
         VRPoscar.setWindowIcon(icon)
@@ -152,7 +152,7 @@ class Ui_VRPoscar(object):
         self.PoscarMainWidget.setObjectName(u"PoscarMainWidget")
         self.verticalLayout = QVBoxLayout(self.PoscarMainWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(13, -1, 12, -1)
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.PoscarTopLayout = QHBoxLayout()
         self.PoscarTopLayout.setObjectName(u"PoscarTopLayout")
         self.PoscarTopLayout.setContentsMargins(0, -1, 0, -1)
@@ -252,7 +252,7 @@ class Ui_VRPoscar(object):
         VRPoscar.setCentralWidget(self.PoscarMainWidget)
         self.menubar = QMenuBar(VRPoscar)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 332, 22))
+        self.menubar.setGeometry(QRect(0, 0, 330, 22))
         self.menuWindow = QMenu(self.menubar)
         self.menuWindow.setObjectName(u"menuWindow")
         VRPoscar.setMenuBar(self.menubar)

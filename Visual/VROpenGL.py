@@ -150,7 +150,6 @@ class VROpenGL:
     # __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Cube(__drawType)}
     # __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Sphere(1, 32, 32)}
     __primitives = {'Primitive': Primitives(3, [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]).Quad(1.0)}
-    __projectDirectory = os.path.abspath('')
     _backgroundColor = (0.6, 0.6, 0.6, 1.0)
     __lightsDefault = [[10, 10, 10, 0.0], [-10, -10, 10, 1.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
     __intensities = [[0.4, 0.4, 0.4], [0.4, 0.4, 0.4], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
@@ -170,6 +169,7 @@ class VROpenGL:
         self.__logger = printWindow
         self._parentWindowClosed = False
         self.__app = app
+        self.__projectDirectory = self.__logger.getProjectDir()
 
         self.__display, self.windowSize = list(self.__defaultDisplay), list(self.__defaultDisplay)
         self.__viewMatrix = m3dLookAt(self.__eyePosition, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 1.0]))
@@ -350,7 +350,7 @@ class VROpenGL:
 
     @sendDataToLogger
     def loadTexture(self):  # , texture
-        image = Image.open(r'VR_icons\VR-logo.png')
+        image = Image.open(self.__projectDirectory + r'VR_icons\VR-logo.png')
         image = image.convert("RGBA")
 
         imgData = image.tobytes()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRAuthSupercomputerGUIvhuVLZ.ui'
+## Form generated from reading UI file 'VRAuthSupercomputerGUIoFFDgK.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -139,6 +139,7 @@ class Ui_VRAuthSupercomputer(object):
         self.AuthMainWidget.setObjectName(u"AuthMainWidget")
         self.verticalLayout = QVBoxLayout(self.AuthMainWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(5, 5, 5, 5)
         self.AuthSelUserLabel = QLabel(self.AuthMainWidget)
         self.AuthSelUserLabel.setObjectName(u"AuthSelUserLabel")
 

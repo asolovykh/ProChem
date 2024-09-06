@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'VRProcessingGUIYedNdk.ui'
+## Form generated from reading UI file 'VRProcessingGUI_devDyOSLh.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.3
 ##
@@ -598,13 +598,19 @@ class Ui_VRProcessing(object):
 
         self.verticalLayout_2.addWidget(self.ProcessingTab)
 
-        self.LeftCentralVSpacer2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.LeftCentralVSpacer2 = QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_2.addItem(self.LeftCentralVSpacer2)
 
+        self.PlotGraphButton = QPushButton(self.LeftCentralWidget)
+        self.PlotGraphButton.setObjectName(u"PlotGraphButton")
+        self.PlotGraphButton.setEnabled(False)
+
+        self.verticalLayout_2.addWidget(self.PlotGraphButton)
+
         self.verticalLayout_2.setStretch(0, 1)
         self.verticalLayout_2.setStretch(1, 30)
-        self.verticalLayout_2.setStretch(2, 3)
+        self.verticalLayout_2.setStretch(2, 1)
 
         self.horizontalLayout.addWidget(self.LeftCentralWidget)
 
@@ -717,6 +723,7 @@ class Ui_VRProcessing(object):
         self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.Divide), QCoreApplication.translate("VRProcessing", u"Divide", None))
         self.RenameButton.setText(QCoreApplication.translate("VRProcessing", u"Rename", None))
         self.ProcessingTab.setTabText(self.ProcessingTab.indexOf(self.Rename), QCoreApplication.translate("VRProcessing", u"Rename", None))
+        self.PlotGraphButton.setText(QCoreApplication.translate("VRProcessing", u"Plot Graph", None))
         self.CreateExcel.setText(QCoreApplication.translate("VRProcessing", u"Create Excel", None))
         self.BuildGraph.setText(QCoreApplication.translate("VRProcessing", u"Build Graph", None))
         self.Back.setText(QCoreApplication.translate("VRProcessing", u"Back", None))

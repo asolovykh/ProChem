@@ -13,7 +13,6 @@ from Logs.VRLogger import sendDataToLogger
 
 
 class VRVisualWindow(Ui_VRVisual, QMainWindow):
-    __project_directory = os.path.abspath('')
     __cpu_count = cpu_count()
 
     @sendDataToLogger
@@ -24,6 +23,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.__calculations = dict()
         self.__app = app
         self.__settings = settings
+        self.__projectDirectory = self.__logger.getProjectDir()
         self.parserThreads, self.parserProcesses, self.parserDicts = [], [], []
         self.threadsLocker, self.processesLocker = TLock(), MLock()
         self.isThreadingMode = True
@@ -72,8 +72,8 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
         self.MoveForward.clicked.connect(self.forwardMove)
         self.ToFirstStep.clicked.connect(self.toFirstStep)
         self.ToLastStep.clicked.connect(self.toLastStep)
-        self.AProcessing.triggered.connect(self.processingStart)
-        self.AOSZICAR.triggered.connect(self.oszicarWindow)
+        self.VASP_Processing.triggered.connect(self.processingStart)
+        self.VASP_OSZICAR.triggered.connect(self.oszicarWindow)
         self.AThreading.toggled.connect(self.settingsThreading)
         self.AMultiprocessing.toggled.connect(self.settingsMultiprocessing)
 
@@ -222,7 +222,7 @@ class VRVisualWindow(Ui_VRVisual, QMainWindow):
     def addCalculation(self):
         self.stopStepChanging()
         self.calculationFolder = self.DirectoryPath.text()
-        if self.calculationFolder not in self.__calculations:
+        if self.calculationFolder and self.calculationFolder not in self.__calculations:
             if self.isThreadingMode:
                 self.parserDicts.append(dict())
                 self.parserThreads.append(Thread(target=VRMD, args=(self.calculationFolder, self.parserDicts[-1],), daemon=True))
