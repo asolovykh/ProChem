@@ -1,0 +1,11 @@
+{
+    "version": "0.6.0",
+    "configurations": [
+        {
+            "type": "shadered",
+            "request": "launch",
+            "name": "Debug GLSL shaderes",
+            "program": "${workspaceFolder}/Visual/Shaders/fragment_shader.glsl"
+        }
+    ]
+}

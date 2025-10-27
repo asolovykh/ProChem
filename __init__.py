@@ -1,17 +1,19 @@
 import sys
 import os
-from Logs.VRLogger import VRLogger
-from Settings.VRSettings import VRSettings
+import logging
+from settings.settings import Settings
 from PySide6.QtWidgets import QApplication
-from Logs.VRPrint import VRPrintWindow
+from logs.print import PrintWindow
 
 
-if __name__ == '__main__':
-    _project_dir = os.path.abspath(__file__).removesuffix('__init__.py')
+if __name__ == "__main__":
+    project_dir = os.path.abspath(__file__).removesuffix("__init__.py")
+    logging.basicConfig(
+        filename=os.path.join(project_dir, "Logs", "VR.log"), level=logging.INFO
+    )
     app = QApplication(sys.argv)
-    logger = VRLogger(_project_dir)
-    settingsObject = VRSettings(logger, _project_dir).loadSettings()
-    printWindow = VRPrintWindow(app, settingsObject, logger, _project_dir)
-    printWindow.show()
-    settingsObject.saveSettings(logger)
+    settingsObject = VRSettings(project_dir).load_settings()
+    printWindow = VRPrintWindow(settingsObject, project_dir)
+    app.exec()
+    settingsObject.save_settings()
     sys.exit(0)
