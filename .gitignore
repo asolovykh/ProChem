@@ -1,0 +1,37 @@
+# Requirements will be changed by project.toml
+requirements.txt
+
+# Ignore VSCode files
+.vscode/
+launch.json
+
+# Ignore PyCharm files
+.idea/
+
+# Ignore Python cache
+__pycache__/
+
+VRGui.py
+
+# Ignore future functions
+__future__/
+
+# Ignore Pyside UI files
+UI/
+
+# Ignore pycache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore log files
+logs/ProChem.log
+
+# Ignore source resource file
+Resource.qrc
+
+# Settings should be created by program firstly
+settings/settings.json
+
+# All icons are stored in resources file
+icons/

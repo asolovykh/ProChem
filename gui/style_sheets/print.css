@@ -1,0 +1,58 @@
+QMainWindow{
+    gridline-color: rgb(53, 0, 80);
+    border-color: rgb(78, 0, 117);
+}
+QScrollBar:vertical {
+    border-radius: 6px;
+    border: 2px solid rgb(0, 0, 0);
+	color: rgb(0, 0, 0);
+    background: rgb(182, 182, 182);
+    width: 16px;
+    margin: 23px 0 23px 0;
+}
+QScrollBar::handle:vertical {
+    background: rgb(0, 203, 203);
+    min-height: 18px;
+    border-radius: 5px;
+}
+QScrollBar::handle:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::add-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical {
+    border: 1.5px solid rgb(0, 0, 0);
+    border-radius: 6px;
+    background: rgb(0, 203, 203);
+    height: 18px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:hover:vertical, QScrollBar::sub-line:hover:vertical {
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 2px;
+    width: 3.5px;
+    height: 3.5px;
+    background: rgb(255, 255, 255);
+}
+QScrollBar::up-arrow:vertical:hover, QScrollBar::down-arrow:vertical:hover {
+    background: rgb(0, 203, 203);
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+QTextBrowser{
+    border-image: url(:/icons/print/background.jpg) 0 0 0 0 scratch scratch;
+}
+QTextEdit{
+    border-image: url(:/icons/print/background.jpg) 0 0 0 0 scratch scratch;
+}
