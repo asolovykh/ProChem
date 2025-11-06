@@ -1,4 +1,5 @@
 <h1 align="center">Welcome to ProChem 👋</h1>
+[ProjectIco](doc/project-ico.ico)
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000" />
   <a href="https://github.com/asolovykh/ProChem" target="_blank">
@@ -16,7 +17,6 @@
 
 * Website: https://github.com/asolovykh
 * Github: [@asolovykh](https://github.com/asolovykh)
-* LinkedIn: [@https:\/\/ru.linkedin.com\/in\/%D0%B0%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80-%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D1%8B%D1%85-724510390](https://linkedin.com/in/https:\/\/ru.linkedin.com\/in\/%D0%B0%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80-%D1%81%D0%BE%D0%BB%D0%BE%D0%B2%D1%8B%D1%85-724510390)
 
 ## Show your support
 
