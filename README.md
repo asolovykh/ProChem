@@ -1,5 +1,7 @@
 <h1 align="center">Welcome to ProChem 👋</h1>
-[ProjectIco](doc/project-ico.ico)
+<p align="right">
+  <img src="doc/project-ico.ico" alt="Project Icon" width="100"/>
+</p>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000" />
   <a href="https://github.com/asolovykh/ProChem" target="_blank">
