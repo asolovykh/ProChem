@@ -7,7 +7,7 @@
   </a>
 </p>
 
-<img align="left" src="doc/project-ico.ico" alt="Project Icon" width="100"/>
+<img align="left" src="doc/logo.png" alt="Project Icon" width="100"/>
 
 ProChem is a program for reading and analyzing quantum chemistry calculations. It has a wide range of functions connected with visualization and processing results of VASP, QuantumEspresso, LAMMPS and other packages.
 
