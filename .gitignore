@@ -35,3 +35,12 @@ settings/settings.json
 
 # All icons are stored in resources file
 icons/
+
+# Egg-info
+ProChem.egg-info/
+
+# UV lock
+uv.lock
+
+# Qt creator files
+.qtcreator/

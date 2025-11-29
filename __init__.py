@@ -8,7 +8,6 @@ from logs.print import PrintWindow
 
 
 if __name__ == "__main__":
-    # TODO add pyproject.toml
     # TODO redact README.md
     argparser = argparse.ArgumentParser(
         prog="ProChem",

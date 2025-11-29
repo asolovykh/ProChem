@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ProChem"
+version = "1.0.0"
+authors = [
+  { name="Alexander Solovykh", email="solovykh.aa19@physics.msu.ru" },
+]
+description = "ProChem is a program for reading and analyzing quantum chemistry calculations."
+requires-python = ">=3.12"
+dependencies = [
+    "numba>=0.61.0",
+    "numpy>=2.2.5",
+    "pandas>=2.2.3",
+    "pillow>=11.2.1",
+    "matplotlib>=3.10.1",
+    "PyOpenGL>=3.1.8",
+    "PySide6>=6.9.2",
+]
+
+[tool.setuptools]
+packages = ["gui", "logs", "vasp", "graph", "icons", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
+
+# [project.optional-dependencies]
+# dev = [
+#    "pytest",
+#    "mypy",
+#]
