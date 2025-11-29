@@ -19,7 +19,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWindow,
     QMenu, QMenuBar, QPushButton, QSizePolicy,
     QSpacerItem, QTableView, QVBoxLayout, QWidget)
-import Gui.Resource_rc
+import gui.resource_rc
 
 class Ui_VROszicar(object):
     def setupUi(self, VROszicar):

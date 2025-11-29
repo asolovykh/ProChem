@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QHBox
     QMainWindow, QMenu, QMenuBar, QPushButton,
     QRadioButton, QSizePolicy, QSpacerItem, QTabWidget,
     QTableView, QVBoxLayout, QWidget)
-import Gui.Resource_rc
+import gui.resource_rc
 
 class Ui_VRProcessing(object):
     def setupUi(self, VRProcessing):

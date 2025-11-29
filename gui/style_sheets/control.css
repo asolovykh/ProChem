@@ -124,3 +124,13 @@ QSlider::handle:horizontal{
     margin-bottom: -4px;
     border-radius: 2px;
 }
+
+QMenu{
+    background-color: rgb(240, 240, 240);
+    border: 2px solid rgb(109, 20, 20);
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: rgb(0, 200, 200);
+}

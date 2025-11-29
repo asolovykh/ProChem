@@ -1,10 +1,21 @@
+"""UI for control window"""
+
+# This file is part of ProChem.
+# ProChem Copyright (C) 2021-2025 A.A.Solovykh - https://github.com/asolovykh
+# See LICENSE.txt for details.
+
+
 from PySide6.QtCore import (QCoreApplication, QLocale, QObject, QRect, QSize, Qt)
 from PySide6.QtGui import (QAction, QBrush, QColor, QCursor, QFont, QIcon, QPalette)
 from PySide6.QtWidgets import (QMainWindow, QComboBox, QFrame, QGridLayout, 
     QHBoxLayout, QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSizePolicy, 
-    QSlider, QSpacerItem, QTabWidget, QVBoxLayout, QWidget)
+    QSlider, QSpacerItem, QTabWidget, QVBoxLayout, QWidget, QTreeView, 
+    QAbstractItemView, QHeaderView)
+from gui.tree_view_model import CustomTreeModel
 import os
 import gui.resource_rc
+
+__all__ = ["Ui_Control"]
 
 
 class Ui_Control(object):
@@ -18,15 +29,15 @@ class Ui_Control(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Control.sizePolicy().hasHeightForWidth())
         Control.setSizePolicy(sizePolicy)
-        Control.setMinimumSize(QSize(480, 212))
-        Control.setMaximumSize(QSize(720, 318))
+        Control.setMinimumSize(QSize(480, 252))
+        Control.setMaximumSize(QSize(720, 418))
         Control.setContextMenuPolicy(Qt.DefaultContextMenu)
         Control.setAcceptDrops(False)
         Control.setWindowIcon(QIcon(":/icons/logo/PROCHEM-logo.ico"))
         Control.setAutoFillBackground(False)
         
         style_sheet = ""
-        with open(os.path.join(os.path.dirname(__file__), "style_sheets", "visual.css")) as file:
+        with open(os.path.join(os.path.dirname(__file__), "style_sheets", "control.css")) as file:
             style_sheet = file.read()
         Control.setStyleSheet(style_sheet)
         Control.setLocale(QLocale(QLocale.English, QLocale.UnitedStates))
@@ -36,12 +47,12 @@ class Ui_Control(object):
         Control.setTabShape(QTabWidget.Rounded)
         Control.setDockNestingEnabled(False)
         Control.setUnifiedTitleAndToolBarOnMac(False)
-        self.AOpen_calculation = QAction(Control)
-        self.AOpen_calculation.setObjectName("AOpen_calculation")
+        self.ALoad_Calculation = QAction(Control)
+        self.ALoad_Calculation.setObjectName("ALoad_Calculation")
         font = QFont()
         font.setFamilies(["Times New Roman"])
         font.setPointSize(10)
-        self.AOpen_calculation.setFont(font)
+        self.ALoad_Calculation.setFont(font)
         self.ALoad_Calculation_State = QAction(Control)
         self.ALoad_Calculation_State.setObjectName("ALoad_Calculation_State")
         self.ALoad_Calculation_State.setFont(font)
@@ -266,9 +277,10 @@ class Ui_Control(object):
         self.TopWidget = QHBoxLayout()
         self.TopWidget.setSpacing(6)
         self.TopWidget.setObjectName("TopWidget")
-        self.TopWidget.setContentsMargins(-1, -1, -1, 8)
-        self.DirectoryPath = QLineEdit(self.MainWidget)
-        self.DirectoryPath.setObjectName("DirectoryPath")
+        self.TopWidget.setContentsMargins(-1, -1, -1, 4)
+        
+        self.TreeView = QTreeView(self.MainWidget)
+        self.TreeView.setObjectName("TreeView")
         palette = QPalette()
         brush = QBrush(QColor(0, 0, 0, 255))
         brush.setStyle(Qt.SolidPattern)
@@ -281,31 +293,54 @@ class Ui_Control(object):
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
 #endif
-        self.DirectoryPath.setPalette(palette)
-        self.DirectoryPath.setFont(font)
+        self.TreeView.setPalette(palette)
+        self.TreeView.setFont(font)
 
-        self.TopWidget.addWidget(self.DirectoryPath)
+        self.TreeModel = CustomTreeModel()
+        self.TreeView.setModel(self.TreeModel) 
+        self.TreeView.setDragDropMode(QAbstractItemView.InternalMove)
+        self.TreeView.setDragEnabled(True)
+        self.TreeView.setAcceptDrops(True)
+        self.TreeView.setDropIndicatorShown(True)
+        self.TreeView.setDefaultDropAction(Qt.MoveAction)
+       
+        self.TreeView.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        self.TreeView.setColumnWidth(0, 50)
+        self.TreeView.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
+        self.TreeView.setColumnWidth(1, 10)
+        self.TreeView.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.TreeView.setColumnWidth(2, 360)
+        self.TreeView.header().setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
+        self.TreeView.setColumnWidth(3, 100)
+        self.TreeView.header().setStretchLastSection(False)
 
-        self.BrowseButton = QPushButton(self.MainWidget)
-        self.BrowseButton.setObjectName("BrowseButton")
-        self.BrowseButton.setFont(font1)
-        self.BrowseButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.TreeView.setContextMenuPolicy(Qt.CustomContextMenu)
+        
+        self.TreeViewContextMenu = QMenu(self.TreeView)
+        self.TreeViewContextMenu.setObjectName("TreeViewContextMenu")
+        
+        self.TreeViewAddCalculation = QAction("Load calculation", self.TreeView)
+        self.TreeViewAddCalculation.setObjectName("TreeViewAddCalculation")
+        self.TreeViewAddCalculation.setFont(font)
+        self.TreeViewContextMenu.addAction(self.TreeViewAddCalculation)
 
-        self.TopWidget.addWidget(self.BrowseButton)
+        self.TreeViewHideCalculation = QAction("Hide", self.TreeView)
+        self.TreeViewHideCalculation.setObjectName("TreeViewHideCalculation")
+        self.TreeViewHideCalculation.setFont(font)
+        self.TreeViewContextMenu.addAction(self.TreeViewHideCalculation)
 
-        self.CalculationAddButton = QPushButton(self.MainWidget)
-        self.CalculationAddButton.setObjectName("CalculationAddButton")
-        self.CalculationAddButton.setFont(font1)
-        self.CalculationAddButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.CalculationAddButton.setFlat(False)
+        self.TreeViewDeleteCalculation = QAction("Delete", self.TreeView)
+        self.TreeViewDeleteCalculation.setObjectName("TreeViewDeleteCalculation")
+        self.TreeViewDeleteCalculation.setFont(font)
+        self.TreeViewContextMenu.addAction(self.TreeViewDeleteCalculation) 
 
-        self.TopWidget.addWidget(self.CalculationAddButton)
+        self.TreeView.customContextMenuRequested.connect(self.TreeViewContextMenu.exec)
 
-        self.TopWidget.setStretch(0, 5)
+        self.TopWidget.addWidget(self.TreeView)
+
         self.TopWidget.setStretch(1, 1)
-        self.TopWidget.setStretch(2, 1)
 
-        self.gridLayout.addLayout(self.TopWidget, 0, 0, 1, 4)
+        self.gridLayout.addLayout(self.TopWidget, 0, 0, 1, 0)
 
         self.LowerWidget = QWidget(self.MainWidget)
         self.LowerWidget.setObjectName("LowerWidget")
@@ -377,29 +412,6 @@ class Ui_Control(object):
 
         self.gridLayout.addLayout(self.StepLabelWidget, 6, 0, 1, 4)
 
-        self.DeleteCalculationWidget = QHBoxLayout()
-        self.DeleteCalculationWidget.setSpacing(6)
-        self.DeleteCalculationWidget.setObjectName("DeleteCalculationWidget")
-        self.DeleteCalculationWidget.setContentsMargins(-1, -1, -1, 8)
-        self.AddedCalculations = QComboBox(self.MainWidget)
-        self.AddedCalculations.setObjectName("AddedCalculations")
-        self.AddedCalculations.setFont(font)
-        self.AddedCalculations.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.DeleteCalculationWidget.addWidget(self.AddedCalculations)
-
-        self.DeleteCalculationButton = QPushButton(self.MainWidget)
-        self.DeleteCalculationButton.setObjectName("DeleteCalculationButton")
-        self.DeleteCalculationButton.setFont(font1)
-        self.DeleteCalculationButton.setCursor(QCursor(Qt.PointingHandCursor))
-
-        self.DeleteCalculationWidget.addWidget(self.DeleteCalculationButton)
-
-        self.DeleteCalculationWidget.setStretch(0, 7)
-        self.DeleteCalculationWidget.setStretch(1, 3)
-
-        self.gridLayout.addLayout(self.DeleteCalculationWidget, 1, 0, 1, 4)
-
         Control.setCentralWidget(self.MainWidget)
         self.ControlMenubar = QMenuBar(Control)
         self.ControlMenubar.setObjectName("ControlMenubar")
@@ -457,7 +469,7 @@ class Ui_Control(object):
         self.ControlMenubar.addAction(self.ControlMenuTools.menuAction())
         self.ControlMenubar.addAction(self.ControlSettings.menuAction())
         self.ControlMenubar.addAction(self.ControlMenuHelp.menuAction())
-        self.ControlMenuFile.addAction(self.AOpen_calculation)
+        self.ControlMenuFile.addAction(self.ALoad_Calculation)
         self.ControlMenuFile.addSeparator()
         self.ControlMenuFile.addAction(self.ACalculation_State)
         self.ControlMenuFile.addSeparator()
@@ -538,7 +550,7 @@ class Ui_Control(object):
 
     def retranslateUi(self, Control):
         Control.setWindowTitle(QCoreApplication.translate("Control", "PROCHEM", None))
-        self.AOpen_calculation.setText(QCoreApplication.translate("Control", "Open calculation", None))
+        self.ALoad_Calculation.setText(QCoreApplication.translate("Control", "Load calculation", None))
         self.ALoad_Calculation_State.setText(QCoreApplication.translate("Control", "Load", None))
         self.ASave_Calculation_State.setText(QCoreApplication.translate("Control", "Save", None))
         self.ALoad_Configuration.setText(QCoreApplication.translate("Control", "Load", None))
@@ -596,15 +608,8 @@ class Ui_Control(object):
         self.StepSlider.setToolTip("")
         self.MoveForward.setText(QCoreApplication.translate("Control", ">", None))
         self.ToLastStep.setText(QCoreApplication.translate("Control", ">>", None))
-        self.DirectoryPath.setText("")
-        self.DirectoryPath.setPlaceholderText(QCoreApplication.translate("Control", "Input calculation folder", None))
-        self.BrowseButton.setText(QCoreApplication.translate("Control", "Browse", None))
-        self.CalculationAddButton.setText(QCoreApplication.translate("Control", "Add", None))
         self.SpeedSlider.setToolTip("")
         self.StepLabel.setText("")
-        self.AddedCalculations.setCurrentText("")
-        self.AddedCalculations.setPlaceholderText(QCoreApplication.translate("Control", "Choose calculation to delete", None))
-        self.DeleteCalculationButton.setText(QCoreApplication.translate("Control", "Delete", None))
         self.ControlMenuFile.setTitle(QCoreApplication.translate("Control", "File", None))
         self.ControlMenuEdit.setTitle(QCoreApplication.translate("Control", "Edit", None))
         self.ControlMenuLight.setTitle(QCoreApplication.translate("Control", "Light", None))
