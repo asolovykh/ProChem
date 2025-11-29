@@ -3,9 +3,9 @@ import traceback
 import numpy as np
 import pandas as pd
 import logging
-from Gui.VRProcessingGUI_dev import Ui_VRProcessing, QMainWindow
-from Processing.VROszicar import VROszicarProcessing, VRPdModel
-from Processing.VRGraph import VRGraph
+from gui.processing_dev import Ui_VRProcessing, QMainWindow
+from vasp.oszicar import VROszicarProcessing, VRPdModel
+from graph.graph import VRGraph
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtWidgets import QFileDialog, QAbstractItemView
 from PySide6.QtGui import QCloseEvent

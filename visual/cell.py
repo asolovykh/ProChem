@@ -18,7 +18,7 @@ class Cell:
         """Cell class initialization function."""
         self.__settings = settings
         self.__cell_primitive = Primitive(
-            *Parallelepiped(vec_x, vec_y, vec_z, [1.0, 0.0, 0.0], draw_type="LINES")
+            *Parallelepiped(vec_x, vec_y, vec_z, draw_type="LINES"), [1.0, 0.0, 0.0]
         )
         self.__cell_primitive.scale(3)
 

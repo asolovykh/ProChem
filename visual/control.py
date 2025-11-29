@@ -1,16 +1,25 @@
+"""Control window class"""
+
+# This file is part of ProChem.
+# ProChem Copyright (C) 2021-2025 A.A.Solovykh - https://github.com/asolovykh
+# See LICENSE.txt for details.
+
 import os
 import codecs
 import time
 import logging
 from multiprocessing import Process, Lock as MLock, cpu_count, Manager
 from threading import Thread, Lock as TLock
-from vasp.parser import Parser
-# from vasp.processing import Processing
-# from vasp.oszicar import Oszicar
+from parsers.vasp import Parser as VASPparser
+from vasp.processing import VRProcessing
+from vasp.oszicar import VROszicar
 from gui.control import Ui_Control, QMainWindow
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QColorDialog, QFileDialog
+
 logger = logging.getLogger(__name__)
+
+__all__ = ["ControlWindow"]
 
 
 class ControlWindow(Ui_Control, QMainWindow):
@@ -32,10 +41,10 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.move(self.__location[0], self.__location[1])
             logger.info(f"Control window positioned")
 
-        self.calculation_folder = None
+        self.__calculation_id = 1
         self.__calculations = dict()
         
-        self.__parser_threads, self.__parser_processes, self.__parser_dicts = [], [], []
+        self.__parser_threads, self.__parser_processes, self.__parser_objs = [], [], []
         self.__threads_locker, self.__processes_locker = TLock(), MLock()
         self.__is_threading_mode = True
         if self.__cpu_count > 4:
@@ -55,20 +64,18 @@ class ControlWindow(Ui_Control, QMainWindow):
 
     def link_with_visual_window(self, window_object):
         self.__visual_window = window_object
+        self.__visual_window.load_calculation_info(self.__calculations)
         logger.info(f"Control window linked with Visual window")
 
     def link_elements_with_functions(self):
-        self.AOpen_calculation.triggered.connect(self.open_calculation_folder)
+        self.ALoad_Calculation.triggered.connect(self.load_calculation_files)
         self.ABackground.triggered.connect(self.background_color_change)
-        self.BrowseButton.clicked.connect(self.open_calculation_folder)
+        self.TreeViewAddCalculation.triggered.connect(self.load_calculation_files)
         self.AAbout_the_program.triggered.connect(self.about_the_program)
         self.AAbout_window.triggered.connect(self.about_the_window)
         self.ALatest_update.triggered.connect(self.lattest_update)
         self.AChanges_history.triggered.connect(self.changes_history)
         self.AExit.triggered.connect(self.closeEvent)
-        self.CalculationAddButton.clicked.connect(self.add_calculation)
-        self.AddedCalculations.activated.connect(self.change_active_calculation)
-        self.DeleteCalculationButton.clicked.connect(self.delete_calculation)
         self.StepSlider.actionTriggered.connect(self.calculation_step_change)
         self.SpeedSlider.actionTriggered.connect(self.speed_change)
         self.APerspective.toggled.connect(self.perspective_chosen)
@@ -79,8 +86,8 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.MoveForward.clicked.connect(self.forward_move)
         self.ToFirstStep.clicked.connect(self.to_first_step)
         self.ToLastStep.clicked.connect(self.to_last_step)
-        # self.VASP_Processing.triggered.connect(self.processing_start)
-        # self.VASP_OSZICAR.triggered.connect(self.oszicar_window)
+        self.VASP_Processing.triggered.connect(self.processing_start)
+        self.VASP_OSZICAR.triggered.connect(self.oszicar_window)
         self.AThreading.toggled.connect(self.set_threading)
         self.AMultiprocessing.toggled.connect(self.set_multiprocessing)
         logger.info(f"Control window elements linked with functions")
@@ -146,9 +153,19 @@ class ControlWindow(Ui_Control, QMainWindow):
         self.__visual_window.back_step = False
         self.__visual_window.forward_step = False
 
-    def open_calculation_folder(self):
-        self.DirectoryPath.setText(QFileDialog.getExistingDirectory(None, caption="Choose directory to parse"))
-        logger.info(f"Calculation directory chosen")
+    def load_calculation_files(self):
+        file_names, filter = QFileDialog.getOpenFileNames(
+            self,
+            "Choose files for parsing",
+            self.__settings.get_control_params('browse_folder_path'),
+            "All Files (*);;VASP XML (*.xml)" # File filters
+        )
+        if file_names:
+            self.__settings.set_control_params(os.path.dirname(file_names[0]), 'browse_folder_path')
+            for file_name in file_names:
+                self.add_calculation(file_name)
+
+        #logger.info(f"Calculation directory chosen")
 
     def closeEvent(self, event=QCloseEvent):
         self.__settings.set_new_window_location(self.pos().toTuple(), 'control')
@@ -199,20 +216,25 @@ class ControlWindow(Ui_Control, QMainWindow):
     def speed_change(self):
         self.__settings.set_visual_params(self.SpeedSlider.sliderPosition(), 'slider_speed')
 
-    def add_calculation(self):
+    def add_calculation(self, file_path: str):
         self.stop_step_changing()
-        self.calculation_folder = self.DirectoryPath.text()
-        if self.calculation_folder and self.calculation_folder not in self.__calculations:
-            if self.__is_threading_mode:
-                self.__parser_dicts.append(dict())
-                self.__parser_threads.append(Thread(target=MD, args=(self.calculation_folder, self.__parser_dicts[-1],), daemon=True))
-                self.__parser_threads[-1].start()
-            else:
-                self.__parser_dicts.append(Manager().dict())
-                self.__parser_processes.append(Process(target=MD, args=(self.calculation_folder, self.__parser_dicts[-1],), daemon=True))
-                self.__parser_processes[-1].start()
-            self.block_parser_mode_changing()
-        logger.info(f"Calculation {self.calculation_folder} parsing in " + "threading" if self.__is_threading_mode else "multiprocessing" + " mode")
+        for calc_id in self.__calculations:
+            for calc in self.__calculations[calc_id].get('calculations', []):
+                if os.path.join(calc.directory, calc.name) == file_path:
+                    logger.info(f"Calculation {file_path} already added")
+                    return
+
+        parser = VASPparser(file_path)
+        if self.__is_threading_mode:
+            self.__parser_objs.append(parser)
+            self.__parser_threads.append(Thread(target=parser.read, args=(), daemon=True))
+            self.__parser_threads[-1].start()
+        else:
+            self.__parser_objs.append(parser)
+            self.__parser_processes.append(Process(target=parser.read, args=(), daemon=True))
+            self.__parser_processes[-1].start()
+        self.block_parser_mode_changing()
+        logger.info(f"Calculation {file_path} parsing in " + "threading" if self.__is_threading_mode else "multiprocessing" + " mode")
 
     def check_parsers(self):
         while True:
@@ -220,7 +242,7 @@ class ControlWindow(Ui_Control, QMainWindow):
                 for num, thread in enumerate(self.__parser_threads.copy()):
                     if not thread.is_alive():
                         with self.__threads_locker:
-                            self.process_add_action(self.__parser_dicts.pop(num))
+                            self.process_add_action(self.__parser_objs.pop(num))
                             self.__parser_threads.pop(num)
                 if not self.__parser_threads:
                     self.enable_parser_mode_changing()
@@ -228,39 +250,50 @@ class ControlWindow(Ui_Control, QMainWindow):
                 for num, process in enumerate(self.__parser_processes.copy()):
                     if not process.is_alive():
                         with self.__processes_locker:
-                            self.process_add_action(dict(self.__parser_dicts.pop(num)))
+                            self.process_add_action(dict(self.__parser_objs.pop(num)))
                             self.__parser_processes.pop(num)
                 if not self.__parser_processes:
                     self.enable_parser_mode_changing()
-            time.sleep(0.1)
+            time.sleep(0.2)
 
-    def process_add_action(self, parser_parameters):
-        directory = parser_parameters['DIRECTORY']
-        if parser_parameters['BREAKER']:
-            self.get_print_window().add_message(parser_parameters['MESSAGE'])
-            logger.error(f"Error in parsing {directory}: {parser_parameters['MESSAGE']}")
+    def process_add_action(self, parser):
+        if parser.get_calculation().errors.exist:
+            self.get_print_window().add_message(parser.get_calculation().errors.message)
+            logger.error(f"Error in parsing {parser.get_calculation().directory}: {parser.get_calculation().errors.message}")
         else:
-            self.__calculations[directory] = parser_parameters
-            self.__visual_window.load_calculation_info(self.__calculations[directory])
-            self.get_print_window().add_message(f'Chosen {directory} appended.\n')
-            self.AddedCalculations.addItem(directory)
-            self.AddedCalculations.setCurrentText(directory)
-            self.StepSlider.setMaximum(self.__calculations[directory]['STEPS'] - 1)
+            id = -1
+            for calc_id in range(self.__calculation_id):
+                if calc_id not in self.__calculations:
+                    id = calc_id
+                    self.__calculations[id] = {'visible': True, 'calculations': []}
+                    self.__calculations[id]['calculations'] = [parser.get_calculation()]
+                    break
+            else:
+                self.__calculation_id += 1
+                id = self.__calculation_id
+                self.__calculations[id] = {'visible': True, 'calculations': []}
+                self.__calculations[id]['calculations'] = [parser.get_calculation()]
+            
+            self.TreeModel.append_data([([id, 'V', parser.get_calculation().directory, parser.get_calculation().calculation_type], 
+                                         [(['', '', parser.get_calculation().name, ''], None)])], self.TreeModel.root_item)
+            self.TreeView.expandAll()
+            self.get_print_window().add_message(f'File {self.__calculations[id]["calculations"][-1].name} appended.\n')
+            self.StepSlider.setMaximum(self.__calculations[id]['calculations'][-1].positions.shape[0] - 1)
             self.StepSlider.setValue(0)
             self.__visual_window._step = 0
             self.StepLabel.setText(f'Step:\t{self.__visual_window._step}\tfrom\t{self.StepSlider.maximum()}')
-            logger.info(f"Calculation {directory} parsed")
+            logger.info(f"Calculation {parser.get_calculation().name} parsed")
 
     def stop_all_threads_or_processes(self):
         for num, process in enumerate(self.__parser_processes.copy()):
             with self.__processes_locker:
                 self.__parser_processes.pop(num)
-                self.__parser_dicts.pop(num)
+                self.__parser_objs.pop(num)
                 process.terminate()
             self.enable_parser_mode_changing()
         for num, thread in enumerate(self.__parser_threads.copy()):
             with self.__threads_locker:
-                self.__parser_dicts.pop(num)
+                self.__parser_objs.pop(num)
                 self.__parser_threads.pop(num)
             self.enable_parser_mode_changing()
 
@@ -300,22 +333,22 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.get_print_window().add_message(f'Changed to {self.calculation_folder}.\n')
             logger.info(f"Changed to {self.calculation_folder}")
 
-    #def processing_start(self):
-    #    self.calculation_folder = self.AddedCalculations.currentText() if self.AddedCalculations.count() else self.calculation_folder
-    #    if self.__calculations.get(self.calculation_folder, None) is not None:
-    #        self.stop_all_threads_or_processes()
-    #        self.__processing_window = Processing(self.__settings, self, self.__print_window,
-    #                                               self.__visual_window, self.__calculations[self.calculation_folder], self.calculation_folder,
-    #                                               self.ADelete_coordinates_after_leave_cell.isChecked())
-    #        self.__processing_window.show()
+    def processing_start(self):
+        self.calculation_folder = self.AddedCalculations.currentText() if self.AddedCalculations.count() else self.calculation_folder
+        if self.__calculations.get(self.calculation_folder, None) is not None:
+            self.stop_all_threads_or_processes()
+            self.__processing_window = Processing(self.__settings, self, self.__print_window,
+                                                   self.__visual_window, self.__calculations[self.calculation_folder], self.calculation_folder,
+                                                   self.ADelete_coordinates_after_leave_cell.isChecked())
+            self.__processing_window.show()
 
-    #def destroy_processing_window(self):
-    #    self.__processing_window = None
+    def destroy_processing_window(self):
+        self.__processing_window = None
 
-    #def oszicar_window(self):
-    #    self.stop_all_threads_or_processes()
-    #    self.__oszicar_window = Oszicar(self.DirectoryPath.text(), self.__settings, self, self.__visual_window, self.__print_window)
-    #    self.__oszicar_window.show()
+    def oszicar_window(self):
+        self.stop_all_threads_or_processes()
+        self.__oszicar_window = Oszicar(self.DirectoryPath.text(), self.__settings, self, self.__visual_window, self.__print_window)
+        self.__oszicar_window.show()
 
     def about_the_program(self):
         message = '''PROCHEM is a program for processing and visualization the results of quantum chemistry packages' calculations. \

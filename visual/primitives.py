@@ -23,7 +23,6 @@ class Primitive:
     def __init__(
         self,
         vertices,
-        colors,
         normal,
         texture_indexes,
         indexes,
@@ -34,7 +33,6 @@ class Primitive:
     ):
         """Primitive class initialization function."""
         self.__vertex = vertices
-        self.__color = colors
         self.__normal = normal
         self.__texture_indexes = texture_indexes
         self.__indexes = indexes
@@ -42,7 +40,7 @@ class Primitive:
         self.__draw_type = self.__draw_types[draw_type]
         self.__texture = texture
         self.__transformation_matrix = np.identity(4, dtype=np.float32)
-        self.__vao_buffer = VAO((self.__vertex, self.__color, self.__normal, self.__texture_indexes), self.__indexes, usage, target).create()
+        self.__vao_buffer = VAO((self.__vertex, self.__normal, self.__texture_indexes), self.__indexes, usage, target).create()
 
     def set_transformation_matrix(self, transformation_matrix) -> None:
         """Sets transformation matrix."""

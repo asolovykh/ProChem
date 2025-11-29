@@ -1,6 +1,6 @@
 import logging
-from Gui.VROszicarGUI import Ui_VROszicar, QMainWindow
-from Processing.VRGraph import VRGraph
+from gui.oszicar import Ui_VROszicar, QMainWindow
+from graph.graph import VRGraph
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel

@@ -68,87 +68,14 @@ class VAO:
         """Returns VBO indexes."""
         return self.indexes
 
-    def load_uniform_vec4(self, location, vec4) -> None:
-        """Loading of vec4f uniform variable into program."""
-        glUniform4f(location, *vec4)
-
-    def load_uniform_vec3(self, location, vec3) -> None:
-        """Loading of vec3f uniform variable into program."""
-        glUniform3f(location, *vec3)
-
-    def load_uniform_mat4(self, location, mat4) -> None:
-        """Loading of mat4fv uniform variable into program."""
-        glUniformMatrix4fv(location, 1, GL_TRUE, mat4)
-        # glUniformMatrix4fv(location, 1, GL_FALSE, glm.value_ptr(mat4)) # <- set GL_TRUE to transform matrix before sending it to shader
-
-    def load_uniform_mat3(self, location, mat3) -> None:
-        """Loading of mat3fv uniform variable into program."""
-        glUniformMatrix4fv(location, 1, GL_TRUE, mat3)
-        # glUniformMatrix3fv(location, 1, GL_FALSE, glm.value_ptr(mat3))
-
-    def load_uniform_float(self, location, uFloat) -> None:
-        """Loading of float uniform variable into program."""
-        glUniform1f(location, uFloat)
-
-    def load_uniform_int(self, location, uInt) -> None:
-        """Loading of int uniform variable into program."""
-        glUniform1i(location, uInt)
-
-    def defineUniformVariableType(self, varType) -> None:
-        """Automatically define type of uniform variable."""
-        if varType == 'vec4':
-            return self.load_uniform_vec4
-        elif varType == 'vec3':
-            return self.load_uniform_vec3
-        elif varType == 'mat3':
-            return self.load_uniform_mat3
-        elif varType == 'mat4':
-            return self.load_uniform_mat4
-        elif varType == 'float':
-            return self.load_uniform_float
-        else:
-            raise VAOError('Undefined shader variable type.')
-
-    def prepareToDraw(self, program) -> None:
-        """Starts to use the pointed program and binds VAO buffer."""
-        glUseProgram(program)
-
-    def endOfDrawing(self) -> None:
-        """Unbinds VAO buffer and ends to use the pointed program."""
-        glUseProgram(0)
-
-    def setFogParameters(self, uniform_variables, eyePosition, fogColor, fogMinDist, fogMaxDist, fogPower, fogDensity) -> None:
-        """Loads fog settings into program."""
-        self.load_uniform_vec3(uniform_variables[('EyePosition', 'vec3')], eyePosition)
-        self.load_uniform_vec4(uniform_variables[('fog.FogColor', '=')], fogColor)
-        # self.load_uniform_float(uniform_variables[('fog.FogMaxDist', '1')], fogMaxDist)
-        # self.load_uniform_float(uniform_variables[('fog.FogMinDist', '1')], fogMinDist)
-        self.load_uniform_int(uniform_variables[('fog.FogPower', '1')], fogPower)
-        self.load_uniform_float(uniform_variables[('fog.FogDensity', '1')], fogDensity)
-
-    def isTextureExist(self, uniform_variables, value):
-        self.load_uniform_int(uniform_variables[('isTextureExist', 'int')], value)
-
-    def setTextureInfo(self, uniform_variables, texture):
-        self.load_uniform_int(uniform_variables[('textureMap', 'sampler2D')], texture)
-
-    def drawFromVaoBuffer(self, primitiveType, uniform_variables, RotationMatrix='', ViewMatrix='', ProjectionMatrix='', TranslationMatrix='', texture='') -> None:
-        """Sends command to draw elements from VAO buffer."""
-        self.load_uniform_mat4(uniform_variables[('Rotation', 'mat4')], RotationMatrix)
-        self.load_uniform_mat4(uniform_variables[('Translation', 'mat4')], TranslationMatrix)
-        self.load_uniform_mat4(uniform_variables[('View', 'mat4')], ViewMatrix)
-        self.load_uniform_mat4(uniform_variables[('Projection', 'mat4')], ProjectionMatrix)
-        #self.load_uniform_mat3(uniform_variables[('NormalMatrix', 'mat3')], NormalMatrix)
-        if self.indexes is not None:
-            self.indexes.bind()
-        if texture:
-            glEnable(GL_TEXTURE_2D)
-            glBindTexture(GL_TEXTURE_2D, texture)
-        glDrawElements(primitiveType, self.elements_number, GL_UNSIGNED_INT, None)
-        if texture:
-            glBindTexture(GL_TEXTURE_2D, 0)
-        if self.indexes is not None:
-            self.indexes.unbind()
+    # def setFogParameters(self, uniform_variables, eyePosition, fogColor, fogMinDist, fogMaxDist, fogPower, fogDensity) -> None:
+    #     """Loads fog settings into program."""
+    #     self.load_uniform_vec3(uniform_variables[('EyePosition', 'vec3')], eyePosition)
+    #     self.load_uniform_vec4(uniform_variables[('fog.FogColor', '=')], fogColor)
+    #     # self.load_uniform_float(uniform_variables[('fog.FogMaxDist', '1')], fogMaxDist)
+    #     # self.load_uniform_float(uniform_variables[('fog.FogMinDist', '1')], fogMinDist)
+    #     self.load_uniform_int(uniform_variables[('fog.FogPower', '1')], fogPower)
+    #     self.load_uniform_float(uniform_variables[('fog.FogDensity', '1')], fogDensity)
 
 
 class VAOError(Exception):

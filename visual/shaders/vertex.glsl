@@ -2,9 +2,8 @@
 
 
 layout (location=0) in vec3 PositionIn;
-layout (location=1) in vec3 ColorIn;
-layout (location=2) in vec3 NormalIn;
-layout (location=3) in vec2 TexCoordIn;
+layout (location=1) in vec3 NormalIn;
+layout (location=2) in vec2 TexCoordIn;
 
 
 out vec3 Position;
@@ -12,6 +11,7 @@ out vec3 Normal;
 out vec3 Color;
 out vec2 TexCoord;
 
+uniform vec3 ObjColor;
 uniform mat4 Rotation;
 uniform mat4 Translation;
 uniform mat4 View;
@@ -26,7 +26,7 @@ void main()
 
     Position = vec3(Mod_Position);
     Normal = normalize(mat3(transpose(inverse(Model))) * NormalIn);
-    Color = ColorIn;
+    Color = ObjColor;
     TexCoord = vec2(TexCoordIn[0], 1 - TexCoordIn[1]);
     
     gl_Position = Projection * Mod_Position;

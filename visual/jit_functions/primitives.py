@@ -22,21 +22,20 @@ __all__ = [
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Quad(scaling, color, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Quad(scaling, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates quad."""
     vertex = np.array([[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [-1.0, 1.0, 0.0]]) * scaling
-    color = np.array([color] * len(vertex))
     normal = np.array([[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [-1.0, 1.0, 0.0]])
     texture_indexes = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
     if draw_type == 'TRIANGLES':
         indexes = np.array([0, 1, 2, 0, 2, 3])
     elif draw_type == 'QUADS':
         indexes = np.array([0, 1, 2, 3])
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Cube(scaling, color, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Cube(scaling, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates cube."""
     vertex = np.array([[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
                        [1.0, 1.0, 1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0], [1.0, -1.0, 1.0],
@@ -44,7 +43,6 @@ def Cube(scaling, color, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray,
                        [-1.0, -1.0, 1.0], [-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
                        [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, -1.0, 1.0],
                        [-1.0, -1.0, -1.0], [-1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [1.0, -1.0, -1.0]]) * scaling
-    color = np.array([color] * len(vertex))
     normal = np.array([[0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 0.0],
                        [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0],
                        [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0], [0.0, -1.0, 0.0],
@@ -63,11 +61,11 @@ def Cube(scaling, color, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray,
         indexes = np.array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 8, 9, 9, 10, 10, 11, 11, 8, 12, 13, 13, 14, 14, 15, 15, 12, 16, 17, 17, 18, 18, 19, 19, 16, 20, 21, 21, 22, 22, 23, 23, 20])
     elif draw_type == 'QUADS':
         indexes = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Parallelepiped(vec_x, vec_y, vec_z, color, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Parallelepiped(vec_x, vec_y, vec_z, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates parallelepiped."""
     vec_x = np.array(vec_x, dtype=np.float32)
     vec_y = np.array(vec_y, dtype=np.float32)
@@ -96,7 +94,6 @@ def Parallelepiped(vec_x, vec_y, vec_z, color, draw_type='TRIANGLES') -> tuple[n
                        [(-vec_x[0] + vec_y[0] - vec_z[0]) / 2, (-vec_x[1] + vec_y[1] - vec_z[1]) / 2, (-vec_x[2] + vec_y[2] - vec_z[2]) / 2],
                        [(vec_x[0] + vec_y[0] - vec_z[0]) / 2, (vec_x[1] + vec_y[1] - vec_z[1]) / 2, (vec_x[2] + vec_y[2] - vec_z[2]) / 2],
                        [(vec_x[0] - vec_y[0] - vec_z[0]) / 2, (vec_x[1] - vec_y[1] - vec_z[1]) / 2, (vec_x[2] - vec_y[2] - vec_z[2]) / 2]], dtype=np.float32)
-    color = np.array([color] * len(vertex))
     vec_x = vec_x / np.linalg.norm(vec_x)
     vec_y = vec_y / np.linalg.norm(vec_y)
     vec_z = vec_z / np.linalg.norm(vec_z)
@@ -118,11 +115,11 @@ def Parallelepiped(vec_x, vec_y, vec_z, color, draw_type='TRIANGLES') -> tuple[n
         indexes = np.array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 8, 9, 9, 10, 10, 11, 11, 8, 12, 13, 13, 14, 14, 15, 15, 12, 16, 17, 17, 18, 18, 19, 19, 16, 20, 21, 21, 22, 22, 23, 23, 20])
     elif draw_type == 'QUADS':
         indexes = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Sphere(scaling, color, n_slices, n_stacks, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Sphere(scaling, n_slices, n_stacks, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates sphere."""
     verts_number = (n_slices + 1) * (n_stacks + 1)
     elements = (n_slices * 2 * (n_stacks - 1)) * 3
@@ -188,13 +185,12 @@ def Sphere(scaling, color, n_slices, n_stacks, draw_type='TRIANGLES') -> tuple[n
                 indexes[idx + 5] = next_stack_start + j + 1
                 idx += 6
     vertex = vertex.reshape((-1, 3))
-    color = np.array([color] * len(vertex))
     normal = normal.reshape((-1, 3))
     texture_indexes = texture_indexes.reshape((-1, 2))
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Torus(scaling, color, outer_radius, inner_radius, n_slices, n_rings, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Torus(scaling, outer_radius, inner_radius, n_slices, n_rings, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates torus."""
     faces = n_slices * n_rings
     verts_number = n_slices * (n_rings + 1) # One extra ring to duplicate first ring
@@ -248,14 +244,13 @@ def Torus(scaling, color, outer_radius, inner_radius, n_slices, n_rings, draw_ty
             indexes[idx + 5] = ring_start + next_side
             idx += 6
     vertex = vertex.reshape((-1, 3))
-    color = np.array([color] * len(vertex))
     normal = normal.reshape((-1, 3))
     texture_indexes = texture_indexes.reshape((-1, 2))
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Yula(scaling, color, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Yula(scaling, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates yula."""
     verts_number = (n_slices + 1) * 3
     elements = (n_slices * 2) * 3
@@ -317,14 +312,13 @@ def Yula(scaling, color, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, n
                 indexes[idx + 5] = next_stack_start + j + 1
                 idx += 6
     vertex = vertex.reshape((-1, 3))
-    color = np.array([color] * len(vertex))
     normal = normal.reshape((-1, 3))
     texture_indexes = texture_indexes.reshape((-1, 2))
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Tube(radius, height, color, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Tube(radius, height, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates tube."""
     vertex = np.zeros(6 * (n_slices + 1))
     normal = np.zeros(6 * (n_slices + 1))
@@ -358,14 +352,13 @@ def Tube(radius, height, color, n_slices, draw_type='TRIANGLES') -> tuple[np.nda
         t_idx += 4
     indexes[-4], indexes[-2], indexes[-1] = 0, 0, 1
     vertex = vertex.reshape((-1, 3))
-    color = np.array([color] * len(vertex))
     normal = normal.reshape((-1, 3))
     texture_indexes = texture_indexes.reshape((-1, 2))
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type
 
 
 @jit(fastmath=True, nopython=True, cache=True)
-def Cone(radius, height, color, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
+def Cone(radius, height, n_slices, draw_type='TRIANGLES') -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, str]:
     """Creates cone."""
     vertex = np.zeros(6 * (n_slices + 1))
     normal = np.zeros(6 * (n_slices + 1))
@@ -396,7 +389,6 @@ def Cone(radius, height, color, n_slices, draw_type='TRIANGLES') -> tuple[np.nda
         t_idx += 4
     indexes[-4], indexes[-2], indexes[-1] = 0, 0, 1
     vertex = vertex.reshape((-1, 3))
-    color = np.array([color] * len(vertex))
     normal = normal.reshape((-1, 3))
     texture_indexes = texture_indexes.reshape((-1, 2))
-    return vertex, color, normal, texture_indexes, indexes, draw_type
+    return vertex, normal, texture_indexes, indexes, draw_type

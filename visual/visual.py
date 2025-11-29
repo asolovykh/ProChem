@@ -7,9 +7,8 @@ from PIL import Image, ImageQt
 import OpenGL
 from OpenGL.GL import *
 from PySide6.QtCore import QThread, QTimer, Qt
-from PySide6.QtGui import QOpenGLContext, QSurfaceFormat, QImage
+from PySide6.QtGui import QOpenGLContext, QSurfaceFormat, QImage, QKeyEvent
 from gui.visual import Ui_Visual, QMainWindow
-import gui.resource_rc
 OpenGL.ERROR_CHECKING = False
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,8 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.__print_window = print_window
         self.closed = False
         self.__project_directory = self.__print_window.get_project_dir()
-        
+        self.__calculations = None
+
         self.setupUi(self, self.__settings, self.__project_directory)
         logger.info(f"VisualUI setuped")
 
@@ -36,8 +36,6 @@ class VisualWindow(Ui_Visual, QMainWindow):
         if self.__location is not None:
             self.move(self.__location[0], self.__location[1])
             logger.info(f"Visual window positioned")
- 
-
         #self.rotation_matrix = np.array([[-1.0, 0.0, 0.0, 0.0],
         #                                 [0.0, 0.0, 1.0, 0],
         #                                 [0.0, -1.0, 0.0, 0.0],
@@ -53,6 +51,14 @@ class VisualWindow(Ui_Visual, QMainWindow):
             self.__print_window.get_control_window().close()
         event.accept()
 
+    def keyPressEvent(self, event: QKeyEvent):
+        key = event.key()
+        match key:
+            case Qt.Key_P:
+                print('Processing...')
+
+    def load_calculation_info(self, calculation):
+        self.__calculation = calculation
 
     # def change_light(self, light_indx):
     #     self.__settings.set_scene_params(not self.__settings.get_scene_params('light', 'states', light_indx), 'states', light_indx)
@@ -86,37 +92,11 @@ class VisualWindow(Ui_Visual, QMainWindow):
     #             self._buffers_labels.append(key)
     #     self.__is_calculation_loaded = False
 
-    # def without_calculation(self):
-    #     self.__calculation = None
-    #     self.__primitives.clear()
-    #     self._VBOBuffers.clear()
-    #     self._buffers_labels.clear()
-    #     self.__cell_position[1] = 20
-    #     self.__primitives = __default_primitives
-    #     self._VBOBuffers.append(VRVBO(self.__primitives['Quad'][:-1], self.__primitives['Quad'][-1]).createVaoBuffer())
-
     # def set_default_rotation_matrix(self):
     #     self.rotation_matrix = np.array([[-1.0, 0.0, 0.0, 0.0],
     #                                      [0.0, 0.0, 1.0, 0],
     #                                      [0.0, -1.0, 0.0, 0.0],
     #                                      [self._x_d, self._y_d, self._z_d, self._scale_parameter]], dtype=np.float64)
-
-    # def cell_draw(self, cell, draw_cell=False, draw_axes=False, line_width=3):
-    #     """Draw cell of model."""
-    #     edges = ((0, 1), (0, 3), (0, 4), (2, 1), (2, 3), (2, 7), (6, 3), (6, 4), (6, 7), (5, 1), (5, 4), (5, 7)) if not drawAxes else ((0, 1), (0, 4), (2, 1), (2, 7), (6, 4), (6, 7), (5, 1), (5, 4), (5, 7))
-    #     glLineWidth(line_width)
-    #     glBegin(GL_LINES)
-    #     if draw_cell:
-    #         for edge in edges:
-    #             for vertex in edge:
-    #                 glColor4f(1.0, 1.0, 0.0, 1.0)
-    #                 glVertex3fv(cell[vertex])
-    #     if draw_axes:
-    #         for color, edge in [((1.0, 0.0, 0.0), (3, 6)), ((0.0, 1.0, 0.0), (3, 0)), ((0.0, 0.0, 1.0), (3, 2))]:
-    #             glColor4f(*color, 1.0)
-    #             glVertex3fv(cell[edge[0]])
-    #             glVertex3fv(cell[edge[1]])
-    #     glEnd()
 
     # def select_atom(self, select):
     #     self.back_step, self.forward_step = False, False

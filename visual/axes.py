@@ -4,6 +4,7 @@
 # ProChem Copyright (C) 2021-2025 A.A.Solovykh - https://github.com/asolovykh
 # See LICENSE.txt for details.
 
+from OpenGL.GL import *
 from visual.primitives import Primitive
 from visual.jit_functions.primitives import *
 from visual.jit_functions.visual import *
@@ -28,15 +29,14 @@ class Axes:
         if not self._initialized:
             self.__settings = settings
             self.__axes_primitives = {
-                "center": Primitive(*Sphere(0.25, [0.0, 0.0, 0.0], 64, 64)),
-                "x_tube": Primitive(*Tube(0.22, 2.0, [1.0, 0.0, 0.0], 64)),
-                "x_cone": Primitive(*Cone(0.35, 0.5, [1.0, 0.0, 0.0], 64)),
-                "y_tube": Primitive(*Tube(0.22, 2.0, [0.0, 1.0, 0.0], 64)),
-                "y_cone": Primitive(*Cone(0.35, 0.5, [0.0, 1.0, 0.0], 64)),
-                "z_tube": Primitive(*Tube(0.22, 2.0, [0.0, 0.0, 1.0], 64)),
-                "z_cone": Primitive(*Cone(0.35, 0.5, [0.0, 0.0, 1.0], 64)),
+                "center": Primitive(*Sphere(0.25, 64, 64)),
+                "x_tube": Primitive(*Tube(0.22, 2.0, 64)),
+                "x_cone": Primitive(*Cone(0.35, 0.5, 64)),
+                "y_tube": Primitive(*Tube(0.22, 2.0, 64)),
+                "y_cone": Primitive(*Cone(0.35, 0.5, 64)),
+                "z_tube": Primitive(*Tube(0.22, 2.0, 64)),
+                "z_cone": Primitive(*Cone(0.35, 0.5, 64))
             }
-
             for key, primitive in self.__axes_primitives.items():
                 match key:
                     case "x_tube":
@@ -69,4 +69,12 @@ class Axes:
     def draw(self, uniform_variables) -> None:
         """Draws axes."""
         for key, primitive in self.__axes_primitives.items():
+            if "x" in key:
+                glUniform3f(uniform_variables[('ObjColor', 'vec3')], 1.0, 0.0, 0.0)
+            elif "y" in key:
+                glUniform3f(uniform_variables[('ObjColor', 'vec3')], 0.0, 1.0, 0.0)
+            elif "z" in key:
+                glUniform3f(uniform_variables[('ObjColor', 'vec3')], 0.0, 0.0, 1.0)
+            else:
+                glUniform3f(uniform_variables[('ObjColor', 'vec3')], 0.0, 0.0, 0.0)
             primitive.draw(uniform_variables)

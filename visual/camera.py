@@ -28,7 +28,7 @@ class Camera:
             self.__settings = settings
             
             self.set_view_matrix()
-            self.__perspective_matrix = None
+            self.set_perspective_matrix()
             self.set_orthographic_matrix()
             self.set_projection_matrix()
             self._initialized = True
@@ -41,13 +41,13 @@ class Camera:
         """Returns view matrix."""
         return self.__view_matrix
 
-    def set_perspective_matrix(self, width, height) -> None:
+    def set_perspective_matrix(self) -> None:
         """Sets perspective matrix and projection matrix if camera object is initialized."""
-        self.__perspective_matrix = perspective(self.__settings.get_scene_params('view', 'projection', 'fov'),
-                                                width / height,
+        self.__perspective_matrix = perspective(self.__settings.get_scene_params('view', 'perspective', 'fov'),
+                                                self.__settings.get_scene_params('view', 'perspective', 'aspect'),
                                                 self.__settings.get_scene_params('view', 'projection', 'near'),
                                                 self.__settings.get_scene_params('view', 'projection', 'far'))
-        if self._initialized and self.__settings.get_scene_params('view', 'perspective'):
+        if self.__settings.get_scene_params('view', 'is_perspective'):
             self.set_projection_matrix()
 
     def set_orthographic_matrix(self) -> None:
@@ -58,7 +58,7 @@ class Camera:
                                            self.__settings.get_scene_params('view', 'ortho', 'bottom'),
                                            self.__settings.get_scene_params('view', 'projection', 'near'),
                                            self.__settings.get_scene_params('view', 'projection', 'far'))
-        if self._initialized and not self.__settings.get_scene_params('view', 'perspective'):
+        if not self.__settings.get_scene_params('view', 'is_perspective'):
             self.set_projection_matrix()
 
     def set_projection_matrix(self) -> None:
