@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["gui", "logs", "vasp", "graph", "icons", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
+packages = ["gui", "logs", "vasp", "graph", "lammps", "visual", "parsers", "settings", "quantum_espresso"]
 
 # [project.optional-dependencies]
 # dev = [
