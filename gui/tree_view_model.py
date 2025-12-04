@@ -192,8 +192,7 @@ class CustomTreeModel(QAbstractItemModel):
         if data is not None:
             self.append_data(data, self.root_item)
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole): # NOTE: overrided method
-        if role == Qt.DisplayRole:
+    def headerData(self, section, orientation, role=Qt.DisplayRole): # NOTE: overrided method 
         """
         Returns the header data for the given section, orientation, and role.
         
@@ -205,6 +204,7 @@ class CustomTreeModel(QAbstractItemModel):
         Returns:
          The header data as a string or a list of strings.
         """
+        if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return ["ID", "V", "Name", "Type"][section]
             else:
@@ -312,9 +312,7 @@ class CustomTreeModel(QAbstractItemModel):
     def supportedDropActions(self): # NOTE: overrided method
         return Qt.MoveAction
 
-    def mimeData(self, indexes): # NOTE: overrided method
-        self._dragged_items = []
-        for index in indexes:
+    def mimeData(self, indexes): # NOTE: overrided method 
         """
         Creates a QMimeData object for dragged items.
         
@@ -333,6 +331,8 @@ class CustomTreeModel(QAbstractItemModel):
                with the items from the selected indexes (excluding the root item)
                and used for drag and drop operations.
         """
+        self._dragged_items = []
+        for index in indexes:
              if index.column() == 0:
                 item = self.get_item(index)
                 if item is not self.root_item:
@@ -342,8 +342,6 @@ class CustomTreeModel(QAbstractItemModel):
         return mime_data
     
     def dropMimeData(self, data, action, row, column, parent): # NOTE: overrided method
-        old_row, new_row = -1, row
-        if action == Qt.IgnoreAction:
         """
         Handles the dropping of MIME data onto the model.
         
@@ -362,6 +360,8 @@ class CustomTreeModel(QAbstractItemModel):
         Returns:
            bool: True if the drop was successful, False otherwise.
         """
+        old_row, new_row = -1, row
+        if action == Qt.IgnoreAction:
             return True
         if not data.hasFormat('application/x-qabstractitemmodeldatalist'):
             return False

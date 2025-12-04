@@ -9,7 +9,7 @@ import json
 import numpy as np
 import logging
 import random
-from typing import Any
+from typing import Any, Self
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class Settings:
     _instance = None
     _initialized = False
 
-    def __new__(cls, *args, **kwargs) -> self:
+    def __new__(cls, *args, **kwargs) -> Self:
         """
         Creates and returns a singleton instance of the class.
         
@@ -442,7 +442,7 @@ class Settings:
         }
         logger.info(f"Default settings initialized")
 
-    def load_settings(self) -> self:
+    def load_settings(self) -> Self:
         """
         Loads settings from a JSON file.
         
@@ -704,7 +704,7 @@ class Settings:
         """
         Settings.__set_dict_value(self.__processing_params, value, *keys)
 
-    def save_settings(self) -> self:
+    def save_settings(self) -> Self:
         """
         Saves the current settings to a JSON file.
         
