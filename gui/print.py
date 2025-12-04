@@ -6,7 +6,25 @@ import os
 
 
 class Ui_Print(object):
+    """
+    A class to manage the user interface for a Print widget.
+    
+     This class handles the setup and translation of the UI elements for displaying
+     print-related information and logs.
+    """
     def setupUi(self, Print):
+        """
+        Sets up the user interface for the Print widget.
+        
+        Args:
+            self: The instance of the class.
+            Print: The Print widget to be configured.
+        
+        Initializes the following object properties:
+            MainWidget: A QWidget instance serving as the central widget for layout management.
+            Logger: A QTextEdit widget used for displaying log messages.
+            verticalLayout: A QVBoxLayout instance used for vertical arrangement of widgets within MainWidget.
+        """
         if not Print.objectName():
             Print.setObjectName("PROCHEM Print")
         Print.resize(450, 300)
@@ -139,6 +157,19 @@ class Ui_Print(object):
         self.retranslateUi(Print)
 
     def retranslateUi(self, Print):
+        """
+        Translates UI elements for the Print window.
+        
+        This method sets the window title and HTML content of the Logger widget
+        to provide localized text.
+        
+        Args:
+           self: The instance of the class.
+           Print: The main Print window object.
+        
+        Returns:
+           None
+        """
         Print.setWindowTitle(QCoreApplication.translate("PROCHEM Print", u"PROCHEM (Message Console)", None))
         self.Logger.setHtml(QCoreApplication.translate("PROCHEM Print", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"

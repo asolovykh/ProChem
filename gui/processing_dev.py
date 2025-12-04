@@ -24,7 +24,159 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QHBox
 import gui.resource_rc
 
 class Ui_VRProcessing(object):
+    """
+    Sets up the user interface for the VRProcessing widget.
+    
+    Args:
+        VRProcessing: The main VRProcessing widget.
+    
+    Initializes the main window, sets up the layout, and connects the UI elements.
+    It also sets up the stylesheet for various widgets to provide a consistent look and feel.
+    
+    Object Properties:
+        AAbout: QAction for the "About" menu item.
+        ABack: QAction for the "Back" menu item.
+        AExit: QAction for the "Exit" menu item.
+        ADel_coords_of_sel_atoms: QAction to toggle deletion of coordinates of selected atoms.
+        ADel_energy_of_sel_atoms: QAction to toggle deletion of energy of selected atoms.
+        AInclude_OSZICAR: QAction to toggle inclusion of OSZICAR data.
+        APreview_of_table: QAction to toggle preview of the table.
+        ASelected_atoms: QAction to enable/disable selected atoms functionality.
+        AOSZICAR: QAction to enable/disable OSZICAR functionality.
+        ATable: QAction to enable/disable table functionality.
+        MainProcessingWidget: The central widget containing the main layout.
+        verticalLayout: The main vertical layout for the central widget.
+        CentralWidget: A widget containing the horizontal layout for the left and right panels.
+        horizontalLayout: The horizontal layout for the central widget.
+        LeftCentralWidget: A widget containing the left panel with processing tabs.
+        verticalLayout_2: The vertical layout for the left central widget.
+        ProcessingTab: A tab widget for different processing options.
+        DC: Widget for Distance Calculation tab.
+        DCVLayout: Vertical layout for Distance Calculation tab.
+        DCList: List widget for displaying data in Distance Calculation tab.
+        DCSelected: Line edit for displaying selected data in Distance Calculation tab.
+        DistanceRadio: Radio button for selecting distance calculation mode.
+        COMRadio: Radio button for selecting COM calculation mode.
+        DCAddCol: Push button for adding a column.
+        DCAdded: Combo box for selecting added column.
+        DCRemoveCol: Push button for removing a column.
+        PM: Widget for Plus/Minus tab.
+        PMVLayout: Vertical layout for Plus/Minus tab.
+        PMList: List widget for displaying data in Plus/Minus tab.
+        PMSelected: Line edit for displaying selected data in Plus/Minus tab.
+        PlusRadio: Radio button for selecting plus mode.
+        MinusRadio: Radio button for selecting minus mode.
+        PMAddCol: Push button for adding a column.
+        PMAdded: Combo box for selecting added column.
+        PMRemoveCol: Push button for removing a column.
+        Angle: Widget for Angle tab.
+        AngleVLayout: Vertical layout for Angle tab.
+        AngleList: List widget for displaying data in Angle tab.
+        AngleSelected: Line edit for displaying selected data in Angle tab.
+        AnglePlaneXY: Radio button for selecting XY plane.
+        AnglePlaneYZ: Radio button for selecting YZ plane.
+        AnglePlaneZX: Radio button for selecting ZX plane.
+        AngleAddCol: Push button for adding a column.
+        AngleAdded: Combo box for selecting added column.
+        AngleRemoveCol: Push button for removing a column.
+        Divide: Widget for Divide tab.
+        DivideVLayout: Vertical layout for Divide tab.
+        DivideList: List widget for displaying data in Divide tab.
+        DivideSelected: Line edit for displaying selected data in Divide tab.
+        DivideAddCol: Push button for adding a column.
+        DivideAdded: Combo box for selecting added column.
+        DivideRemoveCol: Push button for removing a column.
+        Rename: Widget for Rename tab.
+        RenameVLayout: Vertical layout for Rename tab.
+        RenameSelect: Combo box for selecting data to rename.
+        RenameLine: Line edit for entering new name.
+        RenameButton: Push button for renaming data.
+        PlotGraphButton: Push button for plotting graph.
+        ViewTable: Table view for displaying data.
+        CreateExcel: Push button for creating Excel file.
+        BuildGraph: Push button for building graph.
+        Back: Push button for going back.
+        ProcessingMenubar: The menu bar for the application.
+        ProcessingMenuWindow: The "Window" menu.
+        ProcessingMenuOptions: The "Options" menu.
+    """
     def setupUi(self, VRProcessing):
+        """
+        Sets up the user interface for the VRProcessing widget.
+        
+        Args:
+            VRProcessing: The main VRProcessing widget.
+        
+        Initializes the main window, sets up the layout, and connects the UI elements.
+        It also sets up the stylesheet for various widgets to provide a consistent look and feel.
+        
+        Object Properties:
+            AAbout: QAction for the "About" menu item.
+            ABack: QAction for the "Back" menu item.
+            AExit: QAction for the "Exit" menu item.
+            ADel_coords_of_sel_atoms: QAction to toggle deletion of coordinates of selected atoms.
+            ADel_energy_of_sel_atoms: QAction to toggle deletion of energy of selected atoms.
+            AInclude_OSZICAR: QAction to toggle inclusion of OSZICAR data.
+            APreview_of_table: QAction to toggle preview of the table.
+            ASelected_atoms: QAction to enable/disable selected atoms functionality.
+            AOSZICAR: QAction to enable/disable OSZICAR functionality.
+            ATable: QAction to enable/disable table functionality.
+            MainProcessingWidget: The central widget containing the main layout.
+            verticalLayout: The main vertical layout for the central widget.
+            CentralWidget: A widget containing the horizontal layout for the left and right panels.
+            horizontalLayout: The horizontal layout for the central widget.
+            LeftCentralWidget: A widget containing the left panel with processing tabs.
+            verticalLayout_2: The vertical layout for the left central widget.
+            ProcessingTab: A tab widget for different processing options.
+            DC: Widget for Distance Calculation tab.
+            DCVLayout: Vertical layout for Distance Calculation tab.
+            DCList: List widget for displaying data in Distance Calculation tab.
+            DCSelected: Line edit for displaying selected data in Distance Calculation tab.
+            DistanceRadio: Radio button for selecting distance calculation mode.
+            COMRadio: Radio button for selecting COM calculation mode.
+            DCAddCol: Push button for adding a column.
+            DCAdded: Combo box for selecting added column.
+            DCRemoveCol: Push button for removing a column.
+            PM: Widget for Plus/Minus tab.
+            PMVLayout: Vertical layout for Plus/Minus tab.
+            PMList: List widget for displaying data in Plus/Minus tab.
+            PMSelected: Line edit for displaying selected data in Plus/Minus tab.
+            PlusRadio: Radio button for selecting plus mode.
+            MinusRadio: Radio button for selecting minus mode.
+            PMAddCol: Push button for adding a column.
+            PMAdded: Combo box for selecting added column.
+            PMRemoveCol: Push button for removing a column.
+            Angle: Widget for Angle tab.
+            AngleVLayout: Vertical layout for Angle tab.
+            AngleList: List widget for displaying data in Angle tab.
+            AngleSelected: Line edit for displaying selected data in Angle tab.
+            AnglePlaneXY: Radio button for selecting XY plane.
+            AnglePlaneYZ: Radio button for selecting YZ plane.
+            AnglePlaneZX: Radio button for selecting ZX plane.
+            AngleAddCol: Push button for adding a column.
+            AngleAdded: Combo box for selecting added column.
+            AngleRemoveCol: Push button for removing a column.
+            Divide: Widget for Divide tab.
+            DivideVLayout: Vertical layout for Divide tab.
+            DivideList: List widget for displaying data in Divide tab.
+            DivideSelected: Line edit for displaying selected data in Divide tab.
+            DivideAddCol: Push button for adding a column.
+            DivideAdded: Combo box for selecting added column.
+            DivideRemoveCol: Push button for removing a column.
+            Rename: Widget for Rename tab.
+            RenameVLayout: Vertical layout for Rename tab.
+            RenameSelect: Combo box for selecting data to rename.
+            RenameLine: Line edit for entering new name.
+            RenameButton: Push button for renaming data.
+            PlotGraphButton: Push button for plotting graph.
+            ViewTable: Table view for displaying data.
+            CreateExcel: Push button for creating Excel file.
+            BuildGraph: Push button for building graph.
+            Back: Push button for going back.
+            ProcessingMenubar: The menu bar for the application.
+            ProcessingMenuWindow: The "Window" menu.
+            ProcessingMenuOptions: The "Options" menu.
+        """
         if not VRProcessing.objectName():
             VRProcessing.setObjectName(u"VRProcessing")
         VRProcessing.resize(1080, 657)
@@ -691,6 +843,19 @@ class Ui_VRProcessing(object):
     # setupUi
 
     def retranslateUi(self, VRProcessing):
+        """
+        Translates UI elements for the VRProcessing window.
+        
+        This method sets the text of various UI elements (labels, buttons, tab titles)
+        within the VRProcessing window to their translated equivalents.  It uses
+        QCoreApplication.translate to handle the translation process.
+        
+        Args:
+         VRProcessing: The main VRProcessing window object.
+        
+        Returns:
+         None
+        """
         VRProcessing.setWindowTitle(QCoreApplication.translate("VRProcessing", u"VaspReader (Processing Window)", None))
         self.AAbout.setText(QCoreApplication.translate("VRProcessing", u"About", None))
         self.ABack.setText(QCoreApplication.translate("VRProcessing", u"Back", None))

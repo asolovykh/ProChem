@@ -19,6 +19,56 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
     directProjection = ('_dir_1', '_dir_2', '_dir_3')
 
     def __init__(self, app, settings, visualWindowObject, printWindowObject, openGlWindowObject, calculation, name, deleteAfterLeave):
+        """
+        Initializes the VRProcessing object.
+        
+        This constructor sets up the VRProcessing window, initializes data structures,
+        and links UI elements to their corresponding functions. It handles data loading,
+        DataFrame creation, and model setup for displaying and processing data.
+        
+        Args:
+         app: The application object.
+         settings: The settings object containing configuration parameters.
+         visualWindowObject: The visual window object.
+         printWindowObject: The print window object.
+         openGlWindowObject: The OpenGL window object.
+         calculation: A dictionary containing calculation data.
+         name: The name of the processing instance.
+         deleteAfterLeave: A boolean indicating whether to delete the instance after leaving.
+        
+        Class Fields Initialized:
+         self.__app: The application object.
+         self.__settings: The settings object.
+         self.__parent: The visual window object.
+         self.__printWindow: The print window object.
+         self.__openGl: The OpenGL window object.
+         self.__calculation: A dictionary containing calculation data.
+         self._deleteAfterLeave: A boolean indicating whether to delete the instance after leaving.
+         self._name: The name of the processing instance.
+         self._selected_atoms: A list of selected atom names from the calculation data.
+         self.__graph:  Initialized to None, likely intended for graph-related functionality.
+         self._selected_columns: An empty list to store selected columns.
+         self._masses:  Masses data obtained from the calculation data using the 'MASSES' key.
+         self._selectedNames: Selected names obtained from the calculation data using the 'ID' key.
+         self.columnsNames: A list of column names derived from self._selectedNames.
+         self.coordColumns: A list of coordinate column names.
+         self.directColumns: A list of direct column names.
+         self.baseDf: A Pandas DataFrame representing the base data.
+         self.vColumns: A list of velocity columns.
+         self.eColumns: A list of energy columns.
+         self.distanceCols: An empty list for distance columns.
+         self.angleCols: An empty list for angle columns.
+         self.weightmassCols: An empty list for weight/mass columns.
+         self.sumCols: An empty list for sum columns.
+         self.differenceCols: An empty list for difference columns.
+         self.divideCols: An empty list for division columns.
+         self.mainDf: A Pandas DataFrame representing the main data, initialized based on the presence of selected names.
+         self._model: An instance of VRPdModel, initialized with self.mainDf.
+         self._selectionModel: A QItemSelectionModel associated with the model.
+        
+        Returns:
+         None
+        """
         super(VRProcessing, self).__init__()
         self.__app = app
         self.__settings = settings
@@ -71,9 +121,32 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.__openGl.hide()
 
     def addMessage(self, message):
+        """
+        Adds a message to the print window.
+        
+        Args:
+            message: The message to be added.
+        
+        Returns:
+            None
+        """
         self.__printWindow.addMessage(message)
 
     def linkElementsWithFunctions(self):
+        """
+        Connects UI elements to their corresponding functions.
+        
+        This method establishes connections between various UI elements (e.g., list items,
+        radio buttons, buttons) and the functions that should be executed when those
+        elements are interacted with. It effectively wires up the user interface to
+        the application's logic.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            None
+        """
         self.DCList.itemClicked.connect(self.DCListAction)
         self.DistanceRadio.toggled.connect(self.DCListClear)
         self.DCAddCol.clicked.connect(self.DCButtonClicked)
@@ -103,16 +176,51 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.PlotGraphButton.clicked.connect(self.plotGraph)
 
     def closeAll(self, event):
+        """
+        Closes the parent window and accepts the close event.
+        
+        Args:
+         self: The instance of the class.
+         event: The close event.
+        
+        Returns:
+         None
+        """
         self.__parent.close()
         event.accept()
 
     def closeEvent(self, event=QCloseEvent()):
+        """
+        Shows the parent and OpenGL windows, destroys the processing window, and accepts the close event.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None
+        """
         self.__parent.show()
         self.__openGl.show()
         self.__parent.destroyProcessingWindow()
         event.accept()
 
     def refreshLists(self):
+        """
+        Clears and repopulates several lists used for displaying column names and data manipulation options.
+        
+        Args:
+            self:  The instance of the class.
+        
+        Initializes the following object properties:
+            DCList: A list widget displaying column names for a specific operation.
+            PMList: A list widget displaying column names for primary manipulation.
+            AngleList: A list widget displaying column names related to angles.
+            DivideList: A list widget displaying column names for division operations.
+            RenameSelect: A list widget displaying column names for renaming purposes.
+        
+        Returns:
+            None
+        """
         self.DCList.clear()
         self.PMList.clear()
         self.AngleList.clear()
@@ -125,10 +233,36 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.RenameSelect.addItems(self.mainDf.columns[1:].tolist())
 
     def selectedDataForm(self, dict_name):
+        """
+        Returns a list of selected data based on the provided dictionary name.
+        
+        This method iterates through a range determined by 'ATOMNUMBER' in the internal
+        calculation data and filters based on whether the corresponding atom is
+        selected (indicated by 'Sel' in the _selected_atoms list).
+        
+        Args:
+         dict_name: The name of the dictionary within the __calculation data to
+           retrieve values from.
+        
+        Returns:
+         list: A list of selected data values.
+        """
         return [self.__calculation[dict_name][i] for i in range(self.__calculation['ATOMNUMBER']) if 'Sel' in self._selected_atoms[i]]
 
     @staticmethod
     def removeSubscriptInNames(names):
+        """
+        Removes underscores from names in a list.
+        
+        This method takes a list of strings and returns a new list where each string
+        has all underscores removed.
+        
+        Args:
+         names: A list of strings potentially containing underscores.
+        
+        Returns:
+         A new list of strings with underscores removed from each element.
+        """
         names = names.copy()
         renamed = []
         for name in names:
@@ -136,6 +270,21 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         return renamed
 
     def formBasePandasDf(self):
+        """
+        Forms a base Pandas DataFrame from calculation data.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            pd.DataFrame: A Pandas DataFrame containing the processed calculation data.
+        
+        Class Fields Initialized:
+            _selected_atoms: A list of selected atoms.
+            directColumns: A list of column names for the direct coordinates.
+            columnsNames: A list of names for the coordinate components.
+            coordProjection: A list of coordinate projection values.
+        """
         data = []
         selectedColumnsNums = [num for num, column in enumerate(self._selected_atoms) if 'Sel' in column]
         for step in range(self.__calculation['STEPS']):
@@ -165,6 +314,16 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
 
     @staticmethod
     def atomAwayProcessing(direct, data):
+        """
+        Processes data relative to a direct input, adjusting a column based on differences.
+        
+        Args:
+         direct: The original data column.
+         data: The data to compare against the direct column.
+        
+        Returns:
+         list: A new list representing the adjusted column.
+        """
         column = direct.copy()
         for num, _ in enumerate(direct):
             exprFactor = round(data[num] - direct[num])
@@ -173,6 +332,24 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         return column
 
     def velocitiesAndEnergiesCalc(self):
+        """
+        Calculates velocities and energies for each column in the base DataFrame.
+        
+        This method computes the velocity and energy for each column based on the differences in x, y, and z coordinates, and then stores these values in new columns of the DataFrame. It also drops the first row and resets the index.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            baseDf: The DataFrame containing the calculated velocities and energies. New columns 'V_' + column and 'E_' + column are added for each column in columnsNames.
+            vColumns: A list of column names for velocities.
+            eColumns: A list of column names for energies.
+        
+        Returns:
+            A tuple containing two lists:
+                - vColumns: The list of velocity column names.
+                - eColumns: The list of energy column names.
+        """
         vColumns = ['V_' + column for column in self.columnsNames]
         eColumns = ['E_' + column for column in self.columnsNames]
         for num, column in enumerate(vColumns):
@@ -185,16 +362,59 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         return vColumns, eColumns
 
     def coordinatesDelete(self):
+        """
+        Deletes coordinate columns from the main DataFrame.
+        
+        Args:
+            self: The instance of the class.
+        
+        The following class fields are initialized:
+            - mainDf: The main DataFrame used for data manipulation.
+            - coordColumns: A list of column names representing coordinates to be deleted.
+        
+        Returns:
+            None
+        """
         for coord in self.coordColumns:
             del self.mainDf[coord]
 
     def directCurveChoose(self, first, second):
+        """
+        Calculates a weighted sum of differences between directional coefficients.
+        
+        This method computes the difference between directional coefficients for two
+        input strings ('first' and 'second') across three directions ('_dir_1',
+        '_dir_2', '_dir_3'). It then calculates a weighted sum of these differences
+        using a predefined basis.
+        
+        Args:
+         first: The first string identifier.
+         second: The second string identifier.
+        
+        Returns:
+         float: The weighted sum of the differences, representing the calculated
+         value.
+        """
         periodical_coefficients = []
         for proj in ['_dir_1', '_dir_2', '_dir_3']:
             periodical_coefficients.append(round(self.baseDf[second + proj][0] - self.baseDf[first + proj][0]))
         return np.dot(np.asarray(periodical_coefficients), self.__calculation['BASIS'])
 
     def divineOnPOTIM(self, column, isCOM=False):
+        """
+        Divines values in the base DataFrame based on POTIM values and a specified column.
+        
+        Args:
+            column: The name of the column in the base DataFrame to modify.
+            isCOM: A boolean flag indicating whether to apply a specific calculation for COM scenarios.
+        
+        Initializes:
+            self.baseDf: The DataFrame being modified. This method updates values within this DataFrame based on the provided calculations.
+            self.__calculation: A dictionary containing calculation parameters, including 'POTIM' and 'STEPS_LIST', used to determine the ranges and divisors for the calculation.
+        
+        Returns:
+            None
+        """
         prev_index = 0
         for index, POTIM in enumerate(self.__calculation['POTIM']):
             if isCOM:
@@ -208,6 +428,18 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 prev_index = self.__calculation['STEPS_LIST'][index]
 
     def removeColumns(self, addedColsElement, removeElement):
+        """
+        Removes specified columns from the DataFrames and updates the lists and UI.
+        
+        Args:
+         addedColsElement: The combo box element representing the added columns.
+         removeElement: The button element used to remove columns.
+        
+        This method removes columns from both the base DataFrame (self.baseDf) and the main DataFrame (self.mainDf),
+        depending on the selected column and the state of certain checkboxes. It also updates the corresponding lists
+        (distanceCols, weightmassCols, sumCols, differenceCols, angleCols, divideCols, vColumns, eColumns, columnsNames)
+        and refreshes the UI elements (combo boxes, table).
+        """
         toDelete = addedColsElement.currentText()
         colsList = []
         if addedColsElement == self.DCAdded:
@@ -270,6 +502,20 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self._model.refreshTable(self.mainDf)
 
     def DCListAction(self, element):
+        """
+        Updates the UI based on the selected items in the DCList.
+        
+        Args:
+           self: The instance of the class.
+           element: The currently selected item in the list.
+        
+        Initializes the following object properties:
+           DCAddCol: A button enabling/disabling based on the number of selected columns.
+           DCSelected: A text field displaying the comma-separated text of selected columns.
+        
+        Returns:
+           None
+        """
         selectedColumns = self.DCList.selectedItems()
         listSize = len(selectedColumns)
 
@@ -284,17 +530,60 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.DCSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
 
     def DCListClear(self, *args):
+        """
+        Clears the selected data in the DCList and DCSelected lists, and disables the Add Column button.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes the following object properties:
+            DCSelected: A list to store selected data. Cleared in this method.
+            DCList: An object representing the list. Selection is cleared in this method.
+            DCAddCol: A button for adding columns. Disabled in this method.
+        
+        Returns:
+            None
+        """
         self.DCSelected.clear()
         self.DCList.clearSelection()
         self.DCAddCol.setDisabled(True)
 
     def DCButtonClicked(self):
+        """
+        Calculates distance or COM based on the selected radio button.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None.
+        
+        
+        Class Fields Initialized:
+         - DistanceRadio: A radio button that determines the calculation type.
+         - COMCalculate: A method to calculate the Center of Mass.
+         - DistanceCalculate: A method to calculate the distance.
+        """
         if self.DistanceRadio.isChecked():
             self.DistanceCalculate()
         else:
             self.COMCalculate()
 
     def DistanceCalculate(self):
+        """
+        Calculates the distance between two selected columns and adds it as a new column to the DataFrames.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            None
+        
+        Fields Initialized:
+            baseDf: DataFrame to store the calculated distance.
+            mainDf: DataFrame to store the calculated distance.
+            distanceCols: List to store the names of the added distance columns.
+        """
         first, second = sorted([item.text() for item in self.DCList.selectedItems()])
         if f'{first}--{second}' in self.baseDf:
             self.addMessage('Column has already been added!', result='FAILED', cause='Column has already been added')
@@ -316,6 +605,23 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage(f'Column {first}--{second} has been added.')
 
     def COMCalculate(self, atomsList=None):
+        """
+        Calculates the center of mass (COM) for selected atoms and adds the resulting data to the DataFrame.
+        
+        Args:
+            atomsList: An optional list of atom names. If None, the method uses the selected items from the DCList.
+        
+        Initializes the following class fields:
+            baseDf: The base DataFrame used for calculations.
+            vColumns: A list of velocity column names.
+            eColumns: A list of energy column names.
+            columnsNames: A list of column names.
+            weightmassCols: A list of weight/mass column names.
+            DCAdded: A combo box for added columns.
+        
+        Returns:
+            None. The method modifies the class's DataFrames and lists in place.
+        """
         if atomsList is None:
             weightmasses = sorted([item.text() for item in self.DCList.selectedItems()])
         else:
@@ -366,9 +672,32 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.DCListClear()
 
     def DCChooseToRemove(self, *args):
+        """
+        Enables the 'DCRemoveCol' button.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None
+        """
         self.DCRemoveCol.setEnabled(True)
 
     def PMListAction(self, element):
+        """
+        Updates the UI based on the selected items in a list.
+        
+        Handles enabling/disabling a button based on the number of selected items,
+        and updates a text field with the selected item texts.  Also handles deselection
+        of items based on a radio button state.
+        
+        Args:
+            self:  The instance of the class.
+            element: The currently selected item (not directly used for logic, but passed as an argument).
+        
+        Returns:
+            None
+        """
         selectedColumns = self.PMList.selectedItems()
         listSize = len(selectedColumns)
 
@@ -383,17 +712,57 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.PMSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
 
     def PMListClear(self, *args):
+        """
+        Clears the selected items from the PMSelected list and disables the PMAddCol button.
+         
+         :param self: The instance of the class.
+         
+         :returns: None.
+         
+         Fields initialized:
+         - PMSelected: A list to store selected items. Cleared by this method.
+         - PMList: An object representing the list. Its selection is cleared.
+         - PMAddCol: A button object. Disabled by this method.
+        """
         self.PMSelected.clear()
         self.PMList.clearSelection()
         self.PMAddCol.setDisabled(True)
 
     def PMButtonClicked(self):
+        """
+        Calculates either the sum or difference based on the selected radio button.
+        
+        Args:
+         self: The instance of the class.
+        
+        Initializes:
+         None
+        
+        Returns:
+         None
+        """
         if self.MinusRadio.isChecked():
             self.DifferenceCalculate()
         else:
             self.SumCalculate()
 
     def SumCalculate(self):
+        """
+        Calculates the sum of selected items and adds it as a new column to the DataFrame.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            self.sumCols: A list to store the names of the calculated sum columns.
+            self.baseDf: The base DataFrame where the sum column is initially created.
+            self.mainDf: The main DataFrame where the sum column is copied if ADel_energy_of_sel_atoms is not checked.
+            self.PMAdded: A list widget to display the added columns.
+            self.eColumns: A list to store the names of energy columns.
+        
+        Returns:
+            None
+        """
         sumNames = sorted([item.text() for item in self.PMList.selectedItems()])
         sumStr = 'Sm_' + '_'.join(sumNames)
         if sumStr not in self.sumCols:
@@ -418,6 +787,21 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column has already been added!')
 
     def DifferenceCalculate(self):
+        """
+        Calculates the difference between two selected columns and adds it as a new column.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            baseDf: DataFrame to store the base calculations.
+            mainDf: DataFrame to display the results.
+            differenceCols: List to store the names of the difference columns.
+            eColumns: List to store the names of the energy columns.
+        
+        Returns:
+            None
+        """
         first, second = [item.text() for item in self.PMList.selectedItems()]
         differenceStr = 'Df_' + '-'.join([first, second])
         if differenceStr not in self.differenceCols:
@@ -439,9 +823,38 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column has already been added!')
 
     def PMChooseToRemove(self, *args):
+        """
+        Enables the PMRemoveCol widget.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes the following class fields:
+            PMRemoveCol: A widget used to remove a column. It is enabled by this method.
+        
+        Returns:
+            None
+        """
         self.PMRemoveCol.setEnabled(True)
 
     def AngleListAction(self, element):
+        """
+        Updates the enabled state of related UI elements based on the number of selected items in the AngleList.
+        
+        Args:
+            self:  The instance of the class.
+            element: The currently selected element in the list (not directly used for logic, but part of the signal/slot connection).
+        
+        Initializes the following object properties:
+            AngleAddCol: A QPushButton object representing the "Add Column" button. Its enabled state is updated based on the number of selected columns.
+            AnglePlaneXY: A QPushButton object representing the XY plane option. Its enabled state is updated based on the number of selected columns.
+            AnglePlaneYZ: A QPushButton object representing the YZ plane option. Its enabled state is updated based on the number of selected columns.
+            AnglePlaneZX: A QPushButton object representing the ZX plane option. Its enabled state is updated based on the number of selected columns.
+            AngleSelected: A QLabel object that displays the comma-separated text of the selected columns.
+        
+        Returns:
+            None
+        """
         selectedColumns = self.AngleList.selectedItems()
         listSize = len(selectedColumns)
 
@@ -465,11 +878,37 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.AngleSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
 
     def AngleListClear(self, *args):
+        """
+        Clears the selected angles and disables the 'Add Column' button.
+        
+        Args:
+         self: The instance of the class.
+        
+        Initializes:
+         AngleSelected: A list to store the selected angles. Cleared in this method.
+         AngleList: A widget representing the list of angles. Selection is cleared.
+         AngleAddCol: A button to add a column. Disabled after clearing the selection.
+        
+        Returns:
+         None
+        """
         self.AngleSelected.clear()
         self.AngleList.clearSelection()
         self.AngleAddCol.setDisabled(True)
 
     def AngleButtonClicked(self):
+        """
+        Calculates angles based on the number of selected items.
+        
+        If one item is selected, performs a standard angle calculation.
+        If three items are selected, performs a valence angle calculation.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None
+        """
         colsNumber = len(self.AngleList.selectedItems())
         if colsNumber == 1:
             self.AngleCalculate()
@@ -477,6 +916,22 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.ValenceAngleCalculate()
 
     def AngleCalculate(self):
+        """
+        Calculates and adds an angle column to the DataFrame based on selected atom and plane.
+        
+        Args:
+            self:  The instance of the class.
+        
+        Initializes:
+            self.angleCols: A list to store the names of added angle columns.
+            self.baseDf: The base DataFrame used for calculations.
+            self.mainDf: The main DataFrame to which the angle column is added.
+            self.AngleAdded: A combo box displaying added angle columns.
+            self.AngleRemoveCol: A button to remove added columns.
+        
+        Returns:
+            None
+        """
         atom = self.AngleList.selectedItems()[0].text()
         angle, plane = [], ''
         if self.AnglePlaneXY.isChecked():
@@ -502,6 +957,25 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column already exists.')
 
     def ValenceAngleCalculate(self):
+        """
+        Calculates the valence angle between three selected atoms and adds it as a new column to the DataFrame.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes the following class fields:
+            baseDf: DataFrame used for intermediate calculations.
+            mainDf: DataFrame that stores the final results.
+            angleCols: List to keep track of added angle columns.
+            AngleAdded: A QComboBox widget to display added angles.
+            AngleRemoveCol: A button to remove added columns.
+            AnglePlaneXY: A button to set the angle plane to XY.
+            AnglePlaneYZ: A button to set the angle plane to YZ.
+            AnglePlaneZX: A button to set the angle plane to ZX.
+        
+        Returns:
+            None
+        """
         atoms = [item.text() for item in self.AngleList.selectedItems()]
         if f'{atoms[0]}-{atoms[1]}-{atoms[2]}' not in self.angleCols:
             self.baseDf[f'{atoms[0]}--{atoms[2]}'] = sum([(self.baseDf[f'{atoms[0]}{proj}'] - self.baseDf[f'{atoms[2]}{proj}']) ** 2 for proj in ['_x', '_y', '_z']])
@@ -531,9 +1005,33 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column already exists.')
 
     def AngleChooseToRemove(self, *args):
+        """
+        Enables the AngleRemoveCol widget.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None
+        """
         self.AngleRemoveCol.setEnabled(True)
 
     def DivideListAction(self, element):
+        """
+        Divides a list based on selected items and updates the UI.
+        
+         This method handles the logic for dividing a list based on user selections.
+         It enables or disables a button based on the number of selected items,
+         and updates a text field with the selected column names. It also deselects
+         items if more than two are selected.
+        
+         Parameters:
+         self: The instance of the class.
+         element: The currently selected element (not directly used in the logic, but part of the signal/slot connection).
+        
+         Returns:
+         None
+        """
         selectedColumns = self.DivideList.selectedItems()
         listSize = len(selectedColumns)
 
@@ -547,14 +1045,59 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.DivideSelected.setText(', '.join([selectedColumn.text() for selectedColumn in selectedColumns]))
 
     def DivideListClear(self, *args):
+        """
+        Clears the selected items in the division list and disables the add column button.
+        
+         This method resets the selection state of the division list and prepares it for new selections.
+        
+         Parameters:
+          self - The instance of the class.
+        
+         Returns:
+          None
+         
+         Class Fields Initialized:
+          - DivideSelected: A list to store the selected items for division. Cleared in this method.
+          - DivideList: An object representing the division list. Its selection is cleared.
+          - DivideAddCol: A button to add columns. Disabled after clearing the selection.
+        """
         self.DivideSelected.clear()
         self.DivideList.clearSelection()
         self.DivideAddCol.setDisabled(True)
 
     def DivideButtonClicked(self):
+        """
+        Calculates the division result based on the current operands.
+        
+        This method triggers the internal calculation logic for division.
+        
+        Args:
+         self:  The instance of the class.
+        
+        Returns:
+         None.
+        """
         self.DivideCalculate()
 
     def DivideCalculate(self):
+        """
+        Calculates vibrational and rotational energies based on selected atoms and adds them as new columns to the DataFrame.
+        
+        Parameters:
+        self - The instance of the class.
+        
+        Initializes the following class fields:
+        - `baseDf`: DataFrame used for calculations.
+        - `columnsNames`: List of column names.
+        - `divideCols`: List to store names of divided columns.
+        - `eColumns`: List to store names of energy columns.
+        - `mainDf`: Main DataFrame to which results are added.
+        - `_masses`: List of masses used in calculations.
+        - `calc_const`: Constant used in calculations.
+        
+        Returns:
+        None
+        """
         temporaryCols = []
         atoms = sorted([item.text() for item in self.DivideList.selectedItems()])
         colName = '_'.join(atoms)
@@ -599,21 +1142,76 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Column already exists.')
 
     def DivideChooseToRemove(self, *args):
+        """
+        Enables the DivideRemoveCol widget.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         None
+        """
         self.DivideRemoveCol.setEnabled(True)
 
     def renameColumnChoose(self):
+        """
+        Renames a selected column by populating a text field with its name.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            None
+        
+        Returns:
+            None
+        """
         colName = self.RenameSelect.currentText()
         if colName:
             self.RenameLine.setText(colName)
             self.RenameLine.setEnabled(True)
 
     def renameColumnAction(self):
+        """
+        Enables or disables the Rename button based on whether the selected column name 
+            differs from the text in the Rename line edit.
+        
+            Parameters:
+                self: The instance of the class.
+        
+            Class Fields Initialized:
+                RenameButton: A QPushButton object representing the rename button. Its enabled state is modified.
+                RenameLine: A QLineEdit object holding the new column name. Its text is used for comparison.
+                RenameSelect: A QComboBox object representing the selected column. Its current text is used for comparison.
+        
+            Returns:
+                None
+        """
         if self.RenameSelect.currentText() != self.RenameLine.text():
             self.RenameButton.setEnabled(True)
         else:
             self.RenameButton.setDisabled(True)
 
     def renameColumn(self):
+        """
+        Renames a column in the DataFrames and updates the UI.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            eColumns: List of column names for the first DataFrame.
+            distanceCols: List of column names for distance calculations.
+            angleCols: List of column names for angle calculations.
+            sumCols: List of column names for sum calculations.
+            differenceCols: List of column names for difference calculations.
+            baseDf: The base DataFrame.
+            mainDf: The main DataFrame displayed in the UI.
+            _model: The underlying data model.
+        
+        Returns:
+            None
+        """
         newName = self.RenameLine.text()
         oldName = self.RenameSelect.currentText()
         for array in [self.eColumns, self.distanceCols, self.angleCols, self.sumCols, self.differenceCols]:
@@ -627,6 +1225,20 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self.addMessage(f'Column {oldName} has been renamed. New name is {newName}.')
 
     def delCoordsAction(self, state):
+        """
+        Deletes or adds coordinate columns to the main DataFrame based on the state.
+        
+        Args:
+            state: A boolean indicating whether to delete or add coordinate columns. 
+                   If True, coordinate columns are deleted; otherwise, they are added.
+        
+        Initializes:
+            self.mainDf: The main DataFrame used in the application. Modified to remove or add coordinate columns.
+            self.columnsNames: A list of column names. Updated after refreshing the lists.
+        
+        Returns:
+            None
+        """
         if state:
             for name in self.columnsNames:
                 for proj in ['_x', '_y', '_z']:
@@ -643,6 +1255,22 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Columns with coordinates of atoms have been added.')
 
     def delEnergyAction(self, state):
+        """
+        Deletes or adds energy-related columns to the main DataFrame.
+        
+         This method either removes the columns specified in `self.eColumns` from
+         `self.mainDf` if `state` is True, or re-inserts those columns from
+         `self.baseDf` into `self.mainDf` if `state` is False. It then refreshes
+         the table displayed by the model and adds a message to inform the user
+         about the action taken.
+        
+         Parameters:
+           state: A boolean indicating whether to delete (True) or add (False)
+             the energy columns.
+        
+         Returns:
+           None
+        """
         if state:
             self.mainDf.drop(columns=self.eColumns, inplace=True)
             self._model.refreshTable(self.mainDf)
@@ -654,6 +1282,24 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.addMessage('Columns with energy have been added.')
 
     def columnSelected(self, selected, deselected):
+        """
+        Updates the list of selected columns based on user selections.
+        
+        This method handles column selection and deselection events, updating an internal
+        list of selected column indices and enabling/disabling a plot button accordingly.
+        
+        Args:
+         self: The instance of the class.
+         selected: The selected columns.
+         deselected: The deselected columns.
+        
+        Returns:
+         None
+        
+        Class Fields Initialized:
+         _selected_columns: A list of integers representing the indices of the selected columns.
+                            Used to track which columns are currently selected for plotting.
+        """
         selected_list = selected.toList()
         deselected_list = deselected.toList()
         if selected_list and not selected_list[0].top() and selected_list[0].bottom() == len(self.mainDf) - 1 and selected_list[0].left() == selected_list[0].right():
@@ -668,6 +1314,20 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self.PlotGraphButton.setDisabled(True)
 
     def plotGraph(self):
+        """
+        Plots a graph based on the selected columns from the main DataFrame.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            self.__graph: A VRGraph object representing the plotted graph.
+            self.PlotGraphButton: Disables the plot graph button after plotting.
+            self._selectionModel: Clears the selection model after plotting.
+        
+        Returns:
+            None
+        """
         columns_indexes = [column.column() for column in self._selectionModel.selectedColumns()]
         df = pd.DataFrame(self.mainDf[self.mainDf.columns[0]])
         for index in columns_indexes:
@@ -677,6 +1337,18 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
         self._selectionModel.clearSelection()
 
     def oszicarCheckboxUnlock(self):
+        """
+        Enables the AInclude_OSZICAR checkbox if an OSZICAR file is found in the specified directory.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            AInclude_OSZICAR: A checkbox control that is enabled if an OSZICAR file is present.
+        
+        Returns:
+            None
+        """
         files = os.listdir(self.__calculation['DIRECTORY'])
         for file in files:
             if 'OSZICAR' in file:
@@ -684,6 +1356,20 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 break
 
     def oszicarAction(self, state):
+        """
+        Adds or removes the OSZICAR dataframe to/from the main dataframe based on the provided state.
+        
+        Args:
+            state: A boolean indicating whether to add or remove the OSZICAR dataframe.
+                If True, the OSZICAR dataframe is added to the main dataframe.
+                If False, the specified columns are removed from the main dataframe.
+        
+        Initializes:
+            mainDf: The main dataframe, updated with or without the OSZICAR data.
+            
+        Returns:
+            None
+        """
         if state:
             oszicarDataframe = VROszicarProcessing(self.__calculation['DIRECTORY'], self.getLogger(), self.__calculation['STEPS_LIST'], self.__calculation['POTIM']).oszicarDf
             self.mainDf = pd.concat([self.mainDf, oszicarDataframe[oszicarDataframe.columns[1:]]], axis=1)
@@ -695,6 +1381,18 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
             self._model.refreshTable(self.mainDf)
 
     def saveTable(self):
+        """
+        Saves the data table to a file.
+        
+        Args:
+            self: The object instance.
+        
+        Initializes:
+            None
+        
+        Returns:
+            None
+        """
         tableDir = QFileDialog.getSaveFileName(None, caption='Save Table', filter="Excel (*.xlsx *.xls);;Csv (*.csv);;HTML (*.html)", selectedFilter="Excel (*.xlsx *.xls)")[0]
         if tableDir.endswith('.xlsx'):
             try:
@@ -725,4 +1423,26 @@ class VRProcessing(Ui_VRProcessing, QMainWindow):
                 self.addMessage('Caught exception: ' + traceback.format_exc())
 
     def graphWindow(self):
+        """
+        Creates and displays a graph window.
+        
+        This method initializes the graph window, sets up the plot area,
+        and displays the graph. It handles the creation of necessary widgets
+        and their arrangement within the window.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes the following class fields:
+            figure: The matplotlib figure object for the graph.
+            canvas: The matplotlib canvas widget for displaying the graph.
+            toolbar: The matplotlib toolbar for interacting with the graph.
+            root: The main Tkinter window.
+            plot_button: A button to trigger the graph plotting.
+            x_data_entry: An entry field for inputting x-axis data.
+            y_data_entry: An entry field for inputting y-axis data.
+        
+        Returns:
+            None.
+        """
         ...

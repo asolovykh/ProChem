@@ -21,7 +21,50 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 import Gui.Resource_rc
 
 class Ui_VRTransferProgress(object):
+    """
+    A class for managing the UI elements of a VR transfer progress window.
+    
+    Attributes:
+        VRTransferProgressWidget: The central widget for the UI.
+        verticalLayout: The main layout for arranging UI elements.
+        TransferTopWidget: A frame for displaying the file name.
+        horizontalLayout: A layout within TransferTopWidget for labels.
+        TransferFileLabel: A label displaying "File:".
+        TransferFileName: A label displaying the file name.
+        TransferProgress: A progress bar for the transfer progress.
+        TransferBottomWidget: A frame for displaying transfer information.
+        horizontalLayout_2: A layout within TransferBottomWidget for labels.
+        TransferredLabel: A label displaying "Transferred:".
+        TransferredInfo: A label displaying the transferred data amount.
+        TransferFromLabel: A label displaying "From:".
+        TransferAllInfo: A label displaying the total data amount.
+    """
     def setupUi(self, VRTransferProgress):
+        """
+        Sets up the UI for the VRTransferProgress widget.
+        
+        Args:
+            self:  The instance of the class.
+            VRTransferProgress: The VRTransferProgress widget object.
+        
+        Initializes the following object properties:
+            VRTransferProgressWidget: A QWidget instance that serves as the central widget.
+            verticalLayout: A QVBoxLayout that manages the layout of the central widget.
+            TransferTopWidget: A QFrame instance for displaying the file name.
+            horizontalLayout: A QHBoxLayout for arranging labels within TransferTopWidget.
+            TransferFileLabel: A QLabel displaying the "File:" label.
+            TransferFileName: A QLabel displaying the file name.
+            TransferProgress: A QProgressBar displaying the transfer progress.
+            TransferBottomWidget: A QFrame instance for displaying transfer information.
+            horizontalLayout_2: A QHBoxLayout for arranging labels within TransferBottomWidget.
+            TransferredLabel: A QLabel displaying the "Transferred:" label.
+            TransferredInfo: A QLabel displaying the transferred data amount.
+            TransferFromLabel: A QLabel displaying the "From:" label.
+            TransferAllInfo: A QLabel displaying the total data amount.
+        
+        Returns:
+            None
+        """
         if not VRTransferProgress.objectName():
             VRTransferProgress.setObjectName(u"VRTransferProgress")
         VRTransferProgress.resize(456, 112)
@@ -131,6 +174,19 @@ class Ui_VRTransferProgress(object):
     # setupUi
 
     def retranslateUi(self, VRTransferProgress):
+        """
+        Translates UI elements for the VRTransferProgress window.
+        
+        This method updates the text of various labels and the window title
+        to provide a localized user interface.
+        
+        Args:
+          self: The instance of the class.
+          VRTransferProgress: The VRTransferProgress window object.
+        
+        Returns:
+          None
+        """
         VRTransferProgress.setWindowTitle(QCoreApplication.translate("VRTransferProgress", u"VaspReader", None))
         self.TransferFileLabel.setText(QCoreApplication.translate("VRTransferProgress", u"File To Transfer:", None))
         self.TransferFileName.setText("")

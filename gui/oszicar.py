@@ -22,7 +22,45 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QHeaderView, QMainWind
 import gui.resource_rc
 
 class Ui_VROszicar(object):
+    """
+    A class for managing the user interface of the VROszicar application.
+    
+    This class is responsible for setting up and translating the UI elements
+    of the VROszicar application, including the main window, central widget,
+    layout, table view, buttons, menu bar, and actions.
+    
+    Class Methods:
+    - setupUi:
+    """
     def setupUi(self, VROszicar):
+        """
+        Sets up the user interface for the VROszicar application.
+        
+        Args:
+         VROszicar: The main window object for the application.
+        
+        Initializes and configures the main window, central widget, layout,
+        and various UI elements such as table view, buttons, menu bar, and actions.
+        Applies styling to the window and its components.
+        
+        Class Fields:
+         OszicarMainWidget: The central widget containing the main layout.
+         verticalLayout: The main vertical layout within the central widget.
+         OszicarTableView: The table view used to display data.
+         BottomLayout: A horizontal layout containing buttons at the bottom.
+         OszicarCreateExcelButton: Button to create an Excel file.
+         OszicarBuildGraphButton: Button to build a graph.
+         OszicarBack: Button to go back.
+         BottomHSpacer: A horizontal spacer to push buttons to the left.
+         OszicarMenubar: The menu bar for the application.
+         OszicarMenuWindow: The "Window" menu in the menu bar.
+         AAbout: Action for the "About" menu item.
+         ABack: Action for the "Back" menu item.
+         AExit: Action for the "Exit" menu item.
+        
+        Returns:
+         None
+        """
         if not VROszicar.objectName():
             VROszicar.setObjectName(u"VROszicar")
         VROszicar.resize(800, 600)
@@ -240,6 +278,19 @@ class Ui_VROszicar(object):
     # setupUi
 
     def retranslateUi(self, VROszicar):
+        """
+        Translates UI elements for the VROszicar window.
+        
+        This method sets the text labels for various UI elements within the
+        VROszicar window, ensuring the application is localized.
+        
+        Args:
+            self:  The instance of the class.
+            VROszicar: The main window object for the application.
+        
+        Returns:
+            None
+        """
         VROszicar.setWindowTitle(QCoreApplication.translate("VROszicar", u"VaspReader (OSZICAR)", None))
         self.AAbout.setText(QCoreApplication.translate("VROszicar", u"About", None))
         self.ABack.setText(QCoreApplication.translate("VROszicar", u"Back", None))

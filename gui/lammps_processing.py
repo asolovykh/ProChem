@@ -23,7 +23,46 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QHeaderView
 import Gui.Resource_rc
 
 class Ui_VRLAMMPSProcessing(object):
+    """
+    A class for managing the user interface of the VRLAMMPSProcessing application.
+    
+    This class handles the setup and translation of the UI elements, 
+    providing a visual interface for LAMMPS data processing.
+    """
     def setupUi(self, VRLAMMPSProcessing):
+        """
+        Sets up the user interface for the VRLAMMPSProcessing application.
+        
+        This method configures the main window, layouts, widgets, and actions
+        for the application. It sets up the visual elements and their
+        interactions.
+        
+        Args:
+            self: The instance of the class.
+            VRLAMMPSProcessing: The main application window.
+        
+        Fields Initialized:
+            AAbout: QAction for the "About" menu item.
+            ABack: QAction for the "Back" menu item.
+            AExit: QAction for the "Exit" menu item.
+            centralwidget: QWidget serving as the central widget of the main window.
+            verticalLayout: QVBoxLayout managing the vertical layout of widgets.
+            Top1Layout: QHBoxLayout managing the horizontal layout for path editing and buttons.
+            PathEdit: QLineEdit for entering the file path.
+            BrowseButton: QPushButton for browsing files.
+            AddButton: QPushButton for adding files.
+            horizontalLayout_3: QHBoxLayout managing the horizontal layout for regular expression selection and submission.
+            RegularExprChoose: QComboBox for selecting a regular expression.
+            SubmitReButton: QPushButton for submitting the selected regular expression.
+            TableView: QTableView for displaying data.
+            BottomLayout: QHBoxLayout managing the horizontal layout for buttons at the bottom.
+            CreateExcelButton: QPushButton for creating an Excel file.
+            BuildGraphsButton: QPushButton for building graphs.
+            BackButton: QPushButton for going back.
+            horizontalSpacer: QSpacerItem for adding horizontal space.
+            menubar: QMenuBar for the main menu.
+            Window: QMenu for the "Window" menu.
+        """
         if not VRLAMMPSProcessing.objectName():
             VRLAMMPSProcessing.setObjectName(u"VRLAMMPSProcessing")
         VRLAMMPSProcessing.resize(800, 600)
@@ -355,6 +394,19 @@ class Ui_VRLAMMPSProcessing(object):
     # setupUi
 
     def retranslateUi(self, VRLAMMPSProcessing):
+        """
+        Translates UI elements for the VRLAMMPSProcessing window.
+        
+        This method sets the text labels for various UI elements within the
+        VRLAMMPSProcessing window, ensuring the application is localized.
+        
+        Args:
+          self: The instance of the class.
+          VRLAMMPSProcessing: The main window object for LAMMPS processing.
+        
+        Returns:
+          None
+        """
         VRLAMMPSProcessing.setWindowTitle(QCoreApplication.translate("VRLAMMPSProcessing", u"VaspReader (LAMMPS Processing)", None))
         self.AAbout.setText(QCoreApplication.translate("VRLAMMPSProcessing", u"About", None))
         self.ABack.setText(QCoreApplication.translate("VRLAMMPSProcessing", u"Back", None))

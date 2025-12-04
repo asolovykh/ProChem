@@ -53,6 +53,15 @@ class Scene:
             self._initialized = True
 
     def set_draw_buffer(self, draw_buffer):
+        """
+        Sets the draw buffer.
+        
+        Args:
+         draw_buffer: The draw buffer to set.
+        
+        Returns:
+         None
+        """
         self.__draw_buffer = draw_buffer
 
     def update_camera(self):
@@ -91,6 +100,17 @@ class Scene:
         self.__rotation_matrix = np.identity(4, dtype=np.float32)
 
     def load_texture(self, image, is_qtype=True, texture_name="default"):
+        """
+        Loads a texture from an image file or QImage.
+        
+        Args:
+            image: The image file path or QImage object to load.
+            is_qtype:  A boolean indicating whether the image is a QImage. Defaults to True.
+            texture_name: The name to assign to the loaded texture. Defaults to "default".
+        
+        Returns:
+            None
+        """
         img = None
         if is_qtype:
             img = QImage(image)  # ":/icons/logo/PROCHEM-logo.png"

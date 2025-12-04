@@ -33,16 +33,58 @@ class ShaderType(Enum):
 
 
 class Shaders:
-    """Shaders compile class. Union shader files into programs for next using in ProChem visualisation
-    functions."""
+    """
+    A class for working with shaders and programs compilation.
+    
+    This class provides methods for compiling and linking shaders into a program,
+    managing uniform variables, and searching for subroutines within the program.
+    It also provides a method for adding new shader types to the class.
+
+    Class Methods:
+    __init__: Initializes the class and compiles shaders.
+    __add__: Adds a new shader type to the class.
+    __call__: Returns the program ID.
+    delete_shader_file: Deletes a shader file from the class.
+    search_for_uniform_variables: Searches for uniform variables in the program.
+    search_subroutine_location: Searches for subroutines in the program.
+    define_shaders_types: Defines shader types.
+    compyle_shader: Compiles shaders.
+    load_shader_info: Loads shader information.
+    delete_shader: Deletes shaders.
+    create_shader_program: Creates shader programs.
+    delete_program: Deletes shader programs.
+
+    """
 
     def __init__(self, directory: str, shader_files: list[str], shader_types: list[str]):
-        """Initialize class function. Requires:
-        directory - directory of shader files,
-        shader_files - list of string names of shaders for next form pathnames of files,
-        shader_types - shaders type: VERTEX, FRAGMENT, GEOMETRY, TESS_CONTROL, TESS_EVALUATION or COMPUTE.
+        """
+        Initializes the class, compiles shaders and creates a program.
+        
+        Obtains the directory of shader files, a list of shader file names,
+        and a list of shader types. It then defines the shader types and
+        compiles the shaders. Finally, it creates a program and searches
+        for uniform variables and subroutines within the program.
 
-        Please always check positions of files and types of shaders in list."""
+        Args:
+         self: The instance of the class.
+         directory: The directory containing the shader files.
+         shader_files: A list of strings representing the names of the shader files.
+         shader_types: A list of strings representing the types of the shaders.
+        
+        Attributes:
+         program: The ID of the program.
+         shaders: A dictionary storing the status of each shader.
+         uniform_variables: A dictionary storing the locations of uniform variables.
+         subroutine_variables: A dictionary storing the locations of subroutines.
+         directory: The directory containing the shader files.
+         shader_files: A list of strings representing the names of the shader files.
+         shader_types: A list of strings representing the types of the shaders.
+
+        Returns:
+         None
+
+        P.S. Please always check positions of files and types of shaders in list.
+        """
         self.program = 0
         self.shaders = dict()
         self.uniform_variables = dict()
@@ -50,7 +92,7 @@ class Shaders:
         self.directory = directory
         self.shader_files = shader_files
         self.shader_types = shader_types
-        self.define_shaders_types(self.shader_types)
+        self.define_shaders_types(self.shader_types) # TODO: move following lines to OpenGL widget
         for index, file in enumerate(shader_files):
             self.compyle_shader(file, self.shader_types[index])
         self.create_shader_program()

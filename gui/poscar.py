@@ -23,7 +23,49 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
 import Gui.Resource_rc
 
 class Ui_VRPoscar(object):
+    """
+    A class for managing the user interface of the VRPoscar application.
+    
+    This class is generated from the UI file and provides methods for setting up
+    and translating the user interface elements.
+    """
     def setupUi(self, VRPoscar):
+        """
+        Sets up the user interface for the VRPoscar application.
+        
+        This method configures the main window, including its size, icon,
+        stylesheet, and layout. It also creates and connects various widgets
+        such as line edits, combo boxes, check boxes, and push buttons.
+        
+        Args:
+            self: The VRPoscar object itself.
+            VRPoscar: The main window object of the application.
+        
+        Class Fields Initialized:
+            actionAbout: A QAction for the "About" menu item.
+            actionBack: A QAction for the "Back" menu item.
+            actionExit: A QAction for the "Exit" menu item.
+            PoscarMainWidget: The central widget of the main window, containing the main layout.
+            verticalLayout: The main vertical layout within PoscarMainWidget.
+            PoscarTopLayout: A horizontal layout for the top section of the UI.
+            label: A QLabel for displaying text.
+            lineEdit: A QLineEdit for text input.
+            horizontalLayout_2: A horizontal layout for another section of the UI.
+            label_2: A QLabel for displaying text.
+            lineEdit_2: A QLineEdit for text input.
+            horizontalLayout_3: A horizontal layout for another section of the UI.
+            label_3: A QLabel for displaying text.
+            comboBox: A QComboBox for selecting options.
+            checkBox: A QCheckBox for toggling options.
+            horizontalLayout_4: A horizontal layout for the button section.
+            pushButton: A QPushButton for performing an action.
+            pushButton_2: A QPushButton for performing another action.
+            menubar: The menu bar of the main window.
+            menuWindow: A QMenu for grouping menu items.
+        
+        Returns:
+            None
+        """
         if not VRPoscar.objectName():
             VRPoscar.setObjectName(u"VRPoscar")
         VRPoscar.resize(330, 200)
@@ -270,6 +312,20 @@ class Ui_VRPoscar(object):
     # setupUi
 
     def retranslateUi(self, VRPoscar):
+        """
+        Translates UI elements for the VRPoscar window.
+        
+        This method sets the text of various UI elements (window title, labels,
+        buttons, checkboxes, and menu titles) to their translated equivalents
+        using QCoreApplication.translate.
+        
+        Args:
+            self: The VRPoscar object.
+            VRPoscar: The main window object.
+        
+        Returns:
+            None
+        """
         VRPoscar.setWindowTitle(QCoreApplication.translate("VRPoscar", u"VaspReader (POSCAR)", None))
         self.actionAbout.setText(QCoreApplication.translate("VRPoscar", u"About", None))
         self.actionBack.setText(QCoreApplication.translate("VRPoscar", u"Back", None))

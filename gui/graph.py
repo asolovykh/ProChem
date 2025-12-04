@@ -24,7 +24,148 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
 import Gui.Resource_rc
 
 class Ui_VRGraphProcessing(object):
+    """
+    Class for managing the user interface of a VR graph processing application.
+    
+    Methods:
+    - setupUi
+    - retranslateUi
+    
+    Attributes:
+    - AAbout
+    - ABack
+    - AExit
+    - MainWidget
+    - verticalLayout
+    - TopLayout
+    - TopLeftLayout
+    - ColumnsList
+    - GraphOptionsTab
+    - GraphLimits
+    - GraphLimitsLayout
+    - XAxisLimitsLabel
+    - XAxisFromTo
+    - XAxisFrom
+    - XAxisTo
+    - YAxisLimitsLabel
+    - YAxisFromTo
+    - YAxisFrom
+    - YAxisTo
+    - LimitsSpacer
+    - SetLimitsButton
+    - ResetLimitsButton
+    - GraphLabels
+    - GraphLabelsLayout
+    - XAxisLabelLabel
+    - XAxisLabelEdit
+    - YAxisLabelLabel
+    - YAxisLabelEdit
+    - LabelsSpacer
+    - SetLabelsButton
+    - ResetLabelsButton
+    - GraphLegend
+    - GraphLegendLayout
+    - AddLegendCheckbox
+    - RenameCurvesLabel
+    - RenameCurves
+    - LegendEdit
+    - AutoRenameCurvesLabel
+    - AutoRenameCurves
+    - LegendSpacer
+    - ChangeLegendButton
+    - GraphParameters
+    - GraphParametersLayout
+    - CurveToChangeParametersLabel
+    - CurveToChangeParameters
+    - LineWidthLabel
+    - CurveLineWidthEdit
+    - CurveColorLabel
+    - CurveColorCheck
+    - CurveColorChoose
+    - ParametersSpacer
+    - CurveParametersChangeApply
+    - GraphsView
+    - BottomLayout
+    - CreateGraphButton
+    - GraphBackButton
+    - GraphProcessingMenubar
+    - GraphProcessingMenuWindow
+    """
     def setupUi(self, VRGraphProcessing):
+        """
+        Sets up the user interface for the VRGraphProcessing widget.
+        
+        Args:
+            self: The VRGraphProcessing instance.
+            VRGraphProcessing: The main window instance.
+        
+        Initializes and configures the main window, layouts, widgets, and their properties.
+        This includes setting up the menu bar, central widget, graphics view, tab widgets,
+        and various input fields and buttons. It also sets up the stylesheet for the UI elements.
+        
+        Fields Initialized:
+            AAbout: QAction - Action for displaying the "About" dialog.
+            ABack: QAction - Action for going back.
+            AExit: QAction - Action for exiting the application.
+            MainWidget: QWidget - The central widget of the main window.
+            verticalLayout: QVBoxLayout - The main vertical layout for the central widget.
+            TopLayout: QHBoxLayout - Horizontal layout for the top section (column list and graph view).
+            TopLeftLayout: QVBoxLayout - Vertical layout for the column list and graph options tab.
+            ColumnsList: QListView - List view for displaying columns.
+            GraphOptionsTab: QTabWidget - Tab widget for graph options (limits, labels, legend, parameters).
+            GraphLimits: QWidget - Widget for graph limits options.
+            GraphLimitsLayout: QVBoxLayout - Layout for graph limits options.
+            XAxisLimitsLabel: QLabel - Label for X-axis limits.
+            XAxisFromTo: QHBoxLayout - Horizontal layout for X-axis from/to input fields.
+            XAxisFrom: QLineEdit - Input field for X-axis from value.
+            XAxisTo: QLineEdit - Input field for X-axis to value.
+            YAxisLimitsLabel: QLabel - Label for Y-axis limits.
+            YAxisFromTo: QHBoxLayout - Horizontal layout for Y-axis from/to input fields.
+            YAxisFrom: QLineEdit - Input field for Y-axis from value.
+            YAxisTo: QLineEdit - Input field for Y-axis to value.
+            LimitsSpacer: QSpacerItem - Spacer item for graph limits layout.
+            SetLimitsButton: QPushButton - Button for setting graph limits.
+            ResetLimitsButton: QPushButton - Button for resetting graph limits.
+            GraphLabels: QWidget - Widget for graph labels options.
+            GraphLabelsLayout: QVBoxLayout - Layout for graph labels options.
+            XAxisLabelLabel: QLabel - Label for X-axis label.
+            XAxisLabelEdit: QLineEdit - Input field for X-axis label.
+            YAxisLabelLabel: QLabel - Label for Y-axis label.
+            YAxisLabelEdit: QLineEdit - Input field for Y-axis label.
+            LabelsSpacer: QSpacerItem - Spacer item for graph labels layout.
+            SetLabelsButton: QPushButton - Button for setting graph labels.
+            ResetLabelsButton: QPushButton - Button for resetting graph labels.
+            GraphLegend: QWidget - Widget for graph legend options.
+            GraphLegendLayout: QVBoxLayout - Layout for graph legend options.
+            AddLegendCheckbox: QCheckBox - Checkbox for adding a legend.
+            RenameCurvesLabel: QLabel - Label for renaming curves.
+            RenameCurves: QComboBox - Combobox for selecting a curve to rename.
+            LegendEdit: QLineEdit - Input field for the new curve name.
+            AutoRenameCurvesLabel: QLabel - Label for auto-renaming curves.
+            AutoRenameCurves: QComboBox - Combobox for selecting a curve for auto-renaming.
+            LegendSpacer: QSpacerItem - Spacer item for graph legend layout.
+            ChangeLegendButton: QPushButton - Button for changing the legend.
+            GraphParameters: QWidget - Widget for graph parameters options.
+            GraphParametersLayout: QVBoxLayout - Layout for graph parameters options.
+            CurveToChangeParametersLabel: QLabel - Label for selecting a curve to change parameters.
+            CurveToChangeParameters: QComboBox - Combobox for selecting a curve to change parameters.
+            LineWidthLabel: QLabel - Label for line width.
+            CurveLineWidthEdit: QLineEdit - Input field for line width.
+            CurveColorLabel: QLabel - Label for curve color.
+            CurveColorCheck: QFrame - Frame for displaying the curve color.
+            CurveColorChoose: QPushButton - Button for choosing the curve color.
+            ParametersSpacer: QSpacerItem - Spacer item for graph parameters layout.
+            CurveParametersChangeApply: QPushButton - Button for applying curve parameters changes.
+            GraphsView: QGraphicsView - View for displaying the graph.
+            BottomLayout: QHBoxLayout - Horizontal layout for the bottom section (buttons).
+            CreateGraphButton: QPushButton - Button for creating a graph.
+            GraphBackButton: QPushButton - Button for going back.
+            GraphProcessingMenubar: QMenuBar - The menu bar of the main window.
+            GraphProcessingMenuWindow: QMenu - Menu for window actions.
+        
+        Returns:
+            None
+        """
         if not VRGraphProcessing.objectName():
             VRGraphProcessing.setObjectName(u"VRGraphProcessing")
         VRGraphProcessing.resize(1158, 695)
@@ -585,6 +726,19 @@ class Ui_VRGraphProcessing(object):
     # setupUi
 
     def retranslateUi(self, VRGraphProcessing):
+        """
+        Translates UI text for the VRGraphProcessing window.
+        
+        This method sets the text of various UI elements (labels, buttons, tab titles)
+        within the VRGraphProcessing window to their translated equivalents.
+        
+        Args:
+         self: The instance of the class.
+         VRGraphProcessing: The main VRGraphProcessing window object.
+        
+        Returns:
+         None
+        """
         VRGraphProcessing.setWindowTitle(QCoreApplication.translate("VRGraphProcessing", u"VaspReader (Graphs Processing)", None))
         self.AAbout.setText(QCoreApplication.translate("VRGraphProcessing", u"About", None))
         self.ABack.setText(QCoreApplication.translate("VRGraphProcessing", u"Back", None))

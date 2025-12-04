@@ -8,8 +8,37 @@ import gui.resource_rc
 
 
 class Ui_Visual(object):
+    """
+    A class for managing the user interface of a visual application.
+    
+    Class Methods:
+    - setupUi:
+    """
 
     def setupUi(self, Visual, settings, project_directory):
+        """
+        Sets up the user interface.
+        
+        Args:
+            Visual: The main window object.
+            settings: Application settings.
+            project_directory: The project directory path.
+        
+        Initializes and configures the main window and its central widget.
+        Specifically, it sets the window's object name, size, size policy, minimum size,
+        font, window icon, and locale. It also sets dock options for allowing tabbed and animated docks.
+        A central widget (MainWidget) is created and a vertical layout (verticalLayout) is applied to it.
+        An instance of GLWidget is created and added to the vertical layout.
+        Finally, the central widget is set for the main window and the UI is retranslated.
+        
+        The `GLWidget` is initialized with the provided `settings` and `project_directory`.
+        It sets up the OpenGL context, scene, and mouse tracking.
+        
+        Fields initialized:
+            self.MainWidget: The central widget of the main window.
+            self.verticalLayout: The vertical layout manager for the central widget.
+            self.openGLWidget: An instance of GLWidget, which handles the OpenGL rendering.
+        """
         if not Visual.objectName():
             Visual.setObjectName("Visual")
         Visual.resize(400, 300)
@@ -50,4 +79,14 @@ class Ui_Visual(object):
         self.retranslateUi(Visual)
 
     def retranslateUi(self, Visual):
+        """
+        Sets the window title of the given Visual object.
+        
+        Args:
+          self:  The instance of the class.
+          Visual: The main window object to retranslate.
+        
+        Returns:
+          None
+        """
         Visual.setWindowTitle(QCoreApplication.translate("Visual", "PROCHEM", None))

@@ -21,8 +21,30 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QMainWindow
 import Gui.Resource_rc
 
 class Ui_VRParserChoose(QMainWindow):
+    """
+    A class for managing the user interface of the VR parser selection window.
+    
+    This class sets up the UI elements, links them to corresponding functions, and handles
+    the display of the VR parser selection window.
+    """
 
     def __init__(self):
+        """
+        Initializes the Ui_VRParserChoose object.
+        
+        This constructor calls the superclass constructor, sets up the user interface,
+        links UI elements to their corresponding functions, and displays the window.
+        
+        Args:
+            self: The instance of the Ui_VRParserChoose class.
+        
+        Initializes the following object properties:
+            setupUi: Sets up the user interface elements.
+            link_elements_with_functions: Connects UI elements to their respective functions.
+        
+        Returns:
+            None
+        """
         super(Ui_VRParserChoose, self).__init__()
         self.setupUi(self)
         self.link_elements_with_functions()
@@ -30,6 +52,24 @@ class Ui_VRParserChoose(QMainWindow):
 
 
     def setupUi(self, VRParserChoose):
+        """
+        Sets up the user interface for the VRParserChoose window.
+        
+        Args:
+           VRParserChoose: The main window object.
+        
+        Class Fields Initialized:
+           centralwidget: A QWidget instance that serves as the central widget of the window.
+           verticalLayout: A QVBoxLayout that arranges widgets vertically within the central widget.
+           ChooseMethodBox: A QComboBox widget that allows the user to select a parsing method.
+           horizontalLayout: A QHBoxLayout that arranges widgets horizontally within the central widget.
+           horizontalSpacer: A QSpacerItem that provides horizontal spacing within the horizontal layout.
+           SubmitButton: A QPushButton widget that submits the selected parsing method.
+           CancelButton: A QPushButton widget that cancels the operation.
+        
+        Returns:
+           None
+        """
         if not VRParserChoose.objectName():
             VRParserChoose.setObjectName(u"VRParserChoose")
         VRParserChoose.resize(400, 100)
@@ -167,9 +207,35 @@ class Ui_VRParserChoose(QMainWindow):
     # setupUi
 
     def link_elements_with_functions(self):
+        """
+        Links HTML elements with their corresponding functions.
+        
+        This method iterates through HTML elements and associates them with functions
+        based on predefined criteria. It updates the element's attributes to reflect
+        this linkage, enabling dynamic behavior when the element is interacted with.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            None
+        """
         ...
 
     def retranslateUi(self, VRParserChoose):
+        """
+        Sets the text for various UI elements.
+        
+        This method translates and sets the window title, submit button text,
+        and cancel button text for the VRParserChoose window.
+        
+        Args:
+           self:  The instance of the class.
+           VRParserChoose: The main window object for the VRParserChoose dialog.
+        
+        Returns:
+           None
+        """
         VRParserChoose.setWindowTitle(QCoreApplication.translate("VRParserChoose", u"VaspReader", None))
         self.SubmitButton.setText(QCoreApplication.translate("VRParserChoose", u"Submit", None))
         self.CancelButton.setText(QCoreApplication.translate("VRParserChoose", u"Cancel", None))

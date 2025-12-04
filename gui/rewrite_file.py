@@ -21,7 +21,50 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 import Gui.Resource_rc
 
 class Ui_RewriteFile(object):
+    """
+    A class to manage the UI for a file rewrite confirmation dialog.
+    
+     This class sets up and manages the user interface elements for a dialog
+     that asks the user to confirm a file rewrite operation. It includes
+     labels for displaying file information, buttons for accepting or
+     rejecting the rewrite, and a cancel button.
+    
+     Class Methods:
+     - setupUi:
+    """
     def setupUi(self, RewriteFile):
+        """
+        Sets up the user interface for the RewriteFile dialog.
+        
+        Args:
+            self: The instance of the class.
+            RewriteFile: The main window widget for the dialog.
+        
+        Initializes and configures the widgets within the RewriteFile dialog,
+        including labels, frames, layouts, and buttons.  Also sets the
+        stylesheet for the widgets to define their appearance.
+        
+        Class Fields Initialized:
+            RewriteFileMainWidget: The central widget containing the main layout of the dialog.
+            verticalLayout: The main vertical layout for arranging widgets.
+            RewriteAskLabel: A label displaying the question to the user.
+            OldFileFrame: A frame containing labels for the old file information.
+            horizontalLayout_2: A horizontal layout within OldFileFrame.
+            OldFileLabel: A label displaying the old file name.
+            OldParametersLabel: A label displaying the old file parameters.
+            NewFileFrame: A frame containing labels for the new file information.
+            horizontalLayout_3: A horizontal layout within NewFileFrame.
+            NewFileLabel: A label displaying the new file name.
+            NewParametersLabel: A label displaying the new file parameters.
+            RewriteBottomLayout: A horizontal layout for the buttons at the bottom.
+            RewriteYesToolButton: A tool button for accepting the rewrite.
+            RewriteNoToolButton: A tool button for rejecting the rewrite.
+            RewriteSpacer: A spacer item to push buttons to the sides.
+            RewriteCancelButton: A push button to cancel the operation.
+        
+        Returns:
+            None
+        """
         if not RewriteFile.objectName():
             RewriteFile.setObjectName(u"RewriteFile")
         RewriteFile.resize(440, 168)
@@ -233,6 +276,19 @@ class Ui_RewriteFile(object):
     # setupUi
 
     def retranslateUi(self, RewriteFile):
+        """
+        Translates UI elements for internationalization.
+        
+        This method sets the text of various UI elements (labels, buttons)
+        within the RewriteFile object to their translated equivalents.
+        
+        Args:
+          self: The instance of the class.
+          RewriteFile: The main window object containing the UI elements.
+        
+        Returns:
+          None
+        """
         RewriteFile.setWindowTitle(QCoreApplication.translate("RewriteFile", u"VaspReader", None))
         self.RewriteAskLabel.setText(QCoreApplication.translate("RewriteFile", u"Do you want to rewrite the file?", None))
         self.OldFileLabel.setText(QCoreApplication.translate("RewriteFile", u"Old:", None))

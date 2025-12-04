@@ -9,6 +9,7 @@ import json
 import numpy as np
 import logging
 import random
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,22 +17,112 @@ __all__ = ["Settings"]
 
 
 class Settings:
+    """
+    A class for managing and accessing project settings.
+    
+    This class provides a centralized way to load, store, and retrieve
+    configuration settings for a project, ensuring consistency and
+    ease of access. It utilizes a singleton pattern to guarantee only
+    one instance of the settings exists.
+    
+    Class Attributes:
+    - _instance: The single instance of the Settings class.
+    - _initialized: A boolean flag indicating whether the settings have been initialized.
+    
+    Class Methods:
+    - __new__: Creates and returns a singleton instance of the class.
+    - __init__: Initializes the ProjectConfig object.
+    - __set_default_settings: Initializes default settings for the visualization.
+    - load_settings: Loads settings from a JSON file.
+    - check_settings_keys: Checks if all keys in a valid settings dictionary are present in a check dictionary.
+    - convert_values_to: Converts values within a dictionary to a specified object type.
+    - get_settings_filename: Returns the settings filename.
+    - __get_dict_value: Recursively retrieves a value from a nested dictionary.
+    - __set_dict_value: Sets a value within a nested dictionary structure.
+    - get_new_window_location: Gets a value from the new window location settings.
+    - set_new_window_location: Sets a new location for the window.
+    - get_scene_params: Retrieves parameters from the scene settings.
+    - set_scene_params: Sets parameters for the scene.
+    - get_control_params: Retrieves control parameters from the internal settings.
+    - set_control_params: Sets control parameters.
+    - get_processing_params: Retrieves processing parameters from the internal settings.
+    - set_processing_params: Sets processing parameters within the internal dictionary.
+    - save_settings: Saves the current settings to a JSON file.
+    """
     _instance = None
     _initialized = False
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> self:
+        """
+        Creates and returns a singleton instance of the class.
+        
+        This method ensures that only one instance of the class is ever created.
+        It checks if an instance already exists and returns it if so; otherwise,
+        it creates a new instance and stores it for future use.
+        
+        Args:
+            cls: The class to instantiate.
+        
+        Returns:
+            The singleton instance of the class.
+        """
         if not cls._instance:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, project_directory):
+    def __init__(self, project_directory) -> None:
+        """
+        Initializes the Settings object.
+        
+        Stores settings file path and sets default values for 
+        next comparison with loaded settings after load_settings
+        function call.
+        
+        Args:
+         self: The instance of the ProjectConfig class.
+         project_directory: The root directory of the project.
+        
+        Attributes:
+         _initialized: A boolean flag indicating whether the configuration has been initialized.
+         __project_directory: The root directory of the project.
+         __settings_file: The path to the settings JSON file.
+        
+        Returns:
+         None
+        """
         if not self._initialized:
             self._initialized = True
             self.__project_directory = project_directory
             self.__settings_file = os.path.join(project_directory, 'settings', 'settings.json')
             self.__set_default_settings()
 
-    def __set_default_settings(self):
+    def __set_default_settings(self) -> None:
+        """
+        Initializes default settings.
+        
+        This method sets up default values for various parameters controlling
+        the appearance and behavior of the program, including window
+        locations, scene parameters (lighting, view, background, fog, bonds),
+        control parameters, processing parameters, and atom parameters (colors,
+        scales).
+        
+        Args:
+          self: The instance of the class.
+        
+        Attributes Initialized:
+          __new_window_location (dict): A dictionary storing default locations
+            for various windows (print, control, visual, processing, graph,
+            file_sharing, console, chgcar, form_poscar, oszicar, bonds).
+          __scene_params (dict): A dictionary containing parameters related to
+            the scene, including lighting, view, background, fog, and bond
+            appearance.
+          __control_params (dict): A dictionary storing parameters controlling
+            user interaction and control.
+          __processing_params (dict): A dictionary storing parameters related
+            to data processing.
+          __atoms_params (dict): A dictionary storing parameters related to
+            atom representation, including colors and scales.
+        """
         self.__new_window_location = {
             "print": None,
             "control": None,
@@ -351,7 +442,22 @@ class Settings:
         }
         logger.info(f"Default settings initialized")
 
-    def load_settings(self):
+    def load_settings(self) -> self:
+        """
+        Loads settings from a JSON file.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes the following object properties:
+            __new_window_location: A dictionary containing the new window location parameters.
+            __scene_params: A dictionary containing the scene parameters.
+            __control_params: A dictionary containing the control parameters.
+            __processing_params: A dictionary containing the processing parameters.
+        
+        Returns:
+            self: The instance of the class.
+        """
         try:
             with open(self.get_settings_filename(), 'r') as file:
                 data = json.load(file)
@@ -388,7 +494,21 @@ class Settings:
         return self
 
     @staticmethod
-    def check_settings_keys(valid_dict, check_dict):
+    def check_settings_keys(valid_dict: dict, check_dict: dict) -> None:
+        """
+        Checks if all keys in a valid settings dictionary are present in a check dictionary, 
+        and recursively checks nested dictionaries.
+        
+        Args:
+            valid_dict: The dictionary containing the valid settings keys.
+            check_dict: The dictionary to check against.
+        
+        Returns:
+            None
+        
+        Raises:
+            KeyError: If a key from valid_dict is not found in check_dict.
+        """
         for key in valid_dict:
             if key not in check_dict:
                 raise KeyError(f"Key {key} not found in settings file.")
@@ -396,7 +516,20 @@ class Settings:
                 Settings.check_settings_keys(valid_dict[key], check_dict[key])
 
     @staticmethod
-    def convert_values_to(dict_object, obj_type):
+    def convert_values_to(dict_object: dict, obj_type: dict) -> None:
+        """
+        Converts values within a dictionary to a specified object type.
+        
+         This method recursively iterates through a dictionary and converts NumPy arrays to lists,
+         or lists to NumPy arrays, based on the provided object type. It handles nested dictionaries.
+        
+         Parameters:
+         dict_object : The dictionary to process.
+         obj_type : The target object type (list or np.ndarray).
+        
+         Returns:
+         The modified dictionary with values converted to the specified type.
+        """
         for key in dict_object:
             if isinstance(dict_object[key], dict):
                 Settings.convert_values_to(dict_object[key], obj_type)
@@ -405,48 +538,192 @@ class Settings:
             elif obj_type == np.ndarray and isinstance(dict_object[key], list):
                 dict_object[key] = np.array(dict_object[key])
 
-    def get_settings_filename(self):
+    def get_settings_filename(self) -> str:
+        """
+        Returns the settings filename.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         str: The settings filename stored in the __settings_file attribute.
+        """
         return self.__settings_file
 
     @staticmethod
-    def __get_dict_value(dict_object, *keys):
+    def __get_dict_value(dict_object: dict, *keys) -> Any:
+        """
+        Recursively retrieves a value from a nested dictionary.
+        
+        Args:
+         dict_object: The dictionary to retrieve the value from.
+         *keys: A variable number of keys representing the path to the value.
+        
+        Returns:
+         The value at the specified path in the dictionary.
+        """
         if len(keys) == 1:
             return dict_object[keys[0]]
         else:
             return Settings.__get_dict_value(dict_object[keys[0]], *keys[1:])
 
     @staticmethod
-    def __set_dict_value(dict_object, value, *keys):
+    def __set_dict_value(dict_object: dict, value: Any, *keys) -> None:
+        """
+        Sets a value within a nested dictionary structure.
+        
+        This method allows setting a value at a specific path within a dictionary,
+        creating nested dictionaries as needed if the path doesn't exist.
+        
+        Args:
+         dict_object: The dictionary to modify.
+         value: The value to set.
+         *keys: A variable number of keys representing the path to the value
+           within the dictionary.
+        
+        Returns:
+         None
+        """
         if len(keys) == 1:
             dict_object[keys[0]] = value
         else:
             Settings.__set_dict_value(dict_object[keys[0]], value, *keys[1:])
 
-    def get_new_window_location(self, *keys):
+    def get_new_window_location(self, *keys) -> Any:
+        """
+        Gets a value from the new window location settings.
+        
+        Args:
+         keys: A variable number of keys to traverse the nested dictionary 
+               representing the new window location.
+        
+        Returns:
+         The value associated with the given keys in the new window location 
+         settings.
+        """
         return Settings.__get_dict_value(self.__new_window_location, *keys)
 
-    def set_new_window_location(self, value, *keys):
+    def set_new_window_location(self, value: Any, *keys) -> None:
+        """
+        Sets a new location for the window.
+        
+        This method updates the internal dictionary representing the new window location
+        with the provided value and keys.
+        
+        Args:
+          value: The new value to set for the window location.
+          keys: A variable number of keys used to navigate to the specific location
+            within the dictionary.
+        
+        Returns:
+          None
+        """
         Settings.__set_dict_value(self.__new_window_location, value, *keys)
 
-    def get_scene_params(self, *keys):
+    def get_scene_params(self, *keys) -> Any:
+        """
+        Retrieves parameters from the scene settings.
+        
+        Args:
+            keys: A variable number of keys to access nested values within the scene parameters.
+        
+        Returns:
+            The value associated with the given keys, or None if the keys are invalid.
+        """
         return Settings.__get_dict_value(self.__scene_params, *keys)
 
-    def set_scene_params(self, value, *keys):
+    def set_scene_params(self, value: Any, *keys) -> None:
+        """
+        Sets parameters for the scene.
+        
+        This method updates the internal scene parameters dictionary with the given value
+        and keys. It leverages an internal helper function to manage the dictionary update.
+        
+        Args:
+          value: The value to set for the specified keys.
+          *keys: A variable number of keys representing the path to the parameter
+            within the scene_params dictionary.
+        
+        Returns:
+          None
+        """
         Settings.__set_dict_value(self.__scene_params, value, *keys)
 
-    def get_control_params(self, *keys):
+    def get_control_params(self, *keys) -> Any:
+        """
+        Retrieves control parameters from the internal settings.
+        
+        Args:
+            *keys: A variable number of keys to access nested values within the control parameters.
+        
+        Returns:
+            The value associated with the given keys, or None if the keys are invalid.
+        """
         return Settings.__get_dict_value(self.__control_params, *keys)
 
-    def set_control_params(self, value, *keys):
+    def set_control_params(self, value: Any, *keys) -> None:
+        """
+        Sets control parameters.
+        
+        This method sets a value within the control parameters dictionary,
+        allowing for nested key access.
+        
+        Args:
+          self: The instance of the class.
+          value: The value to set.
+          *keys: A variable number of keys to navigate the nested dictionary structure.
+        
+        Returns:
+          None
+        """
         Settings.__set_dict_value(self.__control_params, value, *keys)
 
-    def get_processing_params(self, *keys):
+    def get_processing_params(self, *keys) -> Any:
+        """
+        Retrieves processing parameters from the internal settings.
+        
+        Args:
+            *keys:  A variable number of keys to access nested values within the processing parameters.
+        
+        Returns:
+            The value associated with the given keys, or None if the keys are invalid.
+        """
         return Settings.__get_dict_value(self.__processing_params, *keys)
 
-    def set_processing_params(self, value, *keys):
+    def set_processing_params(self, value: Any, *keys) -> None:
+        """
+        Sets processing parameters within the internal dictionary.
+        
+        Args:
+            value: The value to set for the specified keys.
+            *keys: A variable number of keys representing the path to the parameter
+                within the nested dictionary.
+        
+        Returns:
+            None
+        """
         Settings.__set_dict_value(self.__processing_params, value, *keys)
 
-    def save_settings(self):
+    def save_settings(self) -> self:
+        """
+        Saves the current settings to a JSON file.
+        
+        This method packages the new window location, scene parameters, control parameters,
+        and processing parameters into a JSON format and saves it to a file. It also logs
+        information about the saved data.
+        
+        Args:
+            self: The instance of the class.
+        
+        Initializes:
+            self.__new_window_location: Stores the location of the new window.
+            self.__scene_params: Stores the parameters for the scene.
+            self.__control_params: Stores the parameters for the control elements.
+            self.__processing_params: Stores the parameters for the processing pipeline.
+        
+        Returns:
+            self: The instance of the class.
+        """
         json_data = [self.__new_window_location, self.__scene_params, 
                      self.__control_params, self.__processing_params] 
         for data in json_data:

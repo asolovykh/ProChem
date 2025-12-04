@@ -16,6 +16,16 @@ __all__ = ["Parser"]
 
 
 def deleted_positions_to_none(direct_positions_array, positions_array):
+    """
+    Replaces deleted positions (marked by a value of 10.0) in the direct_positions_array with None.
+    
+    Args:
+        direct_positions_array: The array containing direct positions to be processed.
+        positions_array: The original positions array (not directly used in the function, but included in the parameter list).
+    
+    Returns:
+        None
+    """
     for arr_step in direct_positions_array:
         for atom in arr_step:
             for indx, proj in enumerate(atom):
@@ -24,6 +34,27 @@ def deleted_positions_to_none(direct_positions_array, positions_array):
 
 
 def atoms_info_filling(dictionary):
+    """
+    Args:
+        dictionary: A dictionary containing atom information.
+    
+    Returns:
+        dictionary: The input dictionary with added atom radii and color information.
+    
+    Method Details:
+    This method fills in the color values and radii for each atom type
+    present in the input dictionary. It initializes a dictionary
+    `ATOMSINFO` within the input dictionary to store this information.
+    The method iterates through the unique atom names and assigns default
+    color values and radii based on the atom type. If an atom type is
+    not recognized, it assigns a random color and radius. Finally, it
+    populates a list `RADII` in the input dictionary with the radii
+    corresponding to each atom in the `ATOMNAMES` list.
+    
+    Class Fields Initialized:
+        ATOMSINFO: A dictionary to store color and radii information for each atom type.  Keys are atom names (strings), and values are dictionaries containing 'COLORVALUE' (NumPy array representing RGB color), 'RADII' (float representing atomic radius), and 'FILLED' (boolean indicating whether the information has been filled).
+        RADII: A list of floats representing the radii of each atom, corresponding to the order of atoms in the 'ATOMNAMES' list.
+    """
     #TODO: use settings for default atom colors and radii
     dictionary['RADII'] = []
     for _, name in enumerate(set(dictionary['ATOMNAMES'])):
@@ -86,6 +117,18 @@ def atoms_info_filling(dictionary):
 
 
 def form_atoms_with_nums_dict(parser_parameters):
+    """
+    Creates a dictionary mapping atom names to their indices in a list of atom names.
+    
+    Args:
+        parser_parameters: A dictionary containing atom names and other parsing parameters.
+    
+    Initializes the following class fields:
+        parser_parameters['ATOM-NUMBERS']: A dictionary where keys are atom names (stripped of trailing whitespace) and values are NumPy arrays of their corresponding indices in the original list of atom names.
+    
+    Returns:
+        None. The method modifies the input dictionary `parser_parameters` in place.
+    """
     parser_parameters['ATOM-NUMBERS'] = dict()
     for uniq_atom in set(parser_parameters['ATOMNAMES']):
         for number, atom in enumerate(parser_parameters['ATOMNAMES']):
@@ -100,7 +143,29 @@ def form_atoms_with_nums_dict(parser_parameters):
 
 
 class Parser:
+    """
+    Parses VASP XML files to extract and process atomic position data.
+    
+     This class provides methods for initializing the parser with a directory
+     containing XML files, extracting parser parameters, identifying removed
+     atoms between consecutive files, and constructing a position array.
+    """
     def __init__(self, directory, parser_parameters_dict):
+        """
+        Initializes the parser with a directory and parser parameters.
+        
+        Args:
+           directory (str): The directory containing the VASP XML files.
+           parser_parameters_dict (dict): A dictionary of initial parser parameters.
+        
+        Class Fields Initialized:
+           _to_return (dict): A dictionary to store the final parser parameters. Initialized with parser_parameters_dict.
+           _parser_parameters (dict): A dictionary to store parser parameters, initialized with directory and default values.
+           xmllist (list): A list to store the names of the XML files found in the directory.
+           
+        Returns:
+           None. The method updates the _to_return dictionary with the parsed parameters.
+        """
         self._to_return = parser_parameters_dict
         self._parser_parameters = {'DIRECTORY': directory, 'ATOMSINFO': dict(), 'CALC_TYPE': 'VASP', 'BREAKER': False, 'MESSAGE': ''}
         self.xmllist = []
@@ -205,9 +270,41 @@ class Parser:
         self._to_return.update(self._parser_parameters)
 
     def __call__(self, *args, **kwargs):
+        """
+        Returns the parser parameters.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            The parser parameters stored in the _parser_parameters field.
+        """
         return self._parser_parameters
 
     def removed_atoms_find(self, dictionary):
+        """
+        Finds atoms removed between consecutive XML files in a dictionary.
+        
+        This method compares the positions of atoms in consecutive XML files
+        (identified by keys in the input dictionary) to determine which atoms
+        have been removed. It updates the dictionary with a 'REMOVED' key
+        for each XML file, indicating which atoms are no longer present
+        compared to the previous file. It also checks for inconsistencies
+        in atom counts between files and sets a 'BREAKER' flag if found.
+        
+        Args:
+          self:  The instance of the class.
+          dictionary: A dictionary containing XML data, where keys are XML
+            file identifiers and values are dictionaries with 'POSITIONS' and
+            'ATOMNUMBER' keys.
+        
+        Returns:
+          None
+        
+        Class Fields Initialized:
+          - self.breaker: A boolean flag indicating whether a parsing error
+            (inconsistent atom counts) has been detected. Initialized to False.
+        """
         xml = dictionary.get('XMLLIST')
         self.breaker = False
         if len(xml) > 1:
@@ -230,6 +327,23 @@ class Parser:
 
     @staticmethod
     def position_array_form(dictionary):
+        """
+        Creates a position array from a dictionary of XML data.
+        
+        This method processes a dictionary containing XML data to construct a 'POSITIONS' array.
+        It initializes the 'POSITIONS' array with the 'POSITIONS' data from the first XML entry,
+        then iterates through the remaining XML entries, adding their 'POSITIONS' data to the
+        'POSITIONS' array, while inserting placeholder values at specified indices based on
+        the 'REMOVED' flags.
+        
+        Args:
+            dictionary: A dictionary containing XML data, including 'XMLLIST', 'POSITIONS',
+                and 'REMOVED' keys within nested structures.
+        
+        Returns:
+            None. The method modifies the input dictionary in place by adding or updating
+            the 'POSITIONS' key.
+        """
         xml = dictionary['XMLLIST']
         dictionary['POSITIONS'] = copy.deepcopy(dictionary[xml[0]]['POSITIONS'])
         for positions in range(1, len(xml)):

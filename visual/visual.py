@@ -45,6 +45,24 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self._step = 0
 
     def closeEvent(self, event):
+        """
+        Saves the window's position and closes the application.
+        
+         This method is called when the window is closed. It saves the current
+         window position to settings, marks the window as closed, closes the
+         print window if it's open, and accepts the close event.
+        
+         Parameters:
+          self: The instance of the class.
+          event: The close event.
+        
+         Returns:
+          None
+         
+        
+         Class Fields Initialized:
+          self.closed: A boolean indicating whether the window is closed.
+        """
         self.__settings.set_new_window_location(self.pos().toTuple(), 'visual')
         self.closed = True
         if not self.__print_window.get_control_window().closed:
@@ -52,12 +70,37 @@ class VisualWindow(Ui_Visual, QMainWindow):
         event.accept()
 
     def keyPressEvent(self, event: QKeyEvent):
+        """
+        Handles key press events.
+        
+        This method intercepts key presses and performs actions based on the pressed key.
+        Currently, it only handles the 'P' key, printing "Processing..." to the console.
+        
+        Args:
+         self: The instance of the class.
+         event: The key event object.
+        
+        Returns:
+         None
+        """
         key = event.key()
         match key:
             case Qt.Key_P:
                 print('Processing...')
 
     def load_calculation_info(self, calculation):
+        """
+        Loads calculation information.
+        
+        Args:
+         calculation: The calculation information to load.
+        
+        Initializes:
+         self.__calculation: Stores the provided calculation information.
+        
+        Returns:
+         None.
+        """
         self.__calculation = calculation
 
     # def change_light(self, light_indx):

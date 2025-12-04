@@ -21,7 +21,30 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QPushButton,
 import Gui.Resource_rc
 
 class Ui_ChooseFileWindow(object):
+    """
+    A class to manage the UI for a window that allows the user to choose a POSCAR file and visualize its structure.
+    
+    
+     Class Methods:
+     - setupUi:
+    """
     def setupUi(self, ChooseFileWindow):
+        """
+        Sets up the user interface for the ChooseFileWindow.
+        
+        Args:
+            self:  The object instance.
+            ChooseFileWindow: The main window object to configure.
+        
+        Initializes the following object properties:
+            PoscarFileChoose: A QComboBox widget for selecting POSCAR files.
+            PoscarChooseSubmitButton: A QPushButton widget for submitting the POSCAR file selection.
+            PoscarOpenGLFrame: A QFrame widget that serves as a container for the OpenGL widget.
+            PoscarOpenGL: A QOpenGLWidget widget for displaying the POSCAR structure.
+        
+        Returns:
+            None
+        """
         if not ChooseFileWindow.objectName():
             ChooseFileWindow.setObjectName(u"ChooseFileWindow")
         ChooseFileWindow.resize(400, 300)
@@ -132,6 +155,16 @@ class Ui_ChooseFileWindow(object):
     # setupUi
 
     def retranslateUi(self, ChooseFileWindow):
+        """
+        Retranslates the UI elements of the ChooseFileWindow.
+        
+        Args:
+         self: The instance of the class.
+         ChooseFileWindow: The main window object to be retranslated.
+        
+        Returns:
+         None
+        """
         ChooseFileWindow.setWindowTitle(QCoreApplication.translate("ChooseFileWindow", u"Choose POSCAR file", None))
         self.PoscarChooseSubmitButton.setText(QCoreApplication.translate("ChooseFileWindow", u"Submit", None))
     # retranslateUi

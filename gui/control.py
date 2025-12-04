@@ -19,7 +19,235 @@ __all__ = ["Ui_Control"]
 
 
 class Ui_Control(object):
+    """
+    Sets up the user interface for the given control.
+    
+    Args:
+        self: The current object.
+        Control: The main control widget.
+    
+    Initializes the main window, layouts, and widgets, including menus, toolbars, and the central widget.
+    It also sets up actions, connections, and styles for the user interface elements.
+    The method configures the main window's appearance and functionality,
+    creating a comprehensive user interface for the application.
+    
+    Initializes the following class fields:
+        self.ALoad_Calculation: QAction object for loading a calculation.
+        self.ALoad_Calculation_State: QAction object for loading calculation state.
+        self.ASave_Calculation_State: QAction object for saving calculation state.
+        self.ALoad_Configuration: QAction object for loading configuration.
+        self.ASave_Configuration: QAction object for saving configuration.
+        self.AExit: QAction object for exiting the application.
+        self.AAxes: QAction object for toggling axes visibility.
+        self.ACell_boarder: QAction object for toggling cell border visibility.
+        self.ABonds: QAction object for toggling bond visibility.
+        self.actionChange_background: QAction object for changing the background.
+        self.ADelete_coordinates_after_leave_cell: QAction object for deleting coordinates after leaving a cell.
+        self.ALight_1: QAction object for light setting 1.
+        self.ALight_2: QAction object for light setting 2.
+        self.ALight_3: QAction object for light setting 3.
+        self.ALight_4: QAction object for light setting 4.
+        self.ALight_5: QAction object for light setting 5.
+        self.ALight_6: QAction object for light setting 6.
+        self.ALight_7: QAction object for light setting 7.
+        self.ALight_8: QAction object for light setting 8.
+        self.AProcessing: QAction object for processing actions.
+        self.AOSZICAR: QAction object for OSZICAR related actions.
+        self.APOSCAR: QAction object for POSCAR related actions.
+        self.ACHGCAR: QAction object for CHGCAR related actions.
+        self.AIR_and_RAMAN: QAction object for IR and Raman related actions.
+        self.AGraphs: QAction object for graphs related actions.
+        self.AKeyboard: QAction object for keyboard related actions.
+        self.AMouse_keyboard: QAction object for mouse keyboard related actions.
+        self.AAtom_ID: QAction object for atom ID related actions.
+        self.ABond: QAction object for bond related actions.
+        self.AValence_angle: QAction object for valence angle related actions.
+        self.AScreenshot: QAction object for screenshot related actions.
+        self.AForm_POSCAR: QAction object for form POSCAR related actions.
+        self.AAbout_the_program: QAction object for about the program related actions.
+        self.AAbout_window: QAction object for about window related actions.
+        self.ALatest_update: QAction object for latest update related actions.
+        self.AChanges_history: QAction object for changes history related actions.
+        self.ACalculation_State: QAction object for calculation state related actions.
+        self.AProgram_Configuration: QAction object for program configuration related actions.
+        self.ABackground: QAction object for background related actions.
+        self.AConsole: QAction object for console related actions.
+        self.AFileSharing: QAction object for file sharing related actions.
+        self.actionLight_Settings: QAction object for light settings related actions.
+        self.APerspective: QAction object for perspective related actions.
+        self.AOrthographic: QAction object for orthographic related actions.
+        self.AThreading: QAction object for threading related actions.
+        self.AMultiprocessing: QAction object for multiprocessing related actions.
+        self.LAMMPS_Processing: QAction object for LAMMPS processing related actions.
+        self.SRIM_Processing: QAction object for SRIM processing related actions.
+        self.VASP_Processing: QAction object for VASP processing related actions.
+        self.VASP_OSZICAR: QAction object for VASP OSZICAR related actions.
+        self.VASP_POSCAR: QAction object for VASP POSCAR related actions.
+        self.VASP_CHGCAR: QAction object for VASP CHGCAR related actions.
+        self.VASP_IR_and_RAMAN: QAction object for VASP IR and Raman related actions.
+        self.MainWidget: QWidget object serving as the central widget.
+        self.gridLayout: QGridLayout object for layout management within the central widget.
+        self.CentralWidget: QWidget object contained within the central widget.
+        self.horizontalLayout: QHBoxLayout object for horizontal layout within the central widget.
+        self.ToFirstStep: QPushButton object for navigating to the first step.
+        self.MoveBack: QPushButton object for moving back one step.
+        self.StepSliderWidget: QFrame object containing the step slider.
+        self.StepSlider: QSlider object for selecting the current step.
+        self.MoveForward: QPushButton object for moving forward one step.
+        self.ToLastStep: QPushButton object for navigating to the last step.
+        self.TreeView: QTreeView object for displaying a tree view.
+        self.TreeModel: CustomTreeModel object serving as the model for the tree view.
+        self.TreeViewContextMenu: QMenu object for the tree view context menu.
+        self.TreeViewAddCalculation: QAction object for adding a calculation to the tree view.
+        self.TreeViewHideCalculation: QAction object for hiding a calculation in the tree view.
+        self.TreeViewDeleteCalculation: QAction object for deleting a calculation from the tree view.
+        self.TopWidget: QHBoxLayout object for the top widget layout.
+        self.LowerWidget: QWidget object for the lower widget.
+        self.horizontalLayout_2: QHBoxLayout object for the lower widget layout.
+        self.HSpaser1: QSpacerItem object for spacing in the lower widget.
+        self.SpeedSliderWidget: QFrame object containing the speed slider.
+        self.SpeedSlider: QSlider object for adjusting the speed.
+        self.HSpacer2: QSpacerItem object for spacing in the lower widget.
+        self.StepLabelWidget: QHBoxLayout object for the step label layout.
+        self.StepLabel: QLabel object for displaying the current step label.
+        self.HSpacer3: QSpacerItem object for spacing in the step label layout.
+        self.HSpacer4: QSpacerItem object for spacing in the step label layout.
+        self.ControlMenubar: QMenuBar object for the main menu bar.
+        self.ControlMenuFile: QMenu object for the file menu.
+        self.ControlMenuEdit: QMenu object for the edit menu.
+        self.ControlMenuLight: QMenu object for the light menu.
+        self.ControlMenuMods: QMenu object for the mods menu.
+        self.ControlMenuSupercomputer: QMenu object for the supercomputer menu.
+        self.menuVASP: QMenu object for the VASP menu.
+        self.menuLAMMPS: QMenu object for the LAMMPS menu.
+        self.menuSRIM: QMenu object for the SRIM menu.
+        self.ControlMenuTools: QMenu object for the tools menu.
+        self.ControlMenuSelect_mode: QMenu object for the select mode menu.
+        self.ControlMenuLabel: QMenu object for the label menu.
+        self.ControlMenuHelp: QMenu object for the help menu.
+        self.ControlMenuView: QMenu object for the view menu.
+        self.menuProjection: QMenu object for the projection menu.
+        self.ControlSettings: QMenu object for the settings menu.
+        self.menuParsing_using: QMenu object for the parsing using menu.
+    
+    Returns:
+        None
+    """
     def setupUi(self, Control):
+        """
+        Sets up the user interface for the given control.
+        
+        Args:
+            self: The current object.
+            Control: The main control widget.
+        
+        Initializes the main window, layouts, and widgets, including menus, toolbars, and the central widget.
+        It also sets up actions, connections, and styles for the user interface elements.
+        The method configures the main window's appearance and functionality,
+        creating a comprehensive user interface for the application.
+        
+        Initializes the following class fields:
+            self.ALoad_Calculation: QAction object for loading a calculation.
+            self.ALoad_Calculation_State: QAction object for loading calculation state.
+            self.ASave_Calculation_State: QAction object for saving calculation state.
+            self.ALoad_Configuration: QAction object for loading configuration.
+            self.ASave_Configuration: QAction object for saving configuration.
+            self.AExit: QAction object for exiting the application.
+            self.AAxes: QAction object for toggling axes visibility.
+            self.ACell_boarder: QAction object for toggling cell border visibility.
+            self.ABonds: QAction object for toggling bond visibility.
+            self.actionChange_background: QAction object for changing the background.
+            self.ADelete_coordinates_after_leave_cell: QAction object for deleting coordinates after leaving a cell.
+            self.ALight_1: QAction object for light setting 1.
+            self.ALight_2: QAction object for light setting 2.
+            self.ALight_3: QAction object for light setting 3.
+            self.ALight_4: QAction object for light setting 4.
+            self.ALight_5: QAction object for light setting 5.
+            self.ALight_6: QAction object for light setting 6.
+            self.ALight_7: QAction object for light setting 7.
+            self.ALight_8: QAction object for light setting 8.
+            self.AProcessing: QAction object for processing actions.
+            self.AOSZICAR: QAction object for OSZICAR related actions.
+            self.APOSCAR: QAction object for POSCAR related actions.
+            self.ACHGCAR: QAction object for CHGCAR related actions.
+            self.AIR_and_RAMAN: QAction object for IR and Raman related actions.
+            self.AGraphs: QAction object for graphs related actions.
+            self.AKeyboard: QAction object for keyboard related actions.
+            self.AMouse_keyboard: QAction object for mouse keyboard related actions.
+            self.AAtom_ID: QAction object for atom ID related actions.
+            self.ABond: QAction object for bond related actions.
+            self.AValence_angle: QAction object for valence angle related actions.
+            self.AScreenshot: QAction object for screenshot related actions.
+            self.AForm_POSCAR: QAction object for form POSCAR related actions.
+            self.AAbout_the_program: QAction object for about the program related actions.
+            self.AAbout_window: QAction object for about window related actions.
+            self.ALatest_update: QAction object for latest update related actions.
+            self.AChanges_history: QAction object for changes history related actions.
+            self.ACalculation_State: QAction object for calculation state related actions.
+            self.AProgram_Configuration: QAction object for program configuration related actions.
+            self.ABackground: QAction object for background related actions.
+            self.AConsole: QAction object for console related actions.
+            self.AFileSharing: QAction object for file sharing related actions.
+            self.actionLight_Settings: QAction object for light settings related actions.
+            self.APerspective: QAction object for perspective related actions.
+            self.AOrthographic: QAction object for orthographic related actions.
+            self.AThreading: QAction object for threading related actions.
+            self.AMultiprocessing: QAction object for multiprocessing related actions.
+            self.LAMMPS_Processing: QAction object for LAMMPS processing related actions.
+            self.SRIM_Processing: QAction object for SRIM processing related actions.
+            self.VASP_Processing: QAction object for VASP processing related actions.
+            self.VASP_OSZICAR: QAction object for VASP OSZICAR related actions.
+            self.VASP_POSCAR: QAction object for VASP POSCAR related actions.
+            self.VASP_CHGCAR: QAction object for VASP CHGCAR related actions.
+            self.VASP_IR_and_RAMAN: QAction object for VASP IR and Raman related actions.
+            self.MainWidget: QWidget object serving as the central widget.
+            self.gridLayout: QGridLayout object for layout management within the central widget.
+            self.CentralWidget: QWidget object contained within the central widget.
+            self.horizontalLayout: QHBoxLayout object for horizontal layout within the central widget.
+            self.ToFirstStep: QPushButton object for navigating to the first step.
+            self.MoveBack: QPushButton object for moving back one step.
+            self.StepSliderWidget: QFrame object containing the step slider.
+            self.StepSlider: QSlider object for selecting the current step.
+            self.MoveForward: QPushButton object for moving forward one step.
+            self.ToLastStep: QPushButton object for navigating to the last step.
+            self.TreeView: QTreeView object for displaying a tree view.
+            self.TreeModel: CustomTreeModel object serving as the model for the tree view.
+            self.TreeViewContextMenu: QMenu object for the tree view context menu.
+            self.TreeViewAddCalculation: QAction object for adding a calculation to the tree view.
+            self.TreeViewHideCalculation: QAction object for hiding a calculation in the tree view.
+            self.TreeViewDeleteCalculation: QAction object for deleting a calculation from the tree view.
+            self.TopWidget: QHBoxLayout object for the top widget layout.
+            self.LowerWidget: QWidget object for the lower widget.
+            self.horizontalLayout_2: QHBoxLayout object for the lower widget layout.
+            self.HSpaser1: QSpacerItem object for spacing in the lower widget.
+            self.SpeedSliderWidget: QFrame object containing the speed slider.
+            self.SpeedSlider: QSlider object for adjusting the speed.
+            self.HSpacer2: QSpacerItem object for spacing in the lower widget.
+            self.StepLabelWidget: QHBoxLayout object for the step label layout.
+            self.StepLabel: QLabel object for displaying the current step label.
+            self.HSpacer3: QSpacerItem object for spacing in the step label layout.
+            self.HSpacer4: QSpacerItem object for spacing in the step label layout.
+            self.ControlMenubar: QMenuBar object for the main menu bar.
+            self.ControlMenuFile: QMenu object for the file menu.
+            self.ControlMenuEdit: QMenu object for the edit menu.
+            self.ControlMenuLight: QMenu object for the light menu.
+            self.ControlMenuMods: QMenu object for the mods menu.
+            self.ControlMenuSupercomputer: QMenu object for the supercomputer menu.
+            self.menuVASP: QMenu object for the VASP menu.
+            self.menuLAMMPS: QMenu object for the LAMMPS menu.
+            self.menuSRIM: QMenu object for the SRIM menu.
+            self.ControlMenuTools: QMenu object for the tools menu.
+            self.ControlMenuSelect_mode: QMenu object for the select mode menu.
+            self.ControlMenuLabel: QMenu object for the label menu.
+            self.ControlMenuHelp: QMenu object for the help menu.
+            self.ControlMenuView: QMenu object for the view menu.
+            self.menuProjection: QMenu object for the projection menu.
+            self.ControlSettings: QMenu object for the settings menu.
+            self.menuParsing_using: QMenu object for the parsing using menu.
+        
+        Returns:
+            None
+        """
         if not Control.objectName():
             Control.setObjectName("Control")
         Control.setWindowModality(Qt.NonModal)
@@ -549,6 +777,21 @@ class Ui_Control(object):
         self.retranslateUi(Control)
 
     def retranslateUi(self, Control):
+        """
+        Translates UI elements for the Control widget.
+        
+        This method sets the text of various UI elements (labels, buttons, menus, etc.)
+        to their translated equivalents. It uses QCoreApplication.translate to handle
+        the translation process.
+        
+        Args:
+           self: The instance of the class.
+           Control: The main Control widget whose UI elements need to be translated.
+        
+        
+        Returns:
+           None
+        """
         Control.setWindowTitle(QCoreApplication.translate("Control", "PROCHEM", None))
         self.ALoad_Calculation.setText(QCoreApplication.translate("Control", "Load calculation", None))
         self.ALoad_Calculation_State.setText(QCoreApplication.translate("Control", "Load", None))

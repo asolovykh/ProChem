@@ -25103,9 +25103,34 @@ else:
     qt_resource_struct = qt_resource_struct_v2
 
 def qInitResources():
+    """
+    Registers resource data for Qt resources.
+    
+    This method registers the provided resource data with Qt's resource system,
+    making it available for use within the application.
+    
+    Args:
+      None
+    
+    Returns:
+      None
+    """
     QtCore.qRegisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 def qCleanupResources():
+    """
+    Cleans up resources registered with Qt's resource system.
+    
+    This method unregisters resource data that was previously registered,
+    effectively releasing the associated memory and making the resource
+    available for garbage collection.
+    
+    Args:
+      None
+    
+    Returns:
+      None
+    """
     QtCore.qUnregisterResourceData(rcc_version, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 qInitResources()

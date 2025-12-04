@@ -21,7 +21,38 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QLabel, QLineEdit,
 import Gui.Resource_rc
 
 class Ui_VRAuthSupercomputer(object):
+    """
+    A class to manage the UI for the VRAuthSupercomputer.
+    
+    This class sets up and manages the user interface elements for authenticating
+    users on a VRAuthSupercomputer. It handles the layout, widgets, and
+    translations for the authentication window.
+    """
     def setupUi(self, VRAuthSupercomputer):
+        """
+        Sets up the UI for the VRAuthSupercomputer.
+        
+        This method configures the main window, sets its properties (size, icon, stylesheet, locale, tab shape),
+        and creates and arranges the widgets within the central widget (AuthMainWidget). It also connects slots.
+        
+        Args:
+         self: The instance of the class.
+         VRAuthSupercomputer: The main window object (QMainWindow).
+        
+        Class Fields Initialized:
+         AuthMainWidget (QWidget): The central widget of the main window, containing all other widgets.
+         verticalLayout (QVBoxLayout): A vertical layout manager for arranging widgets within AuthMainWidget.
+         AuthSelUserLabel (QLabel): A label indicating the user selection area.
+         AuthChooseAdded (QComboBox): A combo box for selecting an added user.
+         AuthAddUserLabel (QLabel): A label indicating the area for adding a new user.
+         AuthAddNewUser (QLineEdit): A line edit for entering a new user's name.
+         AuthSpacer (QSpacerItem): A spacer item to add vertical space.
+         AuthSubmitButton (QPushButton): A button to submit the authentication request.
+         AuthNoteLabel (QLabel): A label to display notes or messages.
+        
+        Returns:
+         None
+        """
         if not VRAuthSupercomputer.objectName():
             VRAuthSupercomputer.setObjectName(u"VRAuthSupercomputer")
         VRAuthSupercomputer.resize(400, 230)
@@ -186,6 +217,19 @@ class Ui_VRAuthSupercomputer(object):
     # setupUi
 
     def retranslateUi(self, VRAuthSupercomputer):
+        """
+        Translates UI elements for the VRAuthSupercomputer window.
+        
+        This method sets the text labels and button text for the authentication
+        window, ensuring proper localization.
+        
+        Args:
+          self: The instance of the class.
+          VRAuthSupercomputer: The main window object for authentication.
+        
+        Returns:
+          None
+        """
         VRAuthSupercomputer.setWindowTitle(QCoreApplication.translate("VRAuthSupercomputer", u"VaspReader (Auth Window)", None))
         self.AuthSelUserLabel.setText(QCoreApplication.translate("VRAuthSupercomputer", u"Select User:", None))
         self.AuthAddUserLabel.setText(QCoreApplication.translate("VRAuthSupercomputer", u"Add New User:", None))

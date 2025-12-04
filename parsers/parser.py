@@ -15,6 +15,12 @@ __all__ = ["AbstractParser", "Calculation"]
 
 @dataclass
 class CalculationError:
+    """
+    Custom error class for calculation-related exceptions.
+    
+    This class provides a specific exception type to signal errors that occur
+    during calculations, allowing for more targeted error handling.
+    """
     exist: bool = False
     message: str = ""
 
@@ -75,9 +81,27 @@ class AbstractParser(ABC):
                 ), "File path and file name does not match."
 
     def get_file_path(self):
+        """
+        Returns the file path.
+        
+        Args:
+         self: The instance of the class.
+        
+        Returns:
+         str: The file path stored in the object.
+        """
         return self.__file_path
 
     def get_calculation(self):
+        """
+        Retrieves the calculated value.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            The calculated value stored in the __calculation field.
+        """
         return self.__calculation
 
     @abstractmethod
@@ -86,7 +110,25 @@ class AbstractParser(ABC):
         pass
 
     def get_calculation(self):
+        """
+        Retrieves the calculated value.
+        
+        Args:
+            self: The instance of the class.
+        
+        Returns:
+            The calculated value stored in the __calculation field.
+        """
         return self.__calculation
 
     def __repr__(self):
+        """
+        Returns a string representation of the Parser object.
+        
+        Args:
+          self: The Parser object instance.
+        
+        Returns:
+          str: A string containing the object's memory address and the calculation it holds.
+        """
         return f"Parser obj at {hex(id(self))} with the following calculation:\n{self.__calculation}"
