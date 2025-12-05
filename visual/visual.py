@@ -27,6 +27,7 @@ class VisualWindow(Ui_Visual, QMainWindow):
         self.__print_window = print_window
         self.closed = False
         self.__project_directory = self.__print_window.get_project_dir()
+        self.__calculations = None
 
         self.setupUi(self, self.__settings, self.__project_directory)
         logger.info(f"VisualUI setuped")
@@ -87,17 +88,20 @@ class VisualWindow(Ui_Visual, QMainWindow):
             case Qt.Key_P:
                 print('Processing...')
 
-    def set_draw_buffer(self, draw_buffer):
+    def load_calculation_info(self, calculation):
         """
-        Sets the draw buffer to be used.
-
+        Loads calculation information.
+        
         Args:
-            draw_buffer: The draw buffer to be set.
-
+         calculation: The calculation information to load.
+        
+        Initializes:
+         self.__calculation: Stores the provided calculation information.
+        
         Returns:
-            None.
+         None.
         """
-        self.openGLWidget.set_draw_buffer(draw_buffer)
+        self.__calculation = calculation
 
     # def change_light(self, light_indx):
     #     self.__settings.set_scene_params(not self.__settings.get_scene_params('light', 'states', light_indx), 'states', light_indx)
