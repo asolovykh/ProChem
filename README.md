@@ -1,5 +1,138 @@
-```json
-{
-  "readme": "# ProChem\n\n--- \n\n[![PyPi](https://badge.fury.io/py/pandas.svg)](https://badge.fury.io/py/pandas) ![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)\n\n\n\n--- \n\n## Overview\n\nProChem is a tool designed to help researchers analyze and understand the results of complex quantum chemistry calculations. It provides a visual interface for processing data from various simulation packages, enabling better insights into molecular and material structures and properties.\n\n<h1 align=\"center\"> Welcome to ProChem 👋 </h1>\n\n<p>\n  <img alt=\"Version\" src=\"https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000\" />\n  <a href=\"https://github.com/asolovykh/ProChem\" target=\"_blank\">\n    <img alt=\"License: LGPL--3.0\" src=\"https://img.shields.io/badge/License-LGPL--3.0-yellow.svg\" />\n  </a>\n</p>\n\n<img align=\"left\" src=\"doc/logo.png\" alt=\"Project Icon\" width=\"100\"/>\n\nProChem is a program for reading and analyzing quantum chemistry calculations. It has a wide range of functions connected with visualization and processing results of VASP, QuantumEspresso, LAMMPS and other packages.\n\n### 🏠 [Homepage](https://github.com/asolovykh/ProChem)\n\n--- \n\n## Table of Contents\n\n- [Core features](#core-features)\n- [Installation](#installation)\n- [Getting Started](#getting-started)\n- [Examples](#examples)\n- [Documentation](#documentation)\n- [Contributing](#contributing)\n- [License](#license)\n- [Citation](#citation)\n\n--- \n\n## Core features\n\n1. **Visualization of Quantum Chemistry Results**: The core functionality of the project is to visualize the results of quantum chemistry calculations, supporting various packages like VASP, QuantumEspresso, and LAMMPS.\n2. **Data Input from Multiple Packages**: ProChem can read and process data from different quantum chemistry packages (VASP, QuantumEspresso, LAMMPS, etc.), providing a unified visualization platform.\n3. **Cell and Axes Drawing**: The program allows drawing of the simulation cell and coordinate axes for better understanding of the structure and orientation of the calculated system.\n4. **Bond Visualization**: ProChem can visualize bonds between atoms, providing insights into the connectivity and structure of the molecule or material.\n\n--- \n\n## Installation\n\n**Prerequisites:** requires Python >=3.9\n\nInstall ProChem using one of the following methods:\n\n**Using PyPi:**\n\n```sh\npip install pandas\n```\n\n--- \n\n## Getting Started\n\n--- \n\n## Examples\n\nExamples of how this should work and how it should be used are available [here](https://github.com/asolovykh/ProChem/tree/master/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/stylelib/seaborn-v0_8-notebook.mplstyle).\n\n--- \n\n## Documentation\n\nA detailed ProChem description is available [here](https://github.com/asolovykh/ProChem/tree/master/.venv/lib/python3.12/site-packages/PySide6/doc).\n\n--- \n\n## Contributing\n\n- **[Join the Discussions](https://github.com/asolovykh/ProChem/discussions)**: Share your insights, provide feedback, or ask questions.\n\n- **[Report Issues](https://github.com/asolovykh/ProChem/issues)**: Submit bugs found or log feature requests for the project.\n\n\n\n--- \n\n## License\n\nThis project is protected under the GNU Lesser General Public License v3.0. For more details, refer to the [LICENSE](https://github.com/asolovykh/ProChem/tree/master/.venv/lib/python3.12/site-packages/contourpy-1.3.3.dist-info/LICENSE) file.\n\n\n\n## Author\n\n👤 **A.A. Solovykh**\n\n* Website: https://github.com/asolovykh\n* Github: [@asolovykh](https://github.com/asolovykh)\n\n## Show your support\n\nGive a ⭐️ if this project helped you!\n\n--- \n\n## Citation\n\nIf you use this software, please cite it as below.\n\n### APA format:\n\n    asolovykh (2023). ProChem repository [Computer software]. https://github.com/asolovykh/ProChem\n\n### BibTeX format:\n\n    @misc{ProChem,\n\n        author = {asolovykh},\n\n        title = {ProChem repository},\n\n        year = {2023},\n\n        publisher = {github.com},\n\n        journal = {github.com repository},\n\n        howpublished = {\url{https://github.com/asolovykh/ProChem.git}},\n\n        url = {https://github.com/asolovykh/ProChem.git}\n\n    }"
-}
+# ProChem
+
+---
+
+[![PyPi](https://badge.fury.io/py/pandas.svg)](https://badge.fury.io/py/pandas) ![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)
+
+
+
+---
+
+## Overview
+
+ProChem is a tool designed to help researchers analyze and understand the results of complex quantum chemistry calculations. It provides a visual interface for processing data from various simulation packages, enabling better insights into molecular and material structures and properties.
+
+<h1 align=\"center\"> Welcome to ProChem 👋 </h1>
+
+<p>
+  <img alt=\"Version\" src=\"https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000\" />
+  <a href=\"https://github.com/asolovykh/ProChem\" target=\"_blank\">
+  <img alt=\"License: LGPL--3.0\" src=\"https://img.shields.io/badge/License-LGPL--3.0-yellow.svg\" />
+  </a>
+</p>
+
+<img align=\"left\" src=\"doc/logo.png\" alt=\"Project Icon\" width=\"100\"/>
+
+ProChem is a program for reading and analyzing quantum chemistry calculations. It has a wide range of functions connected with visualization and processing results of VASP, QuantumEspresso, LAMMPS and other packages.
+
+### 🏠 [Homepage](https://github.com/asolovykh/ProChem)
+
+---
+
+## Table of Contents
+
+- [Core features](#core-features)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Examples](#examples)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Citation](#citation)
+---
+
+## Core features
+
+1. **Visualization of Quantum Chemistry Results**: The core functionality of the project is to visualize the results of quantum chemistry calculations, supporting various packages like VASP, QuantumEspresso, and LAMMPS.
+2. **Data Input from Multiple Packages**: ProChem can read and process data from different quantum chemistry packages (VASP, QuantumEspresso, LAMMPS, etc.), providing a unified visualization platform.
+3. **Cell and Axes Drawing**: The program allows drawing of the simulation cell and coordinate axes for better understanding of the structure and orientation of the calculated system.
+4. **Bond Visualization**: ProChem can visualize bonds between atoms, providing insights into the connectivity and structure of the molecule or material.
+
+---
+
+## Installation
+
+**Prerequisites:** requires Python >=3.9
+
+Install ProChem using one of the following methods:
+
+**Using PyPi:**
+```sh
+
+pip install pandas
 ```
+
+---
+
+## Getting Started
+
+---
+
+## Examples
+
+Examples of how this should work and how it should be used are available [here](https://github.com/asolovykh/ProChem/tree/master/examples).
+
+---
+
+## Documentation
+
+A detailed ProChem description is available [here](https://github.com/asolovykh/ProChem/tree/master/doc).
+
+---
+
+## Contributing
+
+- **[Join the Discussions](https://github.com/asolovykh/ProChem/discussions)**: Share your insights, provide feedback, or ask questions.
+
+- **[Report Issues](https://github.com/asolovykh/ProChem/issues)**: Submit bugs found or log feature requests for the project.
+
+
+
+---
+
+## License
+
+This project is protected under the GNU Lesser General Public License v3.0. For more details, refer to the [LICENSE](https://github.com/asolovykh/ProChem/tree/master/LICENSE) file.
+
+
+
+## Author
+
+👤 **A.A. Solovykh**
+
+* Website: https://github.com/asolovykh
+* Github: [@asolovykh](https://github.com/asolovykh)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+---
+
+## Citation
+
+If you use this software, please cite it as below.
+
+### APA format:
+
+    asolovykh (2023). ProChem repository [Computer software]. https://github.com/asolovykh/ProChem
+
+### BibTeX format:
+
+    @misc{ProChem,
+
+        author = {asolovykh},
+
+        title = {ProChem repository},
+
+        year = {2023},
+
+        publisher = {github.com},
+
+        journal = {github.com repository},
+
+        howpublished = {\url{https://github.com/asolovykh/ProChem.git}},
+
+        url = {https://github.com/asolovykh/ProChem.git}
+
+    }"
