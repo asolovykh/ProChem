@@ -158,15 +158,15 @@ class Scene:
         self.__light.send_light_info(program.uniform_variables)
         
         if self.__draw_buffer:
-            # NOTE: draw_buffer structure: {'objects': {'Sphere': {(r, g, b): 'scale': scale, 'indices': range(start_indx, end_indx), (r, g, b): ...}}, 'positions': positions}
+            # NOTE: draw_buffer structure: {'Sphere': {(color, scale): [[[x, y, z], [x, y, z], ..., [x, y, z]], [[x, y, z], [x, y, z], ..., [x, y, z]]]}}
             if mouse_moving:
                 self.__axes.draw(program.uniform_variables)
-            for key in self.__draw_buffer['objects']:
-                for color in self.__draw_buffer['objects'][key]:
+            for key in self.__draw_buffer:
+                for (color, scale) in self.__draw_buffer[key]:
                     glUniform3f(program.uniform_variables[('ObjColor', 'vec3')], *color)
-                    self.__primitives[key].scale(self.__draw_buffer['objects'][key][color]['scale'])
-                    for indx in self.__draw_buffer[key][color]['indices']:
-                        self.__primitives[key].translate(*self.__draw_buffer['positions'][indx])
+                    self.__primitives[key].scale(scale)
+                    for (x, y, z) in self.__draw_buffer[key][(color, scale)]:
+                        self.__primitives[key].translate(x, y, z)
                         self.__primitives[key].draw(program.uniform_variables)
         else:
             glUniform3f(program.uniform_variables[('ObjColor', 'vec3')], *[0.2, 0.2, 0.2])
