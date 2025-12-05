@@ -59,7 +59,6 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.__threads_locker: A TLock object for synchronizing access to parser threads.
             self.__processes_locker: An MLock object for synchronizing access to parser processes.
             self.__is_threading_mode: A boolean flag indicating whether threading mode is enabled. Initialized to True.
-            self.__draw_buffer: A dictionary to store draw buffer.
             self.__visual_window: A reference to the visual window. Initialized to None.
             self.__processing_window: A reference to the processing window. Initialized to None.
             self.__oszicar_window: A reference to the OSZICAR window. Initialized to None.
@@ -95,7 +94,6 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.AMultiprocessing.setEnabled(True)
             logger.info(f"Device has {self.__cpu_count} cores. Multiprocessing mode enabled")
 
-        self.__draw_buffer = dict()
         self.__visual_window = None
         self.__processing_window = None
         self.__oszicar_window = None
@@ -548,7 +546,7 @@ class ControlWindow(Ui_Control, QMainWindow):
          Returns:
           None
         """
-        color = tuple([col / 255 for col in QColorDialog().getColor().toTuple()])
+        color = tuple([el[i] / 255 for col in QColorDialog().getColor().toTuple()])
         self.__settings.set_scene_params(color, 'background', 'color')
         self.__settings.set_scene_params(color, 'fog', 'color')
         self.get_print_window().add_message(f'Background color changed to {color}')
@@ -681,34 +679,28 @@ class ControlWindow(Ui_Control, QMainWindow):
             self.get_print_window().add_message(parser.get_calculation().errors.message)
             logger.error(f"Error in parsing {parser.get_calculation().directory}: {parser.get_calculation().errors.message}")
         else:
-            idx = -1
+            id = -1
             for calc_id in range(self.__calculation_id):
                 if calc_id not in self.__calculations:
-                    idx = calc_id
-                    self.__calculations[idx] = {'visible': True, 'calculations': []}
-                    self.__calculations[idx]['calculations'] = [parser.get_calculation()]
+                    id = calc_id
+                    self.__calculations[id] = {'visible': True, 'calculations': []}
+                    self.__calculations[id]['calculations'] = [parser.get_calculation()]
                     break
             else:
                 self.__calculation_id += 1
-                idx = self.__calculation_id
-                self.__calculations[idx] = {'visible': True, 'calculations': []}
-                self.__calculations[idx]['calculations'] = [parser.get_calculation()]
+                id = self.__calculation_id
+                self.__calculations[id] = {'visible': True, 'calculations': []}
+                self.__calculations[id]['calculations'] = [parser.get_calculation()]
             
-            self.TreeModel.append_data([([idx, 'V', parser.get_calculation().directory, parser.get_calculation().calculation_type], 
+            self.TreeModel.append_data([([id, 'V', parser.get_calculation().directory, parser.get_calculation().calculation_type], 
                                          [(['', '', parser.get_calculation().name, ''], None)])], self.TreeModel.root_item)
             self.TreeView.expandAll()
             self.get_print_window().add_message(f'File {self.__calculations[id]["calculations"][-1].name} appended.\n')
-            self.StepSlider.setMaximum(self.__calculations[idx]['calculations'][-1].positions.shape[0] - 1)
+            self.StepSlider.setMaximum(self.__calculations[id]['calculations'][-1].positions.shape[0] - 1)
             self.StepSlider.setValue(0)
             self.__visual_window._step = 0
-            self.set_draw_buffer()
             self.StepLabel.setText(f'Step:\t{self.__visual_window._step}\tfrom\t{self.StepSlider.maximum()}')
             logger.info(f"Calculation {parser.get_calculation().name} parsed")
-
-    def set_draw_buffer(self, parser=None):
-        self.__draw_buffer['positions'] = parser.get_calculation().positions[self.__visual_window._step]
-        self.__draw_buffer['objects'] = {'Sphere': dict()}
-        species = set(parser.get_calculation().species)
 
     def stop_all_threads_or_processes(self):
         """
