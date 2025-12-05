@@ -2,7 +2,7 @@
 
 ---
 
-![Version](https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000) ![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)
+![Version](https://img.shields.io/badge/version-b1.0-orange.svg?cacheSeconds=2592000) ![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)
 
 
 
