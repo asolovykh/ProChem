@@ -2,7 +2,7 @@
 
 ---
 
-[![PyPi](https://badge.fury.io/py/pandas.svg)](https://badge.fury.io/py/pandas) ![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)
+![License](https://img.shields.io/github/license/asolovykh/ProChem?style=flat&logo=opensourceinitiative&logoColor=white&color=blue) [![OSA-improved](https://img.shields.io/badge/improved%20by-OSA-yellow)](https://github.com/aimclub/OSA)
 
 
 
@@ -15,13 +15,13 @@ ProChem is a tool designed to help researchers analyze and understand the result
 <h1 align=\"center\"> Welcome to ProChem 👋 </h1>
 
 <p>
-  <img alt=\"Version\" src=\"https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000\" />
-  <a href=\"https://github.com/asolovykh/ProChem\" target=\"_blank\">
-  <img alt=\"License: LGPL--3.0\" src=\"https://img.shields.io/badge/License-LGPL--3.0-yellow.svg\" />
+  <img alt="Version" src="https://img.shields.io/badge/version-b1.0-blue.svg?cacheSeconds=2592000" />
+  <a href="https://github.com/asolovykh/ProChem" target="_blank">
+  <img alt="License: LGPL--3.0" src="https://img.shields.io/badge/License-LGPL--3.0-yellow.svg" />
   </a>
 </p>
 
-<img align=\"left\" src=\"doc/logo.png\" alt=\"Project Icon\" width=\"100\"/>
+<img align="left" src="doc/logo.png" alt="Project Icon" width="100"/>
 
 ProChem is a program for reading and analyzing quantum chemistry calculations. It has a wide range of functions connected with visualization and processing results of VASP, QuantumEspresso, LAMMPS and other packages.
 
