@@ -267,6 +267,18 @@ class GLWidget(QOpenGLWidget):
         """
         self.__trace_mouse = False
 
+    def set_draw_buffer(self, draw_buffer):
+        """
+        Sets the draw buffer to be used.
+
+        Args:
+            draw_buffer: The draw buffer to be set.
+
+        Returns:
+            None.
+        """
+        self.__scene.set_draw_buffer(draw_buffer)
+
     def set_program(self, program):
         """
         Sets the program to be executed.
