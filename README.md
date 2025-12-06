@@ -1,5 +1,5 @@
-# Welcome to ProChem 👋
 <img align="right" src="doc/logo.png" alt="Project Icon" width="100"/>
+# Welcome to ProChem 👋
 
 ---
 
@@ -54,7 +54,7 @@ pip install pandas
 
 ## Examples
 
-Examples of how this should work and how it should be used are available [here](https://github.com/asolovykh/ProChem/tree/master/examples).
+Examples of how this should work and how it should be used are available [here](https://github.com/asolovykh/ProChem/tree/master/examples) (No examples have been added yet).
 
 ---
 
